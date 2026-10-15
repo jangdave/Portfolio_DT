@@ -16,9 +16,9 @@ if ($smi) {
     Add-Check 'GPU' $true $gpu
 } else { Add-Check 'GPU' $false 'nvidia-smi 없음' }
 
-# Unreal 5.7
-$ue = 'C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor.exe'
-Add-Check 'Unreal 5.7' (Test-Path $ue) $ue
+# Unreal 5.8 (주 사용)
+$ue = 'C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe'
+Add-Check 'Unreal 5.8' (Test-Path $ue) $ue
 
 # Blender
 $bl = Get-ChildItem 'C:\Program Files\Blender Foundation' -Directory -ErrorAction SilentlyContinue | Sort-Object Name -Descending | Select-Object -First 1

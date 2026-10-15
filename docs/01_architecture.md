@@ -5,7 +5,7 @@
 - 읽는 사람: 이 프로젝트를 처음 보는 사람
 
 ## 1. 한 줄 설명
-Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의하고, 센서 값과 열·기류 데이터를 만들어 내고, Unreal Engine 5.7으로 운영 화면(운영자가 보는 프로그램)을 만든다. 운영 화면은 Pixel Streaming으로 브라우저에서도 볼 수 있게 한다.
+Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의하고, 센서 값과 열·기류 데이터를 만들어 내고, Unreal Engine 5.8로 운영 화면(운영자가 보는 프로그램)을 만든다. 운영 화면은 Pixel Streaming으로 브라우저에서도 볼 수 있게 한다.
 
 ## 2. 세부 문서 목록
 
@@ -27,7 +27,7 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
 | | 장면 정의와 데이터 만들기 | 운영 화면 |
 |---|---|---|
 | 필요한 것 | 장면 조립, 데이터 생성 | 낮은 지연, 알람, 여러 사용자에게 배포 |
-| 쓰는 도구 | Blender, OpenUSD, Python, Omniverse 라이브러리(ovrtx) | Unreal 5.7 (C++, CommonUI, Pixel Streaming) |
+| 쓰는 도구 | Blender, OpenUSD, Python, Omniverse 라이브러리(ovrtx) | Unreal 5.8 (C++, CommonUI, Pixel Streaming) |
 
 - "Unreal이 더 낫다"는 주장이 아니라 **운영 화면이라는 용도에서의 선택**이다. 같은 장면을 Omniverse 쪽 뷰어(ovrtx)로도 그려 비교한다([03 비교 실험](03_experiments.md)).
 
@@ -65,7 +65,7 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
                                                                    │
                          ┌─────────────────────────────────────────┤
                          ▼                                         ▼
-              [센서 매니페스트 JSON]                    [Unreal 5.7 DCTwin]
+              [센서 매니페스트 JSON]                    [Unreal 5.8 DataCenter_DT]
               (센서 목록·위치·기준값)                     · USD 가져오기, 센서 위치 연결
                  │         │                              · 온도 색, 알람 강조, 열·기류 볼륨
                  │         │                              · CommonUI 패널 + 일부 웹 패널
