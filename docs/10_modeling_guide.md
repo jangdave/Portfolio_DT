@@ -55,7 +55,7 @@
 
 | 대상 | 목표(측정 전 가정) | 현재 |
 |---|---|---|
-| 랙 1기 | 15,000개 이하 | 블록아웃 312개 |
+| 랙 1기 | 15,000개 이하(상세 모델은 30,000개 이하로 올림) | 블록아웃 312개 → 상세 4,436개 |
 | 장면 전체(랙 20기 + 설비 + 방) | 400,000개 이하 | 미측정 |
 
 - 목표는 **가정**이다. Unreal에서 실제 프레임 속도를 측정한 뒤(Phase 2) 조정한다.
@@ -202,3 +202,83 @@ uv run --python 3.13 python check_coplanar_faces.py ../../usd/assets/building.us
 - 길이는 스크립트 안에서 **미터**로 쓰고, 만들 때 100배(cm)한다.
 - 삼각형 예산: 건물 전체 200만 이하(Nanite 사용 전제). 2026-10-15 기준 약 13.8만.
 - 7번 렌더는 Blender 안에서 **상대 경로**로 저장하면 드라이브 루트(`C:\blender\...`)에 써 버리므로 스크립트가 절대 경로로 바꾼다.
+
+## 12. 랙, CRAC, 홀 내부 상세 모델 (2026-10-15 추가)
+
+- 상태: 채택. 목적: 서버 홀 안을 눈높이에서 볼 때 필요한 랙, CRAC, 바닥, 벽, 천장, 격벽, 급기구, 조명을 사실적으로 다듬고 다시 만드는 순서를 남긴다.
+- 조사한 레퍼런스(공통 특징): [16 내부 레퍼런스](16_interior_references.md). 규격: [09](09_usd_spec.md) 11.1.1.
+- **바꾸지 않은 것**(열 시뮬레이션 `hall60_sim.py`가 읽는다): 랙 60 x 100 x 200 cm, CRAC 90 x 100 x 220 cm, 앞면 방향(-Y), 센서 앵커, prim 경로와 `dct:assetType`, 급기구 50 x 100 cm(바닥 위 1 cm), 격벽 지붕 z 200~205 cm와 옆면 패널 두께 5 cm. 문 손잡이처럼 튀어나온 것은 경계 상자 **안쪽**에 둔다.
+
+### 12.1 랙 (`blender/scripts/make_rack_detailed.py` → `usd/assets/rack.usda`)
+부품마다 메시 하나이고 종류별 그룹(Xform)으로 묶는다(`Parts` 도우미 방식). 삼각형 4,436개, 메시 51개, 재질 9개.
+
+| 그룹(`Rack/` 아래) | 부품 이름 | 내용 |
+|---|---|---|
+| `Frame` | `Base`, `Top`, `Post_01~04`, `Panel_L/R`, `Rail_Front_L/R`, `Rail_Rear_L/R` | 틀. 모서리를 깎은(베벨 0.5~0.6 cm) 상자. 옆판은 기둥보다 0.6 cm 안쪽. 19인치 장착 레일 |
+| `Door` | `Front`, `Front_Handle`, `Rear_L`, `Rear_R`, `Rear_Handle` | 앞문 한 짝, 뒷문 두 쪽. 문틀(형상)과 천공 판(텍스처 `T_RackDoor`)을 한 메시에 재질 두 칸으로 둔다. 손잡이는 가장 앞쪽이 y -49.7 cm |
+| `CableBar` | `V_Left`, `V_Right`, `H_07`, `H_19`, `H_24`, `H_31` | 세로 손가락형 케이블 정리 바(뒤쪽 좌우), 서버가 없는 U에 앞면 가로 정리 바(홈 8개) |
+| `Caster` | `FL`, `FR`, `RL`, `RR`, `*_Wheel` | 아래 바퀴(받침판, 포크, 바퀴) |
+| (Rack 바로 아래) | `Server_U01` … `Server_U30` | 서버 10대. 이름, 위치, `assetType=server`는 블록아웃과 같다. 몸통은 폭 44.5 cm |
+| `Server_U##` 아래 | `Server_U##_Face` | 앞면 패널(`M_ServerFront`). 환기 구멍, 드라이브 칸, 표시등은 텍스처, 귀 손잡이는 형상 |
+| `Anchors` | `Sensor_TEMP_IN`, `Sensor_TEMP_OUT`, `Sensor_POWER` | 센서 앵커(블록아웃과 같은 자리) |
+
+- 서버 앞면 텍스처 한 장 = 가로 48.26 cm(19인치 폭) x 세로 8U(35.56 cm). 1U(512 px)마다 무늬가 달라서 여러 U짜리 서버는 1U 칸이 쌓여 보인다.
+- 형상에 있는 것(문틀, 손잡이, 정리 바)은 텍스처에 다시 그리지 않았다. 구멍과 표시등처럼 작은 것만 텍스처다.
+
+### 12.2 CRAC (`make_crac_detailed.py` → `usd/assets/crac.usda`)
+삼각형 3,312개, 메시 26개, 재질 11개.
+
+| 그룹(`CRAC/` 아래) | 부품 | 내용 |
+|---|---|---|
+| `Base` | `Plinth`, `Core` | 받침(90 x 100 x 10 cm, 바깥 크기를 정한다)과 속(어두운 몸통) |
+| `Side` | `Panel_L_01~03`, `Panel_R_01~03` | 옆 패널 3분할(틈 0.4 cm) |
+| `Front` | `Panel_Low`, `Panel_Up`, `Handle_L/R`, `Status` | 앞 패널 위아래, 손잡이, 상태 표시창과 표시등(발광) |
+| `Return` | `Frame`, `Grille`, `Back` | 회수 격자: 틀, 가로 살 28장, 뒤쪽 어두운 판 |
+| `Top` | `Cover`, `Fan_Ring`, `Fan_Spokes`, `Fan_Hub` | 상단 덮개와 팬 덮개 |
+| `Rear` | `Panel_Up`, `Panel_Low_L/R`, `Supply_Frame`, `Supply_Grille`, `Supply_Back` | 뒷면과 하부 급기 개구부(파란 틀). 찬 공기가 이중 바닥으로 나가는 곳 |
+| `Anchors` | `Sensor_SUPPLY_TEMP`(뒷면 아래), `Sensor_RETURN_TEMP`(앞면), `Sensor_FAN_SPEED`(위) | 센서 앵커(블록아웃과 같은 자리) |
+
+### 12.3 홀 내부 (장면)
+홀 외피, 격벽, 급기구, 조명은 `scripts/usd_tools/hall_interior.py`가 `build_scene.py` 안에서 만든다(Blender를 쓰지 않는다). 부품 목록과 재질은 [09](09_usd_spec.md) 11.1.1 표. 이전 상자 방식이 필요하면 `build_scene.py ... --flat`.
+
+### 12.4 텍스처
+| 종류 | 이름 | 만드는 방법 | 실제 크기 | 쓰는 곳 |
+|---|---|---|---|---|
+| CC0 (ambientCG) | `T_HallFloor_*` (Tiles040) | 내려받기 | 480 cm = 타일 8 x 8(60 cm) | 바닥 |
+| CC0 | `T_HallWall_*` (PaintedPlaster017, 4096 x 2048) | 내려받기 | 400 x 200 cm(눈으로 정함) | 벽 |
+| CC0 | `T_HallBlackMetal_*` (Metal027) | 내려받기 | 100 cm(눈으로 정함) | 랙 틀, 문틀 |
+| CC0 | `T_HallCeiling_*` (OfficeCeiling001) | 내려받기 | 360 cm = 타일 6 x 6(60 cm) | 천장 |
+| 절차 생성 | `T_RackDoor_*` | `make_hall_textures.py` | 60 cm | 문 천공 철판(열린 면적 56 %) |
+| 절차 생성 | `T_ServerFront_*`(+발광) | 같음 | 48.26 x 35.56 cm | 서버 앞면 |
+| 절차 생성 | `T_VentTile_*` | 같음 | 50 x 100 cm | 급기 타일(열린 면적 21 %) |
+| 절차 생성 | `T_HallHazard_*` | 같음 | 40 cm | 바닥 안전 표시 |
+| 절차 생성 | `T_CracPaint_*` | 같음 | 100 cm | CRAC 도장 |
+
+- 모두 4096 x 4096이다(벽 CC0만 4096 x 2048). 노멀 평균 기울기는 절차 생성 텍스처가 0.03~0.20으로 0.3 이하다. CC0는 `normal_strength`(0.4~0.5)로 줄였다.
+- 바닥 타일 이음선과 천장 격자는 텍스처에만 있고 형상에는 없다(규칙 1). 급기 천공 타일은 형상(타일 한 장)과 텍스처(구멍)가 역할이 다르다.
+
+### 12.5 다시 만드는 순서 (저장소 루트에서)
+```
+# 0) 텍스처 (4K 파일은 저장소에 없다. 약 250 MB, 30초 + 내려받기 시간)
+uv run --python 3.13 --with numpy --with pillow python scripts/fetch_cc0_textures.py --sources blender/textures/cc0_sources_hall.json --out blender/textures/hall
+uv run --python 3.13 --with numpy --with pillow python blender/scripts/make_hall_textures.py
+
+# 1) 랙, CRAC: Blender 모델 -> USD -> 마무리 -> 검증, 텍스처 복사까지 한 번에
+powershell -File scripts/build_hall_assets.ps1
+
+# 2) 장면
+cd scripts/usd_tools
+uv run --python 3.13 python build_scene.py ../../usd/scenes/hall01.config.json ../../usd/scenes/hall01.usda
+uv run --python 3.13 python validate_usd.py ../../usd/scenes/hall01.usda
+uv run --python 3.13 python check_coplanar_faces.py ../../usd/scenes/hall01.usda      # 다른 메시 사이 겹침 0이어야 한다
+
+# 3) 미리보기(검수용, Blender가 장면을 읽는다. 장면 경로는 절대 경로)
+blender -b --factory-startup --python blender/scripts/render_hall_previews.py -- <저장소 절대 경로>/usd/scenes/hall01.usda blender/previews 32
+
+# 4) 열 시뮬레이션이 읽는 값이 그대로인지(작업 전후 비교)
+cd experiments/omniverse_probe
+uv run --python 3.13 python dump_hall_layout.py        # out/hall60/layout.json의 랙, CRAC, 급기구, 격벽 min/max를 전후 비교(허용 0.1 cm)
+uv run --python 3.13 python hall60_sim.py --duration 120 --fail-time 60 --every 60   # 격자 110 x 136 x 40이어야 한다
+```
+- `scripts/build_hall_assets.ps1`은 Blender 경로가 다르면 `-Blender`로 준다. `.blend`(`blender/rack.blend`, `crac.blend`)는 원본으로 남긴다. 블록아웃 파일(`*_blockout.blend`)은 그대로 있다.
+- 시뮬레이션 확인 명령은 `out/hall60/` 아래 추적 중인 결과 파일을 덮어쓴다. 확인만 할 때는 끝나고 `git checkout -- experiments/omniverse_probe/out`로 되돌린다.

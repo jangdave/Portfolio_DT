@@ -139,9 +139,12 @@ def Xform "Rack_01" (
 | `M_RackFrame` | 랙 프레임 (어두운 금속) |
 | `M_ServerBody` | 서버 몸체 |
 | `M_ServerFront` | 서버 **앞면 패널**. 온도에 따라 색을 바꾸는 부분이므로 **반드시 별도 재질 칸**으로 둔다. |
-| `M_Door` | 문 (있는 경우) |
+| `M_Door` | 문틀 (검정 도장 금속) |
+| `M_DoorPerf` | 문의 천공 철판(구멍은 텍스처) |
+| `M_ServerHandle`, `M_CableBar`, `M_Caster`, `M_CasterWheel` | 손잡이, 케이블 정리 바, 캐스터와 바퀴 (단색) |
+| `M_Crac*` (`Body`, `Plinth`, `Core`, `Return`, `Grille`, `Top`, `Supply`, `Handle`, `Display`, `LEDGreen`, `LEDAmber`) | CRAC 각 부분. 앞면 표시창과 표시등은 발광 재질 |
 
-건물 외관 재질은 12장 표를 따른다. 외관은 **4096x4096 이미지 텍스처**를 연결한 재질을 쓴다(아래 12장).
+홀 내부 재질(랙, CRAC, 바닥, 벽, 천장, 격벽, 급기구, 조명)은 11.1.1를, 건물 외관 재질은 12장 표를 따른다. 외관은 **4096x4096 이미지 텍스처**를 연결한 재질을 쓴다(아래 12장).
 
 - Blender의 Principled BSDF 재질은 USD로 나갈 때 `UsdPreviewSurface`로 바뀐다. 복잡한 노드는 바뀌지 않으므로 단순한 값(색, 금속성, 거칠기)만 쓴다.
 - 온도 색 표시는 재질을 바꾸지 않고 Unreal에서 **인스턴스별 값**(Custom Primitive Data)으로 처리한다. ([12](12_unreal_design.md) 5장)
@@ -174,25 +177,25 @@ Blender에서 사용자 속성으로 만들면 USD에는 string으로 나온다.
 
 | 에셋 | 파일 | 상태 |
 |---|---|---|
-| 랙 | `usd/assets/rack.usda` | 블록아웃 완료(삼각형 312개). 센서 앵커 2개(v1 형식)이며 v2로 고쳐야 한다. 직접 모델링 예정 ([이슈 #4](https://github.com/jangdave/Portfolio_DT/issues/4)) |
-| CRAC | `usd/assets/crac.usda` | 블록아웃 완료(90 x 100 x 220 cm). 센서 앵커 3개(v2 형식) |
+| 랙 | `usd/assets/rack.usda` + `usd/assets/textures/hall/` | 상세 모델링 완료(2026-10-15, 삼각형 4,436개, 메시 51개, 재질 9개). 틀, 문(천공), 케이블 바, 캐스터, 서버 10대와 앞면 텍스처. 센서 앵커 3개(v2 형식). 구조는 [10](10_modeling_guide.md) 12장 |
+| CRAC | `usd/assets/crac.usda` | 상세 모델링 완료(2026-10-15, 90 x 100 x 220 cm, 삼각형 3,312개, 메시 26개, 재질 11개). 회수 격자, 패널 분할, 상단 덮개와 팬, 뒷면 급기 개구부. 센서 앵커 3개(v2 형식) |
 | PDU | `usd/assets/pdu.usda` | 예정 (Phase 2) |
 | 건물 외관 | `usd/assets/building.usda` + `usd/assets/textures/building/` | 직접 모델링과 4K 텍스처 완료(2026-10-15, 삼각형 약 13.8만). 형상 33개 오브젝트, 재질 14개. 만드는 방법은 12장 |
-| 홀 외피(바닥, 벽, 천장) | 별도 에셋 없음 | 장면 생성 스크립트가 상자로 생성 (Phase 2) |
+| 홀 내부(외피, 격벽, 급기구, 조명) | 별도 에셋 없음 | 장면 생성 스크립트(`build_scene.py` + `hall_interior.py`)가 재질과 UV가 있는 Mesh로 만든다(11.1.1). `--flat`이면 이전 상자 방식 |
 
 ## 11. 방(홀)과 둘러보기 규격 (초안 v2.1)
 
 내부 둘러보기([12](12_unreal_design.md) 10장)를 위해 방을 걸어 다닐 수 있게 만들고, 안내 투어 지점을 USD로 정의한다. 검증 스크립트에는 이 규격이 확정된 뒤 반영한다.
 
 ### 11.1 홀 외피 (바닥, 벽, 천장)
-데이터센터 내부가 곧 장면이므로 **방을 따로 모델링하지 않는다.** 걸어 다니는 데 필요한 바닥, 벽, 천장은 장면 생성 스크립트(`build_scene.py`, [이슈 #11](https://github.com/jangdave/Portfolio_DT/issues/11))가 **기본 도형(상자)으로 만든다.** 모양을 다듬는 작업은 시간이 남을 때의 개선 항목이다.
+데이터센터 내부가 곧 장면이므로 **방을 따로 모델링하지 않는다.** 걸어 다니는 데 필요한 바닥, 벽, 천장은 장면 생성 스크립트(`build_scene.py`, [이슈 #11](https://github.com/jangdave/Portfolio_DT/issues/11))가 **스크립트가 만든다.** 처음에는 기본 도형(상자)이었고, 2026-10-15에 재질과 UV가 있는 Mesh로 다듬었다(11.1.1).
 
 | 항목 | 값 | 설명 |
 |---|---|---|
 | 홀 크기 | 11.0 x 13.6 x 4.0 m | 랙 6줄 x 10기 = 60기, CRAC 8기, 통로 포함. 값은 `usd/scenes/hall01.config.json`에서 정하고 이 문서를 고친다([ADR-009](decisions/ADR-009-hall-layout-and-cooling.md)). |
 | 차가운 통로 폭 | 120 cm 이상 | 두 랙 줄의 서버 앞면 사이 |
 | 뜨거운 통로 폭 | 100 cm 이상 | 두 랙 줄의 뒷면 사이 |
-| 바닥 | 상자 하나 + 타일 무늬 텍스처 | 이중 바닥 느낌은 텍스처로 표현 |
+| 바닥 | 윗면에 타일 텍스처(60 cm 타일 이음선은 텍스처에 있다) | 이중 바닥 느낌은 텍스처로 표현. 급기구 천공 타일만 별도 형상 |
 | 벽, 천장 | 상자 | 열 시뮬레이션의 막힌 곳 정보로도 쓴다([13](13_omniverse_research.md) 3장). |
 | 조명 | 천장 조명 몇 개 | Unreal에서 설정해도 된다. |
 
@@ -202,13 +205,34 @@ Blender에서 사용자 속성으로 만들면 USD에는 string으로 나온다.
 |---|---|---|
 | `Row01`..`Row06` | 랙 60기(`Rack_01`..`Rack_60`). 줄 방향은 x축 | `rack` |
 | `Cooling` | CRAC 8기. 짧은 벽 양쪽에 뜨거운 통로 끝과 같은 줄로 배치 | `crac` |
-| `Shell` | 바닥, 벽 4개, 천장(상자) | `shell` |
+| `Shell` | 바닥, 벽 4개, 천장, 걸레받이, 바닥 표시, 조명 `Lights` | `shell` |
 | `Containment` | 뜨거운 통로 격벽(지붕, 줄 끝 옆면 패널) | `containment` |
 | `Vents` | 차가운 통로 바닥 급기구 30개 | `vent` |
+| `Looks` | 재질(`UsdPreviewSurface`) 12개. 검증은 이름만 허용한다(U301) | (없음) |
 
 - 랙의 앞면은 차가운 통로 쪽이다. 홀 y축 방향으로 `뜨거운 통로 - 줄 - 차가운 통로 - 줄 - 뜨거운 통로 ...` 순서로 쌓는다.
 - 센서 앵커는 장비마다 `Anchors/Sensor_*` 로 두고 `dct:sensorId`는 장면에서 덮어쓴다(6장). 이번 장면의 센서는 랙 60 x 3 + CRAC 8 x 3 = 204개다.
 - 나중에 Unreal에서 랙 배치를 바꾸고 시뮬레이션을 다시 돌릴 수 있도록, 배치의 원본은 설정 파일이고 시뮬레이션 입력은 장면 USD에서 읽는다.
+
+### 11.1.1 홀 내부 형상과 재질 (2026-10-15)
+
+`build_scene.py`가 `hall_interior.py`를 불러 만든다. 경로, 이름, `dct:assetType`, 위치와 크기는 이전 상자 버전과 같고(열 시뮬레이션이 읽는다), 모양과 재질만 바뀌었다. 모든 메시는 단면이고 격벽 유리만 양면이다. 텍스처는 `../assets/textures/hall/`(Git 제외, [10](10_modeling_guide.md) 12장으로 준비).
+
+| prim (`/DC/Hall01/` 아래) | 구성 | 재질, 텍스처(실제 크기) |
+|---|---|---|
+| `Shell/Floor` | 슬래브 한 개. 윗면 z=0 | `M_HallFloor` = CC0 Tiles040 (480 cm 한 장에 타일 8 x 8, 타일 60 cm) |
+| `Shell/Wall_West/East/South/North` | 벽 상자 4개 | `M_HallWall` = CC0 PaintedPlaster017 (400 x 200 cm) |
+| `Shell/Ceiling` | 아랫면에 격자 텍스처 | `M_HallCeiling` = CC0 OfficeCeiling001 (360 cm 한 장에 6 x 6, 타일 60 cm) |
+| `Shell/Skirting` | 걸레받이 4띠(8 cm) | `M_HallSkirting` (단색) |
+| `Shell/Floor_Markings_Line`, `_Hazard` | 차가운 통로 양쪽 노란 선, CRAC 앞 줄무늬 띠(두께 0.6 cm) | `M_HallLine`(단색), `M_HallHazard` = 절차 생성 `T_HallHazard` (40 cm) |
+| `Shell/Lights/Light_01..42` | 틀 + 발광 패널(광원 prim 없음). 차가운 통로 18개, 뜨거운 통로 24개 | `M_LightFrame`, `M_LightPanel`(발광) |
+| `Containment/HotAisle_NN_*` | Xform(`containment`) 안에 `Frame`(알루미늄 틀)과 `Glass`(반투명 파란 패널) | `M_ContainFrame`, `M_ContainGlass`(불투명도 0.22) |
+| `Vents/Vent_NN` | 50 x 100 x 1 cm 천공 타일(`vent`) | `M_VentTile` = 절차 생성 `T_VentTile` (50 x 100 cm 한 장, 열린 면적 약 21 %) |
+
+- 바닥 타일 이음선은 **텍스처에만** 있고 형상에는 틈이 없다. 텍스처 시작점(`FLOOR_ORIGIN` = x 10, y 40 cm)은 랙 모서리(x 250 cm, 첫 줄 y 100 cm)가 이음선과 맞게 정했다. 다른 곳은 맞지 않는다.
+- 천장 격자도 텍스처에만 있다. 조명 패널은 격자와 별개 형상이다.
+- 삼각형: Shell 1,252 + Containment 1,296 + Vents 300 = 2,848. 장면 전체는 랙 60기(약 26.6만) + CRAC 8기(약 2.6만) + 위 2,848 = 약 29.6만으로 장면 예산(40만) 이하다.
+- 이중 바닥 아래 받침 기둥은 모델링하지 않았다(바닥 슬래브 두께 20 cm, 단면 연출은 하지 않음).
 
 ### 11.2 충돌
 - 외피(바닥, 벽, 천장)가 이미 상자라서 **그 자체를 충돌로 쓴다.** 별도 충돌 형상이 필요 없다.

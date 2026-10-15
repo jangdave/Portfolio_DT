@@ -1,0 +1,47 @@
+{
+  "_comment": "서버 홀 내부에 쓰는 CC0 텍스처 목록. scripts/fetch_cc0_textures.py --sources blender/textures/cc0_sources_hall.json --out blender/textures/hall 로 받는다. tile_cm은 build_scene.py의 UV 타일 크기와 같아야 한다. 값이 'guess'인 것은 ambientCG가 실제 크기를 알려 주지 않아 눈으로 정한 값이다.",
+  "provider": "ambientCG",
+  "license": "CC0 1.0 Universal",
+  "license_url": "https://docs.ambientcg.com/license/",
+  "attribute": "4K-JPG",
+  "assets": [
+    {
+      "id": "Tiles040",
+      "prefix": "T_HallFloor",
+      "tile_cm": 480,
+      "tile_cm_source": "텍스처 한 장에 타일 8 x 8장이 있다. 타일 한 장을 60 cm로 보고 480 cm(근거 없이 정한 값)",
+      "use": "이중 바닥 타일(이음선이 텍스처에 있다. 형상에는 틈을 만들지 않는다)",
+      "maps": { "Color": "BaseColor", "NormalGL": "Normal", "Roughness": "Roughness" },
+      "normal_strength": 0.5
+    },
+    {
+      "id": "PaintedPlaster017",
+      "prefix": "T_HallWall",
+      "tile_cm": 200,
+      "tile_cm_source": "guess(눈으로 정함). 텍스처가 4096 x 2048이라 가로는 400 cm",
+      "tile_cm_x": 400,
+      "use": "홀 벽(밝은 도장 회벽)",
+      "maps": { "Color": "BaseColor", "NormalGL": "Normal", "Roughness": "Roughness" },
+      "normal_strength": 0.5
+    },
+    {
+      "id": "Metal027",
+      "prefix": "T_HallBlackMetal",
+      "tile_cm": 100,
+      "tile_cm_source": "guess(눈으로 정함)",
+      "use": "랙 프레임, 서버 몸통(검정 도장 금속)",
+      "maps": { "Color": "BaseColor", "NormalGL": "Normal", "Roughness": "Roughness", "Metalness": "Metallic" },
+      "normal_strength": 0.4
+    },
+    {
+      "id": "OfficeCeiling001",
+      "prefix": "T_HallCeiling",
+      "tile_cm": 360,
+      "tile_cm_source": "ambientCG 정보는 385 cm이나 텍스처에 타일 6 x 6장이 있어 타일 60 cm에 맞춰 360 cm로 씀(6 % 줄임)",
+      "use": "천장 타일과 격자",
+      "maps": { "Color": "BaseColor", "NormalGL": "Normal", "Roughness": "Roughness" },
+      "normal_strength": 0.5
+    }
+  ]
+}
+

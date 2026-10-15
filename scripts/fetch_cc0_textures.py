@@ -4,6 +4,7 @@
     python scripts/fetch_cc0_textures.py            # blender/textures/cc0_sources.json의 자산을 모두 받는다
     python scripts/fetch_cc0_textures.py --force    # 받아 둔 압축 파일도 다시 받는다
 
+    python scripts/fetch_cc0_textures.py --sources blender/textures/cc0_sources_hall.json --out blender/textures/hall   # 서버 홀 내부용(목록과 출력 폴더를 바꿔 받는다)
 - 목록과 크기: `blender/textures/cc0_sources.json` (자산 ID, 접두 이름, 실제 크기(cm), 받을 맵)
 - 받는 곳: 압축 파일은 `blender/textures/cc0_cache/`(Git 제외), 결과는 `blender/textures/building/`(Git 제외)
 - 노멀은 OpenGL 규약(`NormalGL`)을 받는다. 기존 절차 텍스처와 같은 규약이라 Blender 재질과 USD 규칙은 그대로다.
