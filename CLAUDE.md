@@ -40,6 +40,12 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 - **Python**: `uv`로 환경 관리, 3.13 권장(`ovrtx` 휠 호환). 시스템 Python 3.14는 사용하지 않는다.
 - **Git 워크플로**(`docs/06_workflow.md`): `main`에서 직접 작업하지 않는다. 작업 시작 시 `feat|fix|docs|chore|exp/<주제>` 브랜치를 먼저 만들고, Conventional Commits로 커밋(`type(scope)`는 영어 키워드, **제목·본문은 한글**: 예 `feat(sim): cooling_failure 시나리오 생성기 추가`), PR → Squash merge. 바이너리는 Git LFS. 사용자가 요청할 때만 commit/push/PR을 만든다. force push 금지.
 
+## 문서·용어 규칙
+- 다른 개발자가 읽고 인수인계받을 수 있게 쓴다. **쉬운 말을 쓰고, 용어는 `docs/07_glossary_and_writing_rules.md`의 "쓰는 말"로 통일한다.**
+- 약어는 처음 나올 때 풀어 쓰고, 어려운 외래어·한자어는 피한다. 새 용어를 만들면 용어집에 추가한다.
+- 문서 맨 위에 목적과 상태(초안/채택/폐기)를 적고, 결정에는 이유와 다른 방법을 함께 적는다.
+- 응답과 문서에서 "하네스", "클린룸", "스모크 테스트", "베이크"는 용어집 표기("작업 환경 설정", "회사 자산 분리 규칙", "동작 확인 테스트", "미리 계산한 데이터")를 쓴다.
+
 ## 작업 방식
 - 단계는 `docs/02_roadmap.md`의 Phase 순서를 따른다. 각 Phase 끝에 산출물과 측정값을 `experiments/` 또는 `docs/`에 남긴다.
 - 설계 결정은 `docs/decisions/ADR-XXX-*.md`에 한 장씩 기록한다(결정, 근거, 대안, 한계).
