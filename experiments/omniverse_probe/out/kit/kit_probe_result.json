@@ -1,0 +1,53 @@
+{
+  "steps": {
+    "extensions": {
+      "ok": true,
+      "detail": {
+        "omni.hydra.rtx": true,
+        "omni.graph.core": true,
+        "omni.warp.core": true,
+        "omni.physx.stageupdate": true,
+        "omni.kit.viewport.window": true
+      }
+    },
+    "open_usd": {
+      "ok": true,
+      "detail": {
+        "path": "D:/Test/experiments/omniverse_probe/out/poc_hall.usda",
+        "prims": 80,
+        "sensor_anchors": 24,
+        "open_s": 4.17,
+        "error": null
+      }
+    },
+    "warp_in_kit": {
+      "ok": true,
+      "detail": {
+        "warp": "1.17.0",
+        "devices": [
+          {
+            "alias": "cuda:0",
+            "name": "NVIDIA GeForce RTX 5090",
+            "arch": 120
+          }
+        ]
+      }
+    },
+    "viewport_capture": {
+      "ok": true,
+      "detail": {
+        "file": "kit_viewport.png",
+        "bytes": 280952
+      }
+    }
+  },
+  "kit_version": "110.4.0+feature.386251.187cf21b.gl",
+  "app_name": "dctwin.base_editor",
+  "extensions_enabled": {
+    "omni.hydra.rtx": true,
+    "omni.graph.core": true,
+    "omni.warp.core": true,
+    "omni.physx.stageupdate": true,
+    "omni.kit.viewport.window": true
+  }
+}

@@ -5,16 +5,15 @@
 - 관련: [13 Omniverse 연구 계획](../../docs/13_omniverse_research.md), [14 핵심 설계](../../docs/14_sim_to_unreal_core.md)
 - 코드와 원본 결과: `experiments/omniverse_probe/`
 
-## 0. 먼저 구분: 무엇을 실행했고, 무엇이 Omniverse Kit인가
+## 0. 먼저 구분: 무엇이 Omniverse Kit에서 실행한 결과인가
 
 | 실행한 것 | 정체 | Omniverse Kit인가 |
 |---|---|---|
-| Warp 1.18.0 | NVIDIA의 GPU Python 시뮬레이션 라이브러리 | **아니다.** Omniverse와 같은 NVIDIA 계열이지만 Kit 앱 안에서 돈 것이 아니다. |
-| ovrtx 0.3.0 | Omniverse의 렌더링 라이브러리(Python) | **아니다.** Omniverse 라이브러리이며 Kit 앱이 아니다. |
-| usd-core | OpenUSD Python 라이브러리 | 아니다. |
-| **Omniverse Kit SDK** | Kit 앱을 만드는 개발 기반 | **아직 설치·실행하지 않았다.** NVIDIA 라이선스 약관 동의가 필요해 확인을 기다리는 중이다. |
+| Warp 1.18.0 (2.1~2.5장) | NVIDIA의 GPU Python 시뮬레이션 라이브러리 | **아니다.** 독립 Python 프로세스에서 실행 |
+| ovrtx 0.3.0 (2.5장) | Omniverse 렌더링 라이브러리(Python) | **아니다.** 라이브러리이며 Kit 앱이 아니다. |
+| **Omniverse Kit SDK 110.4.0 (2.6~2.8장)** | Kit 앱 개발 기반 | **그렇다.** 사용자가 라이선스 약관에 동의한 뒤 설치해서 실행 |
 
-따라서 아래 결과는 "**Omniverse Kit에서 본 결과**"가 아니라 "**Omniverse 계열 라이브러리(Warp, ovrtx)로 만든 결과**"다. Kit에서의 확인은 R1(설치)과 R2(Flow) 이후에 한다.
+2.1~2.5장은 "Omniverse 계열 라이브러리"의 결과, 2.6장 이후는 "**Kit 안에서 직접 확인한 결과**"다.
 
 ## 1. 환경
 RTX 5090 32GB, 드라이버 CUDA 13.4, Python 3.13.9, Warp 1.18.0(CUDA Toolkit 13.4, sm_120), ovrtx 0.3.0.312915, ovphysx 0.3.7, usd-core 26.8
@@ -88,6 +87,56 @@ RTX 5090 32GB, 드라이버 CUDA 13.4, Python 3.13.9, Warp 1.18.0(CUDA Toolkit 1
 - 단위는 미터다(카메라 높이 3.3 m와 랙까지 실제 거리와 일치).
 - 이미지: `out/ovrtx_ldr.png`, `ovrtx_depth.png`, `ovrtx_normals.png`, `ovrtx_semantic.png`
 
+### 2.6 Omniverse Kit가 RTX 5090에서 실행된다 (직접 확인, R1)
+Kit App Template(NVIDIA 공식 저장소, 버전 110.4.0)로 `dctwin.base_editor` 앱을 만들고 실행했다.
+
+| 확인한 것 | 결과 |
+|---|---|
+| Kit 버전과 GPU | Kit 110.4.0, RTX 5090 32GB, 드라이버 616.92, 그래픽 API D3D12 |
+| 필수 확장 | `omni.hydra.rtx`(RTX 뷰포트), `omni.graph.core`(OmniGraph), `omni.warp.core`(Warp), `omni.physx.stageupdate`(PhysX)가 모두 켜짐 |
+| USD 장면 열기 | 우리 `poc_hall.usda`(prim 80개, 센서 앵커 24개)를 4.2초에 열고 화면에 그림 |
+| **Kit 안의 Warp** | Kit에 포함된 Warp 1.17.0이 RTX 5090(sm_120)에서 GPU 커널 실행 성공 |
+| 뷰포트 화면 | `out/kit/kit_viewport.png`: 랙 5기씩 두 줄과 CRAC 2기가 보인다. |
+| 시작 시간 | **첫 실행 239초**(확장을 내려받는 시간 포함), **이후 실행 12초**(RTX 준비 완료까지) |
+| 설치 용량 | 약 2.5GB (packman 0.82GB + 확장 캐시 증가 약 1.6GB) |
+
+- 템플릿의 대화형 마법사(`repo template new`)는 실제 Windows 콘솔이 필요해서 자동화 환경에서는 실행되지 않았다. 대신 템플릿의 `kit_base_editor.kit`에서 이름과 버전 자리표시자만 채워 `source/apps/dctwin.base_editor.kit`을 만들고 `repo build`로 빌드했다. 방법은 `experiments/omniverse_probe/kit/README.md`.
+- 종료할 때 저장 확인 대화상자가 떠서 프로세스가 남는 문제가 있었다. `--/app/file/ignoreUnsavedOnExit=true` 옵션으로 해결했다.
+
+### 2.7 Kit의 Flow(연기·유체) 확장 (직접 확인, R2의 일부)
+| 확인한 것 | 결과 |
+|---|---|
+| Flow 확장 | `omni.flowusd` 110.0.4가 RTX 5090에서 켜짐(7.5초) |
+| USD Flow 스키마 | 23종 등록. 이 중 **`FlowEmitterNanoVdb`(NanoVDB를 발생원으로 사용)** 와 **`FlowSparseNanoVdbExportParams`(NanoVDB 내보내기)** 가 있다. |
+| 내보내기 채널 | 연기, 온도, 연료, 연소, 속도, 발산(divergence)을 고를 수 있음. `readbackOpenVDB`로 OpenVDB 파일을 디스크에 저장 |
+| 코드로 만들기 | `FlowCreatePresets`(프리셋 생성) 명령. 프리셋은 `Fire` 하나가 들어 있다. |
+
+**Flow 열 플룸 시뮬레이션과 OpenVDB 내보내기 실행 결과**
+- `Fire` 프리셋으로 열 플룸을 만들고 연기, 온도, 속도 3채널을 내보냈다. **OpenVDB 파일 헤더가 올바른 `.vdb` 파일이 생성됐다**(981개, 채널당 327프레임).
+- **용량이 매우 크다.** 합계 7.2GB. 파일 하나가 연기 7.7MB, 온도 15MB, 속도 8.6MB다(프레임당 3채널 합계 약 31MB). 프리셋 기본값은 시각 품질 중심이며 우리 홀 규모에 맞춘 값이 아니다.
+- **프레임이 크게 떨어진다.** 내보내기를 켜면 평균 **4.8 FPS**, 끄면 안정 구간에서 약 **47.6 FPS**였다(약 10배 차이). 매 프레임 GPU에서 CPU로 읽어 OpenVDB로 변환하고 디스크에 쓰기 때문으로 보인다. 실시간 경로로는 쓸 수 없고 미리 계산하는 경로(C)로만 쓸 수 있다.
+- **시각 확인:** Kit 창에서 직접 본 화면은 잘 보였다고 한다. 자동 캡처 이미지는 화면 전체가 연노랑으로 번져 **쓸 수 없어서 저장소에 올리지 않았다.** 원인은 확인하지 못했다(카메라, 프리셋 렌더 설정, 캡처 시점 중 하나로 추정만 한다). 프리셋의 중력이 Y축 아래 방향(0, -100, 0)이라 Z-up 장면에서는 방향이 맞지 않을 수 있다.
+- 우리 데이터센터 열 모델과는 연결하지 않았다. 이 실험은 **Flow가 Kit에서 돌고 OpenVDB를 내보내는 경로**의 확인이다.
+
+### 2.8 부피 데이터 용량 비교 (직접 확인)
+`bench_vdb_size.py`: Warp 열 시뮬레이션의 마지막 프레임을 격자 간격과 압축 방식별로 저장했다. 다시 읽어 복셀 수가 같음을 확인했다.
+
+| 격자 | 칸 수 | 압축 | 프레임당 용량 | 240프레임(1초당 1프레임) |
+|---|---|---|---|---|
+| 20 cm | 21,600 | 없음 | 424 KiB | 약 104 MB |
+| 20 cm | 21,600 | **zip** | **71.5 KiB** | **약 17.6 MB** |
+| 10 cm | 168,000 | 없음 | 1,136 KiB | 약 279 MB |
+| 10 cm | 168,000 | zip | 494 KiB | 약 121 MB |
+| (비교) Flow `Fire` 프리셋 | 해상도 큼 | 없음 | 약 31MB(3채널) | 약 7.4 GB |
+
+- 같은 시나리오를 저장할 때 Warp 20cm + zip은 Flow 내보내기의 **수백 분의 1**이다. 우리 홀(8 x 6 x 3.5 m)에는 20cm 격자로도 센서와 열 분포를 보여 주기에 충분한지 Phase 4에서 확인한다.
+- `blosc` 압축은 `blosc` Python 모듈이 없어서 시험하지 못했다.
+
+## 2.9 결론: 부피 데이터는 Warp 20cm + zip을 기본으로 한다
+- **기본:** Warp가 USD 장면에서 계산한 온도장을 20cm 격자, zip 압축 NanoVDB로 저장한다. 용량이 작고(시나리오 240초에 약 18MB) 센서 값과 같은 시뮬레이션에서 나온다.
+- **Flow는 연구 대상으로 유지:** 연기·열기 **시각 효과**에 쓸 수 있는지 계속 본다. 쓰려면 해상도(`densityCellSize`), 내보내는 채널(온도만), 내보내는 빈도(1초에 1번만 켜기), 정밀도(`enableLowPrecision*`)를 줄여야 한다.
+- 이 결정은 [연구 R2, R6](../../docs/13_omniverse_research.md)의 결과로 다시 확인한다. Unreal이 이 부피 파일을 읽는지는 아직 모른다.
+
 ## 3. 받아서 쓸 수 있는 데이터 정리
 
 | 데이터 | 출처 | 형식 | 확인 | 프로젝트에서의 쓰임 |
@@ -99,14 +148,15 @@ RTX 5090 32GB, 드라이버 CUDA 13.4, Python 3.13.9, Warp 1.18.0(CUDA Toolkit 1
 | 시멘틱 세그멘테이션 | ovrtx | uint32 + ID 표 | **직접 확인** | 합성 학습 데이터의 정답(라벨), 장비 마스크 |
 | 라이다, 레이더 | ovrtx 센서 | 점군 | 문서에만 있음(미시험) | 필요하면 후속 실험 |
 | 물리(강체, 충돌) | ovphysx | 텐서 | 미시험 | 데이터센터에서는 우선순위 낮음 |
-| 연기와 유체(Flow) | Kit 확장 | NanoVDB | **미확인**(Kit 필요) | R2 |
-| Kit 앱 안의 시뮬레이션과 시각화 | Kit SDK | | **미확인** | R1. 약관 동의 후 진행 |
+| 연기와 유체(Flow) | Kit 확장 | OpenVDB(NanoVDB 변환) | **직접 확인**(내보내기 성공, 용량과 속도 문제 있음) | 시각 효과 후보. 용량 때문에 해상도·채널·빈도를 줄여야 함 |
+| Kit 앱 안의 시뮬레이션과 시각화 | Kit SDK 110.4.0 | USD, Warp, OmniGraph | **직접 확인**(RTX 5090에서 실행, Kit 안의 Warp 동작) | 후속: OmniGraph로 센서 값 내보내기 |
 
 ## 4. 한계와 다음 단계
-- **Kit에서의 결과는 아직 없다.** 지금 결과는 Omniverse 계열 라이브러리만으로 만든 것이다.
 - 열 모델은 시각화용이며 응답이 실제보다 매우 빠르다(2.2의 문제 2).
-- 부피 데이터를 Unreal에서 읽는 경로(R6)와 시간 동기는 아직 시험하지 않았다.
-- 다음: R1(Kit SDK 설치와 실행), R6(NanoVDB → Unreal), 센서 스트림을 MQTT로 내보내는 생성기.
+- Flow는 우리 데이터센터 열 모델과 연결하지 않았다. 프리셋 기본값(중력 방향, 크기)이 우리 장면에 맞지 않을 수 있다.
+- 부피 데이터를 **Unreal에서 읽는 경로(R6)와 시간 동기는 아직 시험하지 않았다.** Flow의 OpenVDB와 Warp의 NanoVDB 모두 Unreal에서 가져오기를 확인해야 한다.
+- 라이다/레이더, ovphysx, OmniGraph로 센서 값을 내보내는 방법은 시험하지 않았다.
+- 다음: R6(부피 → Unreal), 센서 스트림을 MQTT로 내보내는 생성기, Kit에서 OmniGraph/스크립트로 센서 값을 내는 방법 확인.
 
 ## 5. 다시 실행하기
 ```

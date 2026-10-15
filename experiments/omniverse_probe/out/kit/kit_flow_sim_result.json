@@ -1,0 +1,89 @@
+{
+  "steps": {
+    "create_preset": {
+      "ok": true,
+      "detail": "21개 Flow prim"
+    },
+    "screenshots": {
+      "ok": true,
+      "detail": [
+        {
+          "file": "flow_noexp_t020.png",
+          "bytes": 163317
+        },
+        {
+          "file": "flow_noexp_t060.png",
+          "bytes": 137649
+        },
+        {
+          "file": "flow_noexp_t120.png",
+          "bytes": 170404
+        },
+        {
+          "file": "flow_noexp_t200.png",
+          "bytes": 111382
+        },
+        {
+          "file": "flow_noexp_t300.png",
+          "bytes": 194592
+        }
+      ]
+    },
+    "export": {
+      "ok": true,
+      "detail": {
+        "files": 0,
+        "total_mb": 0.0,
+        "sample": []
+      }
+    }
+  },
+  "fps_by_100_frames": [
+    {
+      "frames": 100,
+      "fps_last_100": 16.6
+    },
+    {
+      "frames": 200,
+      "fps_last_100": 47.7
+    },
+    {
+      "frames": 300,
+      "fps_last_100": 47.6
+    },
+    {
+      "frames": 400,
+      "fps_last_100": 47.6
+    }
+  ],
+  "frames": 400,
+  "export_enabled": false,
+  "wall_s_for_frames": 12.3,
+  "avg_fps": 32.5,
+  "timeline_time_s_at_end": 12.18,
+  "screenshots": [
+    {
+      "file": "flow_noexp_t020.png",
+      "bytes": 163317
+    },
+    {
+      "file": "flow_noexp_t060.png",
+      "bytes": 137649
+    },
+    {
+      "file": "flow_noexp_t120.png",
+      "bytes": 170404
+    },
+    {
+      "file": "flow_noexp_t200.png",
+      "bytes": 111382
+    },
+    {
+      "file": "flow_noexp_t300.png",
+      "bytes": 194592
+    }
+  ],
+  "vdb_files_total": 0,
+  "vdb_files_sample": [],
+  "vdb_total_mb": 0.0
+}

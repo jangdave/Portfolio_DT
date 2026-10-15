@@ -1,0 +1,55 @@
+{
+  "extensions": {
+    "omni.flowusd": {
+      "enabled": true,
+      "seconds": 7.5,
+      "id": "omni.flowusd-110.0.4",
+      "enabled_state": true
+    },
+    "omni.usd.schema.flow": {
+      "enabled": true,
+      "seconds": 0.3,
+      "id": "omni.usd.schema.flow-110.0.0",
+      "enabled_state": true
+    },
+    "omni.kit.window.script_editor": {
+      "enabled": true,
+      "seconds": 0.3,
+      "id": "omni.kit.window.script_editor-2.0.17",
+      "enabled_state": true
+    },
+    "omni.graph.window.core": {
+      "enabled": true,
+      "seconds": 6.2,
+      "id": "omni.graph.window.core-3.10.6",
+      "enabled_state": true
+    }
+  },
+  "usd_flow_schema_types": [
+    "FlowSchemaFlowAdvectionChannelParams",
+    "FlowSchemaFlowAdvectionCombustionParams",
+    "FlowSchemaFlowBase",
+    "FlowSchemaFlowDebugVolumeParams",
+    "FlowSchemaFlowEmitterBox",
+    "FlowSchemaFlowEmitterMesh",
+    "FlowSchemaFlowEmitterNanoVdb",
+    "FlowSchemaFlowEmitterPoint",
+    "FlowSchemaFlowEmitterSphere",
+    "FlowSchemaFlowEmitterTexture",
+    "FlowSchemaFlowOffscreen",
+    "FlowSchemaFlowPointCloud",
+    "FlowSchemaFlowPressureParams",
+    "FlowSchemaFlowRayMarchCloudParams",
+    "FlowSchemaFlowRayMarchColormapParams",
+    "FlowSchemaFlowRayMarchParams",
+    "FlowSchemaFlowRender",
+    "FlowSchemaFlowRenderSettingsParams",
+    "FlowSchemaFlowShadowParams",
+    "FlowSchemaFlowSimulate",
+    "FlowSchemaFlowSparseNanoVdbExportParams",
+    "FlowSchemaFlowSummaryAllocateParams",
+    "FlowSchemaFlowVorticityParams"
+  ],
+  "startup_to_probe_s": 14.7,
+  "app_uptime_s_at_probe": 18.8
+}
