@@ -18,6 +18,7 @@ node_modules/
 # 생성 데이터 / 대용량 (필요한 것만 Git LFS 또는 별도 보관)
 sim/out/
 *.vdb
+usd/assets/_*.usd
 experiments/results/raw/
 *.mp4
 *.mov
