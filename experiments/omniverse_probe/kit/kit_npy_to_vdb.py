@@ -37,6 +37,10 @@ async def main() -> None:
         res["openvdb_version"] = str(getattr(vdb, "__version__", getattr(vdb, "LIBRARY_VERSION_STRING", "?")))
         meta = json.loads((FRAMES / "frames_meta.json").read_text(encoding="utf-8"))
         voxel = float(meta["voxel_size_m"])
+        # UE의 SVT는 VDB에 저장된 변환(FrameTransform)을 cm 단위로 쓴다. 한 칸의 크기를 cm로 저장하고 액터 스케일은 1로 둔다.
+        # 영역은 로컬 0 ~ 복셀 수에서 시작하므로 홀의 최소 모서리(0,0,0)에 액터를 놓으면 장비와 맞는다.
+        vcm = voxel * 100.0
+        CM_XFORM = [[vcm, 0, 0, 0], [0, vcm, 0, 0], [0, 0, vcm, 0], [0, 0, 0, 1]]
         bg = float(meta["background_degC"])
         VDB_OUT.mkdir(parents=True, exist_ok=True)
 
@@ -44,7 +48,7 @@ async def main() -> None:
             arr = np.load(FRAMES / fr["file"]).astype(np.float32)
             grid = vdb.FloatGrid(bg)  # 배경값 = 주변 공기 온도
             grid.name = "temperature"
-            grid.transform = vdb.createLinearTransform(voxelSize=voxel)
+            grid.transform = vdb.createLinearTransform(CM_XFORM)
             grid.copyFromArray(arr, ijk=(0, 0, 0), tolerance=0.01)  # 배경과 거의 같은 칸은 저장하지 않는다(희소)
             for half in (False, True):
                 grid.saveFloatAsHalf = half
@@ -64,7 +68,7 @@ async def main() -> None:
             nrm = np.clip((arr - tmin) / (tmax - tmin), 0.0, 1.0).astype(np.float32)
             grid = vdb.FloatGrid(0.0)
             grid.name = "temperature"
-            grid.transform = vdb.createLinearTransform(voxelSize=voxel)
+            grid.transform = vdb.createLinearTransform(CM_XFORM)
             grid.copyFromArray(nrm, ijk=(0, 0, 0), tolerance=0.002)  # 거의 0인 칸은 저장하지 않는다(희소)
             out = norm_dir / (Path(fr["file"]).stem + ".vdb")
             vdb.write(str(out), grids=[grid])
@@ -81,7 +85,7 @@ async def main() -> None:
                 nrm = np.flip(np.clip((arr - tmin) / (tmax - tmin), 0.0, 1.0), axis=axis).astype(np.float32).copy()
                 grid = vdb.FloatGrid(0.0)
                 grid.name = "temperature"
-                grid.transform = vdb.createLinearTransform(voxelSize=voxel)
+                grid.transform = vdb.createLinearTransform(CM_XFORM)
                 grid.copyFromArray(nrm, ijk=(0, 0, 0), tolerance=0.002)
                 out = fdir / (Path(fr["file"]).stem + ".vdb")
                 vdb.write(str(out), grids=[grid])

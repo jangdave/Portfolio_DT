@@ -174,7 +174,7 @@ def build_level(tag, mi, svt, layout):
     size = (svt.get_size_x(), svt.get_size_y(), svt.get_size_z())
 
     # 볼륨: 영역은 액터 스케일이 정하는 상자(중심 기준, 기본 1 x 1 x 1)이므로 홀 크기로 키우고 홀 중심에 놓는다.
-    hv = actor_sub.spawn_actor_from_class(unreal.HeterogeneousVolume, unreal.Vector(*[c / 2 for c in HALL_CM]))
+    hv = actor_sub.spawn_actor_from_class(unreal.HeterogeneousVolume, unreal.Vector(0, 0, 0))
     hv.set_actor_label(f"HallTemperature_{tag}")
     comp = hv.get_editor_property("heterogeneous_volume_component")
     comp.set_material(0, mi)
@@ -184,7 +184,10 @@ def build_level(tag, mi, svt, layout):
             comp.set_editor_property(name, value)
         except Exception as exc:  # noqa: BLE001
             props[name] = f"실패: {str(exc)[:60]}"
-    hv.set_actor_scale3d(unreal.Vector(*HALL_CM))
+    # 영역 = 로컬 0 ~ 복셀 수, 여기에 SVT의 FrameTransform(VDB 변환, cm)이 곱해진다. 변환을 cm로 저장했으므로 스케일은 1, 위치는 홀의 최소 모서리다.
+    hv.set_actor_scale3d(unreal.Vector(1, 1, 1))
+    b_origin, b_extent = hv.get_actor_bounds(False)
+    res.setdefault("actor_bounds_cm", {})[tag] = {"origin": [round(b_origin.x, 1), round(b_origin.y, 1), round(b_origin.z, 1)], "extent": [round(b_extent.x, 1), round(b_extent.y, 1), round(b_extent.z, 1)]}
 
     # 기준 장비: 실제 위치에 놓은 랙(10기)과 CRAC(2기)
     for r in layout["racks"]:
