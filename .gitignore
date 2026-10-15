@@ -32,3 +32,8 @@ experiments/results/raw/
 Thumbs.db
 .claude/settings.local.json
 .claude/cleanroom-terms.local.txt
+
+# 실증 실험 산출물 중 재생성 가능한 큰 파일
+experiments/omniverse_probe/out/*.nvdb
+experiments/omniverse_probe/out/*_stdout.txt
+experiments/omniverse_probe/out/*_stderr.txt

@@ -1,0 +1,13 @@
+[project]
+name = "dctwin-omniverse-probe"
+version = "0.1.0"
+description = "Omniverse 계열 기술(Warp, ovrtx, ovphysx)이 주는 시뮬레이션 정보와 데이터를 실제로 확인하는 실증 실험"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "numpy==2.2.6",
+    "pillow==12.2.0",
+    "usd-core",
+    "warp-lang",
+    "ovrtx==0.3.0.312915",
+    "ovphysx==0.3.7",
+]

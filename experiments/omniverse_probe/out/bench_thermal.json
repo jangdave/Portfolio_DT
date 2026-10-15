@@ -1,0 +1,59 @@
+[
+  {
+    "dx_cm": 10.0,
+    "dt_s": 0.02,
+    "k_dt_over_dx2": 0.04,
+    "cells": 168000,
+    "steps": 4000,
+    "wall_s": 0.092,
+    "steps_per_s": 43343,
+    "gcell_updates_per_s": 7.28,
+    "sim_seconds_per_wall_second": 866.9,
+    "grid_setup_s_python": 0.09,
+    "T_finite": true,
+    "bytes_per_cell_estimate": 32,
+    "effective_GB_per_s_estimate": 233,
+    "T_range": [
+      18.2,
+      37.5
+    ]
+  },
+  {
+    "dx_cm": 5.0,
+    "dt_s": 0.01,
+    "k_dt_over_dx2": 0.08,
+    "cells": 1344000,
+    "steps": 2000,
+    "wall_s": 0.044,
+    "steps_per_s": 45225,
+    "gcell_updates_per_s": 60.78,
+    "sim_seconds_per_wall_second": 452.3,
+    "grid_setup_s_python": 0.29,
+    "T_finite": true,
+    "bytes_per_cell_estimate": 32,
+    "effective_GB_per_s_estimate": 1945,
+    "T_range": [
+      18.2,
+      35.3
+    ]
+  },
+  {
+    "dx_cm": 2.5,
+    "dt_s": 0.0025,
+    "k_dt_over_dx2": 0.08,
+    "cells": 10752000,
+    "steps": 1000,
+    "wall_s": 0.182,
+    "steps_per_s": 5483,
+    "gcell_updates_per_s": 58.95,
+    "sim_seconds_per_wall_second": 13.7,
+    "grid_setup_s_python": 2.3,
+    "T_finite": true,
+    "bytes_per_cell_estimate": 32,
+    "effective_GB_per_s_estimate": 1886,
+    "T_range": [
+      18.3,
+      34.9
+    ]
+  }
+]

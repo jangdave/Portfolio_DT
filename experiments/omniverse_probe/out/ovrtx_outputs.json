@@ -1,0 +1,160 @@
+{
+  "resolution": [
+    1280,
+    720
+  ],
+  "aovs": {
+    "LdrColor": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        4
+      ],
+      "dtype": "uint8",
+      "min": 46.0,
+      "max": 255.0,
+      "nonzero_fraction": 1.0
+    },
+    "HdrColor": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        4
+      ],
+      "dtype": "float16",
+      "min": 0.03704833984375,
+      "max": 407.5,
+      "nonzero_fraction": 1.0
+    },
+    "NormalSD": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        4
+      ],
+      "dtype": "float32",
+      "min": -1.0,
+      "max": 1.0,
+      "nonzero_fraction": 0.7106
+    },
+    "DepthSD": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        1
+      ],
+      "dtype": "float32",
+      "min": 0.0,
+      "max": 0.005687806289643049,
+      "nonzero_fraction": 0.7435
+    },
+    "DistanceToCameraSD": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        1
+      ],
+      "dtype": "float32",
+      "min": 1.7698098421096802,
+      "max": 7.76535177230835,
+      "nonzero_fraction": 1.0
+    },
+    "DistanceToImagePlaneSD": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        1
+      ],
+      "dtype": "float32",
+      "min": 1.7578399181365967,
+      "max": 6.539202690124512,
+      "nonzero_fraction": 1.0
+    },
+    "DiffuseAlbedoSD": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        4
+      ],
+      "dtype": "uint8",
+      "min": 0.0,
+      "max": 255.0,
+      "nonzero_fraction": 0.8077
+    },
+    "Camera3dPositionSD": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        4
+      ],
+      "dtype": "float32",
+      "min": -6574156.0,
+      "max": 6574160.0,
+      "nonzero_fraction": 0.9359
+    },
+    "SemanticSegmentation": {
+      "returned": true,
+      "shape": [
+        720,
+        1280,
+        1
+      ],
+      "dtype": "uint32",
+      "min": 0.0,
+      "max": 3.0,
+      "nonzero_fraction": 0.7435
+    },
+    "SemanticIdMap": {
+      "returned": true,
+      "shape": [
+        80
+      ],
+      "dtype": "uint8",
+      "min": 0.0,
+      "max": 115.0,
+      "nonzero_fraction": 0.4125
+    }
+  },
+  "renderer_create_s": 2.4,
+  "one_frame_s": 0.0069,
+  "returned_render_vars": [
+    "Camera3dPositionSD",
+    "DepthSD",
+    "DiffuseAlbedoSD",
+    "DistanceToCameraSD",
+    "DistanceToImagePlaneSD",
+    "HdrColor",
+    "LdrColor",
+    "NormalSD",
+    "SemanticIdMap",
+    "SemanticSegmentation"
+  ],
+  "semantic_id_map": {
+    "2": "class: rack;",
+    "3": "class: crac;"
+  },
+  "semantic_pixel_counts": {
+    "id0": 236352,
+    "id1": 152312,
+    "class: rack;": 403980,
+    "class: crac;": 128956
+  },
+  "depth_range_m_p2_p98": [
+    1.8,
+    3.9
+  ],
+  "camera3d_position_sample_center_px_m": [
+    0.2,
+    -0.2,
+    -199.6
+  ],
+  "units_note": "깊이·거리 값의 단위는 미터. 카메라(높이 3.3 m)와 랙까지의 실제 거리와 일치함을 확인"
+}
