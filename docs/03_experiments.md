@@ -35,6 +35,7 @@
 | Pixel Streaming (LAN) | 지연, 비트레이트, 텍스트 가독성 |
 | Pixel Streaming (원격/임시 클라우드) | 지연, 끊김 |
 | 동시 접속 | 5090 1대에서 인스턴스 N개일 때 GPU/VRAM, 품질 저하 시점 |
+| **4K 해상도** | 1080p와 4K에서 전송량, GPU 인코딩 부하, 지연, 프레임 속도 (기본 해상도 결정 근거, [12](12_unreal_design.md) 12.5) |
 
 ## E4. UI 방식 A/B
 | | A. UMG/CommonUI 전부 | B. 웹 패널(데이터 채널) |
