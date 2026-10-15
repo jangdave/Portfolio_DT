@@ -1,0 +1,25 @@
+{
+  "python": "3.13.9",
+  "versions": {
+    "warp-lang": "1.18.0",
+    "usd-core": "26.8",
+    "ovrtx": "0.3.0.312915",
+    "ovphysx": "0.3.7",
+    "numpy": "2.2.6"
+  },
+  "warp_cuda_devices": [
+    {
+      "alias": "cuda:0",
+      "name": "NVIDIA GeForce RTX 5090",
+      "arch": 120,
+      "total_memory_mib": 32579
+    }
+  ],
+  "warp_cuda_driver_version": [
+    13,
+    4
+  ],
+  "first_launch_s_including_compile": 0.429,
+  "launch_100x_4M_elems_s": 0.0013,
+  "kernel_result_ok": true
+}

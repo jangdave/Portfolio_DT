@@ -20,9 +20,11 @@
 | 항목 | 상태 |
 |---|---|
 | Omniverse Hub 1.1.0 | `%LOCALAPPDATA%\ov\pkg\hub-1.1.0` 존재(2025-12 설치, 잔재 수준) |
-| Kit 앱 (USD Composer, Isaac Sim 등) | **미설치** (kit.exe 등 탐색에서 발견되지 않음) |
+| Kit 앱 | **설치함 (2026-10-15)**: Kit SDK 110.4.0, `D:\omniverse-kit\kit-app-template`에서 `dctwin.base_editor` 앱을 빌드. RTX 5090에서 실행 확인(드라이버 616.92). 설치 용량 약 2.5GB(packman `D:\packman-repo` 0.82GB + 확장 캐시 `%LOCALAPPDATA%\ov\data` 증가 약 1.6GB). 첫 실행 239초, 이후 12초. 방법과 결과: `experiments/omniverse_probe/kit/README.md`, `experiments/results/E0_omniverse_capability_probe.md` |
+| Kit 확장 | `omni.hydra.rtx`, `omni.graph.core`, `omni.warp.core`(Warp 1.17.0), `omni.physx.stageupdate`, `omni.flowusd` 110.0.4 확인 |
+| USD Composer, Isaac Sim 등 다른 Kit 앱 | 미설치(필요하면 별도 설치) |
 | Omniverse Libraries | `D:\omniverse-labs-main` 샘플 venv에 `ovrtx 0.3.0.312915`, `ovphysx 0.3.7` 설치됨 (Python 3.13.9) |
-| 해석 | 현재 환경은 **Libraries 경로(Python에서 USD 로드·RTX 렌더·PhysX)** 로 사용 가능. Kit 앱 기반 기능(Replicator, Isaac Sim, Flow 등)은 필요 시 별도 설치 |
+| 해석 | **Libraries 경로(Python에서 USD 로드·RTX 렌더·PhysX)** 와 **Kit 앱 경로(RTX 뷰포트, OmniGraph, Warp, Flow)** 모두 사용 가능. Replicator, Isaac Sim은 미설치 |
 
 ## ovrtx 스모크 테스트 결과 (2026-10-15, Phase 1)
 직접 작성한 최소 씬(`experiments/p1_ovrtx_smoke/smoke_scene.usda`)을 `ovrtx 0.3.0`으로 렌더했다. **RTX 5090에서 정상 동작**한다.

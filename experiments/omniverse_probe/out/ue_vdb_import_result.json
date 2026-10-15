@@ -1,0 +1,199 @@
+{
+  "engine": "5.7.4-51494982+++UE5+Release-5.7",
+  "files": {
+    "FlowSmoke1_1309.vdb": {
+      "exists": true,
+      "bytes": 7674044,
+      "can_translate": false,
+      "import_returned": [],
+      "imported_count": 0,
+      "legacy_imported_paths": [
+        "/Game/VdbLegacy/FlowSmoke1_1309.FlowSmoke1_1309"
+      ],
+      "legacy_objects": [
+        {
+          "class": "StaticSparseVolumeTexture",
+          "path": "/Game/VdbLegacy/FlowSmoke1_1309.FlowSmoke1_1309",
+          "get_size_x": 192,
+          "get_size_y": 192,
+          "get_size_z": 544,
+          "get_num_frames": 1,
+          "get_num_mip_levels": 7
+        }
+      ]
+    },
+    "FlowTemperature1_1309.vdb": {
+      "exists": true,
+      "bytes": 15090012,
+      "can_translate": false,
+      "import_returned": [],
+      "imported_count": 0,
+      "legacy_imported_paths": [
+        "/Game/VdbLegacy/FlowTemperature1_1309.FlowTemperature1_1309"
+      ],
+      "legacy_objects": [
+        {
+          "class": "StaticSparseVolumeTexture",
+          "path": "/Game/VdbLegacy/FlowTemperature1_1309.FlowTemperature1_1309",
+          "get_size_x": 192,
+          "get_size_y": 192,
+          "get_size_z": 544,
+          "get_num_frames": 1,
+          "get_num_mip_levels": 7
+        }
+      ]
+    },
+    "FlowVelocity1_1309.vdb": {
+      "exists": true,
+      "bytes": 8578607,
+      "can_translate": false,
+      "import_returned": [],
+      "imported_count": 0,
+      "legacy_imported_paths": [
+        "/Game/VdbLegacy/FlowVelocity1_1309.FlowVelocity1_1309"
+      ],
+      "legacy_objects": [
+        {
+          "class": "StaticSparseVolumeTexture",
+          "path": "/Game/VdbLegacy/FlowVelocity1_1309.FlowVelocity1_1309",
+          "get_size_x": 96,
+          "get_size_y": 96,
+          "get_size_z": 272,
+          "get_num_frames": 1,
+          "get_num_mip_levels": 6
+        }
+      ]
+    },
+    "thermal_final.nvdb": {
+      "exists": true,
+      "bytes": 1162881,
+      "can_translate": false,
+      "import_returned": [],
+      "imported_count": 0,
+      "legacy_imported_paths": [],
+      "legacy_objects": []
+    },
+    "T_0030.vdb": {
+      "exists": true,
+      "bytes": 75820,
+      "can_translate": false,
+      "import_returned": [],
+      "imported_count": 0,
+      "legacy_imported_paths": [
+        "/Game/VdbLegacy/T_0030.T_0030"
+      ],
+      "legacy_objects": [
+        {
+          "class": "StaticSparseVolumeTexture",
+          "path": "/Game/VdbLegacy/T_0030.T_0030",
+          "get_size_x": 40,
+          "get_size_y": 30,
+          "get_size_z": 18,
+          "get_num_frames": 1,
+          "get_num_mip_levels": 3
+        }
+      ]
+    },
+    "T_0240_half.vdb": {
+      "exists": true,
+      "bytes": 46049,
+      "can_translate": false,
+      "import_returned": [],
+      "imported_count": 0,
+      "legacy_imported_paths": [
+        "/Game/VdbLegacy/T_0240_half.T_0240_half"
+      ],
+      "legacy_objects": [
+        {
+          "class": "StaticSparseVolumeTexture",
+          "path": "/Game/VdbLegacy/T_0240_half.T_0240_half",
+          "get_size_x": 40,
+          "get_size_y": 30,
+          "get_size_z": 18,
+          "get_num_frames": 1,
+          "get_num_mip_levels": 3
+        }
+      ]
+    },
+    "Temp_000.vdb": {
+      "exists": true,
+      "bytes": 75820,
+      "can_translate": false,
+      "import_returned": [],
+      "imported_count": 0,
+      "legacy_imported_paths": [
+        "/Game/VdbLegacy/Temp.Temp"
+      ],
+      "legacy_objects": [
+        {
+          "class": "AnimatedSparseVolumeTexture",
+          "path": "/Game/VdbLegacy/Temp.Temp",
+          "get_size_x": 40,
+          "get_size_y": 30,
+          "get_size_z": 18,
+          "get_num_frames": 8,
+          "get_num_mip_levels": 3
+        }
+      ]
+    }
+  },
+  "interchange_manager_attrs": [
+    "can_reimport",
+    "can_translate_source_data",
+    "create_source_data",
+    "get_asset_import_data",
+    "get_class",
+    "get_default_object",
+    "get_editor_property",
+    "get_fname",
+    "get_full_name",
+    "get_interchange_manager_scripted",
+    "get_name",
+    "get_outer",
+    "get_outermost",
+    "get_package",
+    "get_path_name",
+    "get_registered_factory_class",
+    "get_supported_asset_type_formats",
+    "get_supported_formats",
+    "get_supported_formats_for_object",
+    "get_translator_for_source_data",
+    "get_typed_outer",
+    "get_world",
+    "import_asset",
+    "import_scene",
+    "is_object_being_imported",
+    "reimport_asset",
+    "scripted_import_asset_async",
+    "scripted_import_scene_async",
+    "scripted_reimport_asset_async"
+  ],
+  "manager_via": "get_interchange_manager_scripted",
+  "interchange_can_translate": {},
+  "assets_in_game_vdb": [
+    {
+      "name": "FlowSmoke1_1309",
+      "class": "StaticSparseVolumeTexture"
+    },
+    {
+      "name": "FlowTemperature1_1309",
+      "class": "StaticSparseVolumeTexture"
+    },
+    {
+      "name": "FlowVelocity1_1309",
+      "class": "StaticSparseVolumeTexture"
+    },
+    {
+      "name": "T_0030",
+      "class": "StaticSparseVolumeTexture"
+    },
+    {
+      "name": "T_0240_half",
+      "class": "StaticSparseVolumeTexture"
+    },
+    {
+      "name": "Temp",
+      "class": "AnimatedSparseVolumeTexture"
+    }
+  ]
+}

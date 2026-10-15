@@ -1,0 +1,44 @@
+[
+  {
+    "dx_cm": 20,
+    "cells": 21600,
+    "codec": "none",
+    "file_kib": 423.8,
+    "reload_voxels": 30720,
+    "est_240_frames_mb": 104.1
+  },
+  {
+    "dx_cm": 20,
+    "cells": 21600,
+    "codec": "zip",
+    "file_kib": 71.5,
+    "reload_voxels": 30720,
+    "est_240_frames_mb": 17.6
+  },
+  {
+    "dx_cm": 20,
+    "codec": "blosc",
+    "error": "RuntimeError: blosc compression was requested, but Python module could not be imported: No module named 'blosc'"
+  },
+  {
+    "dx_cm": 10,
+    "cells": 168000,
+    "codec": "none",
+    "file_kib": 1135.6,
+    "reload_voxels": 204800,
+    "est_240_frames_mb": 279.1
+  },
+  {
+    "dx_cm": 10,
+    "cells": 168000,
+    "codec": "zip",
+    "file_kib": 493.7,
+    "reload_voxels": 204800,
+    "est_240_frames_mb": 121.3
+  },
+  {
+    "dx_cm": 10,
+    "codec": "blosc",
+    "error": "RuntimeError: blosc compression was requested, but Python module could not be imported: No module named 'blosc'"
+  }
+]

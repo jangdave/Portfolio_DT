@@ -1,0 +1,456 @@
+#usda 1.0
+(
+    defaultPrim = "DC"
+    metersPerUnit = 0.01
+    upAxis = "Z"
+)
+
+def Xform "DC"
+{
+    def Xform "Hall01"
+    {
+        custom int dct:floor = 3
+
+        def Xform "Row01"
+        {
+            def Xform "Rack_01"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (280, 190, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_02"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (340, 190, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_03"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (400, 190, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_04"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (460, 190, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_05"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (520, 190, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+        }
+
+        def Xform "Row02"
+        {
+            def Xform "Rack_06"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (280, 410, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_07"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (340, 410, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_08"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (400, 410, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_09"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (460, 410, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "Rack_10"
+            {
+                custom token dct:assetType = "rack"
+                double3 xformOp:translate = (520, 410, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (60, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_in"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, -60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_TEMP_OUT"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "temp_out"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 60, 120)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+        }
+
+        def Xform "Cooling"
+        {
+            def Xform "CRAC_01"
+            {
+                custom token dct:assetType = "crac"
+                double3 xformOp:translate = (60, 300, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (100, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_SUPPLY_TEMP"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "supply_temp"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (60, 0, 30)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_RETURN_TEMP"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "return_temp"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 0, 220)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+
+            def Xform "CRAC_02"
+            {
+                custom token dct:assetType = "crac"
+                double3 xformOp:translate = (740, 300, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Geo"
+                {
+                    double size = 1
+                    float3 xformOp:scale = (100, 100, 200)
+                    double3 xformOp:translate = (0, 0, 100)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_SUPPLY_TEMP"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "supply_temp"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (-60, 0, 30)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+
+                    def Xform "Sensor_RETURN_TEMP"
+                    {
+                        custom token dct:assetType = "sensor"
+                        custom token dct:metric = "return_temp"
+                        custom string dct:unit = "degC"
+                        double3 xformOp:translate = (0, 0, 220)
+                        uniform token[] xformOpOrder = ["xformOp:translate"]
+                    }
+                }
+            }
+        }
+    }
+}
+

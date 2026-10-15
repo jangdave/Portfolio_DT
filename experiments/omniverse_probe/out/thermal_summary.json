@@ -1,0 +1,76 @@
+{
+  "params": {
+    "dx_m": 0.1,
+    "dt_s": 0.02,
+    "k_diff": 0.02,
+    "k_heat_K_per_s_per_kW": 1.6,
+    "t_supply": 18.0,
+    "v_rack": 0.8,
+    "v_aisle": 0.8,
+    "v_up": 0.4,
+    "v_ceil": 0.4,
+    "v_descend": 0.1
+  },
+  "grid": {
+    "nx": 80,
+    "ny": 60,
+    "nz": 35,
+    "cells": 168000
+  },
+  "scenario": {
+    "duration_s": 240,
+    "fail_crac": 2,
+    "fail_time_s": 60.0
+  },
+  "performance": {
+    "sim_seconds": 240,
+    "steps": 12000,
+    "wall_seconds": 0.34,
+    "realtime_factor": 708.1,
+    "sensor_reads": 5760
+  },
+  "temp_in_mean_degC": {
+    "before_failure_30_59s": 21.47,
+    "after_failure_end_10s": 31.08
+  },
+  "temp_in_final_by_rack": {
+    "H01-RK01-TEMP-IN": 22.52,
+    "H01-RK02-TEMP-IN": 23.62,
+    "H01-RK03-TEMP-IN": 27.38,
+    "H01-RK04-TEMP-IN": 40.14,
+    "H01-RK05-TEMP-IN": 42.41,
+    "H01-RK06-TEMP-IN": 22.45,
+    "H01-RK07-TEMP-IN": 23.47,
+    "H01-RK08-TEMP-IN": 27.29,
+    "H01-RK09-TEMP-IN": 39.68,
+    "H01-RK10-TEMP-IN": 41.87
+  },
+  "seconds_to_cross_27C_after_start": {
+    "H01-RK04-TEMP-IN": 66,
+    "H01-RK05-TEMP-IN": 67,
+    "H01-RK09-TEMP-IN": 67,
+    "H01-RK10-TEMP-IN": 68,
+    "H01-RK03-TEMP-IN": 199,
+    "H01-RK08-TEMP-IN": 211
+  },
+  "nvdb": {
+    "path": "thermal_final.nvdb",
+    "size_kib": 1135.6,
+    "voxels_active": 204800,
+    "voxel_size_m": [
+      0.10000000149011612,
+      0.10000000149011612,
+      0.10000000149011612
+    ]
+  },
+  "sensor_ids_from_usd": [
+    "H01-RK01-TEMP-IN",
+    "H01-RK01-TEMP-OUT",
+    "H01-RK02-TEMP-IN",
+    "H01-RK02-TEMP-OUT",
+    "H01-RK03-TEMP-IN",
+    "H01-RK03-TEMP-OUT",
+    "..."
+  ],
+  "sensor_count_from_usd": 24
+}

@@ -1,0 +1,198 @@
+{
+  "frames": [
+    {
+      "file": "T_0030.npy",
+      "t_s": 30,
+      "float": {
+        "max_abs_err_degC": 0.0093,
+        "mean_abs_err_degC": 2e-05,
+        "orig_range": [
+          18.17,
+          34.53
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0154,
+        "mean_abs_err_degC": 0.00398,
+        "orig_range": [
+          18.17,
+          34.53
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    },
+    {
+      "file": "T_0060.npy",
+      "t_s": 60,
+      "float": {
+        "max_abs_err_degC": 0.0081,
+        "mean_abs_err_degC": 1e-05,
+        "orig_range": [
+          18.18,
+          35.46
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0155,
+        "mean_abs_err_degC": 0.00396,
+        "orig_range": [
+          18.18,
+          35.46
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    },
+    {
+      "file": "T_0090.npy",
+      "t_s": 90,
+      "float": {
+        "max_abs_err_degC": 0.007,
+        "mean_abs_err_degC": 0.0,
+        "orig_range": [
+          18.21,
+          43.51
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0156,
+        "mean_abs_err_degC": 0.00425,
+        "orig_range": [
+          18.21,
+          43.51
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    },
+    {
+      "file": "T_0120.npy",
+      "t_s": 120,
+      "float": {
+        "max_abs_err_degC": 0.0082,
+        "mean_abs_err_degC": 0.0,
+        "orig_range": [
+          18.24,
+          46.71
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0156,
+        "mean_abs_err_degC": 0.00463,
+        "orig_range": [
+          18.24,
+          46.71
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    },
+    {
+      "file": "T_0150.npy",
+      "t_s": 150,
+      "float": {
+        "max_abs_err_degC": 0.0076,
+        "mean_abs_err_degC": 0.0,
+        "orig_range": [
+          18.27,
+          48.71
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0156,
+        "mean_abs_err_degC": 0.00516,
+        "orig_range": [
+          18.27,
+          48.71
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    },
+    {
+      "file": "T_0180.npy",
+      "t_s": 180,
+      "float": {
+        "max_abs_err_degC": 0.0081,
+        "mean_abs_err_degC": 0.0,
+        "orig_range": [
+          18.3,
+          50.41
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0156,
+        "mean_abs_err_degC": 0.00614,
+        "orig_range": [
+          18.3,
+          50.41
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    },
+    {
+      "file": "T_0210.npy",
+      "t_s": 210,
+      "float": {
+        "max_abs_err_degC": 0.0093,
+        "mean_abs_err_degC": 0.0,
+        "orig_range": [
+          18.33,
+          51.95
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0156,
+        "mean_abs_err_degC": 0.00644,
+        "orig_range": [
+          18.33,
+          51.95
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    },
+    {
+      "file": "T_0240.npy",
+      "t_s": 240,
+      "float": {
+        "max_abs_err_degC": 0.0055,
+        "mean_abs_err_degC": 0.0,
+        "orig_range": [
+          18.35,
+          53.22
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      },
+      "half": {
+        "max_abs_err_degC": 0.0156,
+        "mean_abs_err_degC": 0.00675,
+        "orig_range": [
+          18.35,
+          53.22
+        ],
+        "voxel_size": 0.2,
+        "grid_name": "temperature"
+      }
+    }
+  ],
+  "max_err_float": 0.0093,
+  "max_err_half": 0.0156
+}
