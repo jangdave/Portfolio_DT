@@ -1,7 +1,7 @@
 # DC-Twin (가상 데이터센터 디지털 트윈) — 포트폴리오 프로젝트
 
 ## 목적
-Omniverse(OpenUSD 기반 저작·시뮬레이션)와 Unreal Engine 5.7(운영자용 클라이언트)을 역할 분리해 연결한 **공개 가능한 소형 디지털 트윈**을 만든다.
+Omniverse(OpenUSD 기반 저작·시뮬레이션)와 Unreal Engine 5.8(운영자용 클라이언트)을 역할 분리해 연결한 **공개 가능한 소형 디지털 트윈**을 만든다.
 목표 직군은 UE 클라이언트 개발자이며, 시뮬레이션/데이터 직군으로의 확장 가능성을 함께 보여준다.
 설계 개요는 `docs/01_architecture.md`, 일정은 `docs/02_roadmap.md`, 비교 실험은 `docs/03_experiments.md`.
 
@@ -18,7 +18,7 @@ Omniverse(OpenUSD 기반 저작·시뮬레이션)와 Unreal Engine 5.7(운영자
 ```
 Blender → USD(prim 경로 + dct: 메타데이터) → Omniverse(ovrtx/ovphysx, 데이터 생성)
    ↘ 센서 시나리오 생성기(Python) → MQTT(Mosquitto) → Gateway(Node) → WebSocket
-UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + PixelStreaming2(웹)
+UE 5.8 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + PixelStreaming2(웹)
 ```
 데이터 경로 3종: ① 정적 USD ② 베이크 캐시(VDB/애니메이션) ③ 실시간 MQTT. 상세는 설계 문서 참조.
 
@@ -32,7 +32,7 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 | `scripts/usd_tools/` | USD 검증(`validate_usd.py`), 에셋 마무리(`finalize_asset.py`), 장면 생성(`build_scene.py`) |
 | `usd/scenes/hall01.config.json` | 홀 배치 원본(랙 6줄 x 10기, CRAC 8기). 장면은 이 파일에서만 만든다 |
 | `gateway/` | MQTT → WebSocket/REST 게이트웨이 (Node) |
-| `unreal/` | UE 5.7 프로젝트 (`DCTwin.uproject`, 에디터에서 생성) |
+| `unreal/` | UE 5.8 프로젝트 `unreal/DataCenter_DT/DataCenter_DT.uproject` (C++, 모듈 `DataCenter_DT`) |
 | `web/` | 하이브리드 UI용 웹 패널 (일부 패널) |
 | `experiments/` | 비교 실험 코드와 측정 결과 |
 | `scripts/` | 환경 점검, 실행 보조 스크립트 |
@@ -41,7 +41,7 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 - **USD 규칙(v2)**: prim 경로 `/DC/Hall{NN}/Row{NN}/Rack_{NN}/...`, 단위 cm, Up-axis Z, 커스텀 속성 접두 `dct:`. 센서는 장비 아래 `Anchors/Sensor_*` 앵커 prim이고 `dct:sensorId`는 장면에서 붙인다. 홀 아래에는 `Row##`, `Cooling`, `Power`, `Shell`, `Containment`, `Vents`, `Tour`만 둔다. 상세: `docs/09_usd_spec.md`, `.claude/skills/usd-conventions`.
 - **홀 장면**: 손으로 고치지 않는다. `usd/scenes/hall01.config.json`을 고치고 `scripts/usd_tools/build_scene.py`를 다시 실행한 뒤 `validate_usd.py`로 검증한다. 나중에 Unreal에서 랙을 옮기고 다시 시뮬레이션하는 흐름을 지원하도록, 시뮬레이션 입력은 장면 USD에서 읽는다(하드코딩 금지).
 - **MQTT 토픽**: `dct/{hall}/{asset}/{metric}`, 페이로드는 JSON(`ts`, `value`, `unit`, `quality`, `scenario`).
-- **UE C++**: 모듈 `DCTwin`, 계층 `Core / Data / World / UI / Streaming`. 접두 `DCT`. 새 코드만 작성, 회사 프로젝트 클래스명 재사용 금지.
+- **UE C++**: 모듈 `DataCenter_DT`(엔진 매크로 `DATACENTER_DT_API`), 계층 `Core / Data / World / UI / Streaming`. 접두 `DCT`. 새 코드만 작성, 회사 프로젝트 클래스명 재사용 금지.
 - **Python**: `uv`로 환경 관리, 3.13 권장(`ovrtx` 휠 호환). 시스템 Python 3.14는 사용하지 않는다.
 - **Git 워크플로**(`docs/06_workflow.md`): `main`에서 직접 작업하지 않는다. 작업 시작 시 `feat|fix|docs|chore|exp/<주제>` 브랜치를 먼저 만들고, Conventional Commits로 커밋(`type(scope)`는 영어 키워드, **제목·본문은 한글**: 예 `feat(sim): cooling_failure 시나리오 생성기 추가`), PR → Squash merge. 바이너리는 Git LFS. 사용자가 요청할 때만 commit/push/PR을 만든다. force push 금지.
 
@@ -59,6 +59,6 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 - 환경 점검: `scripts/check_env.ps1`. 결과 기록: `docs/05_env_status.md`.
 
 ## 환경 (2026-10-15 확인)
-RTX 5090 32GB / Ryzen 9 9950X3D / RAM 126GB / UE 5.7.4 / Blender 5.1 / Node, Git, uv, WSL 있음 / Mosquitto, Docker 없음.
+RTX 5090 32GB / Ryzen 9 9950X3D / RAM 126GB / UE 5.8.3(5.7.4, 5.5.4도 설치) / Blender 5.1 / Node, Git, uv, WSL 있음 / Mosquitto, Docker 없음.
 Omniverse: Kit SDK 110.4.0 앱 설치·실행 확인(`D:\omniverse-kit\kit-app-template`, 앱 `dctwin.base_editor`), Warp 1.18.0, `ovrtx 0.3.0`, `ovphysx 0.3.7`. 시험 환경은 `experiments/omniverse_probe`(uv, Python 3.13), 결과는 `experiments/results/E0_omniverse_capability_probe.md`.
 도구 경로: Blender `C:\Program Files\Blender Foundation\Blender 5.1\blender.exe`, GitHub CLI `C:\Users\User\tools\gh-2.102.0\bin\bin\gh.exe`(PATH 미등록). 저장소는 `main` 보호(PR 필수, Squash merge만).

@@ -10,7 +10,7 @@
 ## 소프트웨어
 | 항목 | 상태 |
 |---|---|
-| Unreal Engine | 5.7.4, 5.5.4 설치됨 |
+| Unreal Engine | **5.8.3**(주 사용), 5.7.4, 5.5.4 설치됨. 5.8.3은 2026-10-15 설치, Changelist 58210709, `++UE5+Release-5.8` |
 | Blender | 5.1 설치됨 |
 | Python | 시스템 3.14.0 (Omniverse 휠과 호환 불확실 → uv로 3.13 사용) |
 | uv / Node / Git / WSL | 있음 |
@@ -45,7 +45,8 @@
 
 ## 미확인 / 다음에 확인
 - [x] `ovrtx`로 USD를 렌더해 5090(Blackwell)에서 동작하는지 → 위 결과로 확인
-- [ ] UE 5.7 USD Importer 플러그인 상태
+- [x] UE 5.8 플러그인 존재: Interchange, InterchangeOpenVDB, InterchangeOpenUSD, USDImporter, PythonScriptPlugin (2026-10-15, 파일 존재 확인). USD 가져오기는 Stage 액터로 동작 확인(ADR-010)
+- [x] UE 5.8.3에서 열 볼륨 VDB 시퀀스 가져오기, 볼륨 머티리얼 레벨 생성 동작 → ADR-010 참고
 - [ ] Omniverse Kit 앱/Isaac Sim의 현재 설치 방식과 5090 지원 버전 (공식 문서 확인, 날짜 기록)
 - [ ] Mosquitto 설치 방식 결정
 
