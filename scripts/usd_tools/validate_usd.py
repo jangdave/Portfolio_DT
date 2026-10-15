@@ -22,8 +22,9 @@ from pxr import Sdf, Usd, UsdGeom
 METERS_PER_UNIT = 0.01  # 단위 cm
 UP_AXIS = "Z"
 ROOT_NAME = "DC"
-ASSET_TYPES = {"rack", "server", "crac", "pdu"}
-SENSOR_REQUIRED_TYPES = {"rack", "crac", "pdu"}  # 장면(scene)에서 센서 ID가 꼭 필요한 종류
+ASSET_TYPES = {"rack", "server", "crac", "pdu", "sensor", "shell", "containment", "vent"}
+SENSOR_REQUIRED_TYPES = {"rack", "crac", "pdu"}  # 장면(scene)에서 센서 앵커가 하나 이상 있어야 하는 종류
+EQUIPMENT_CODES = {"Rack": "RK", "CRAC": "CR", "PDU": "PD"}  # 센서 ID의 장비 코드 (09 규격 5장)
 ZONES = {"cold_aisle", "hot_aisle"}
 SENSOR_ID_RE = re.compile(r"^H\d{2}(-[A-Z0-9]+)+$")  # 예: H01-R01-RK01-TEMP-IN
 
@@ -33,9 +34,15 @@ PATH_RULES = {
     "server": re.compile(r"^/DC/Hall\d{2}/Row\d{2}/Rack_\d{2,}/Server_U\d{2,}$"),
     "crac": re.compile(r"^/DC/Hall\d{2}/Cooling/CRAC_\d{2,}$"),
     "pdu": re.compile(r"^/DC/Hall\d{2}/Power/PDU_\d{2,}$"),
+    "sensor": re.compile(r"^/DC/Hall\d{2}/(Row\d{2}/Rack_\d{2,}|Cooling/CRAC_\d{2,}|Power/PDU_\d{2,})/Anchors/Sensor_[A-Z0-9_]+$"),
+    "shell": re.compile(r"^/DC/Hall\d{2}/Shell/[A-Za-z0-9_]+$"),
+    "containment": re.compile(r"^/DC/Hall\d{2}/Containment/[A-Za-z0-9_]+$"),
+    "vent": re.compile(r"^/DC/Hall\d{2}/Vents/Vent_\d{2,}$"),
 }
+SENSOR_PATH_RE = re.compile(r"^/DC/Hall(\d{2})/(?:Row\d{2}/Rack|Cooling/CRAC|Power/PDU)_(\d{2,})/Anchors/Sensor_([A-Z0-9_]+)$")
+SENSOR_CODE_BY_FOLDER = (("/Rack_", "RK"), ("/CRAC_", "CR"), ("/PDU_", "PD"))
 HALL_RE = re.compile(r"^Hall\d{2}$")
-HALL_CHILD_RE = re.compile(r"^(Row\d{2}|Cooling|Power)$")
+HALL_CHILD_RE = re.compile(r"^(Row\d{2}|Cooling|Power|Containment|Shell|Vents|Tour)$")
 # 이름만 보고 "이건 장비다"라고 판단하는 패턴 (assetType이 빠졌는지 찾는 용도)
 EQUIPMENT_NAME_RE = re.compile(r"^(Rack|Server_U|CRAC|PDU)_?\d+$")
 
@@ -92,6 +99,8 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
             err("U201", str(default_prim.GetPath()), "에셋의 기본 prim에 dct:assetType이 없다")
 
     sensor_ids: dict[str, str] = {}
+    anchors_of: dict[str, int] = {}
+    equipment: list[tuple[str, str]] = []
 
     for prim in stage.Traverse():
         path = str(prim.GetPath())
@@ -104,7 +113,7 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
                 err("U301", path, f"/{ROOT_NAME} 바로 아래 이름은 Hall## 형식이어야 한다")
             elif prim.GetParent().GetParent() and str(prim.GetParent().GetParent().GetPath()) == f"/{ROOT_NAME}":
                 if HALL_RE.match(prim.GetParent().GetName()) and not HALL_CHILD_RE.match(name):
-                    err("U301", path, "Hall 바로 아래 이름은 Row##, Cooling, Power 중 하나여야 한다")
+                    err("U301", path, "Hall 바로 아래 이름은 Row##, Cooling, Power, Containment, Shell, Vents, Tour 중 하나여야 한다")
 
         asset_type, type_name = _get_str(prim, "dct:assetType")
 
@@ -122,21 +131,41 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
             elif kind == "scene" and not PATH_RULES[asset_type].match(path):
                 err("U302", path, f"{asset_type}의 경로 규칙과 맞지 않다 ({PATH_RULES[asset_type].pattern})")
 
-        # 센서 ID
+        # 센서 앵커 (09 규격 4장): U402 센서 ID, U403 중복, U404 metric/unit
         sensor_id, sid_type = _get_str(prim, "dct:sensorId")
-        if sensor_id is None:
-            if kind == "scene" and asset_type in SENSOR_REQUIRED_TYPES:
-                err("U401", path, f"{asset_type}에는 dct:sensorId가 필요하다")
-        else:
-            if sid_type != Sdf.ValueTypeNames.String:
+        if asset_type == "sensor":
+            equip = path.rsplit("/Anchors/", 1)[0]
+            anchors_of[equip] = anchors_of.get(equip, 0) + 1
+            metric, _ = _get_str(prim, "dct:metric")
+            unit, _ = _get_str(prim, "dct:unit")
+            if not metric or not unit:
+                err("U404", path, "센서 앵커에는 dct:metric과 dct:unit이 필요하다")
+            elif name != f"Sensor_{str(metric).upper()}":
+                err("U404", path, f"앵커 이름은 Sensor_<METRIC>이어야 한다 (Sensor_{str(metric).upper()})")
+            if kind == "scene":
+                if sensor_id is None:
+                    err("U402", path, "장면의 센서 앵커에는 dct:sensorId가 필요하다")
+        if sensor_id is not None:
+            if asset_type != "sensor":
+                err("U402", path, "dct:sensorId는 센서 앵커에만 붙인다")
+            elif sid_type != Sdf.ValueTypeNames.String:
                 err("U402", path, f"dct:sensorId는 string이어야 한다 (현재 {sid_type})")
             elif not SENSOR_ID_RE.match(sensor_id):
-                err("U402", path, f"센서 ID 형식이 올바르지 않다: '{sensor_id}' (예: H01-R01-RK01-TEMP-IN)")
-            if kind == "scene":
+                err("U402", path, f"센서 ID 형식이 올바르지 않다: '{sensor_id}' (예: H01-RK01-TEMP-IN)")
+            elif kind == "scene":
+                m = SENSOR_PATH_RE.match(path)
+                if m:
+                    code = next(c for key, c in SENSOR_CODE_BY_FOLDER if key in path)
+                    expected = f"H{m.group(1)}-{code}{m.group(2)}-{m.group(3).replace('_', '-')}"
+                    if sensor_id != expected:
+                        err("U402", path, f"센서 ID가 경로에서 만든 값과 다르다: '{sensor_id}' (기대 '{expected}')")
+            if kind == "scene" and isinstance(sensor_id, str):
                 if sensor_id in sensor_ids:
                     err("U403", path, f"센서 ID가 중복되었다: '{sensor_id}' (이미 {sensor_ids[sensor_id]})")
                 else:
                     sensor_ids[sensor_id] = path
+        if kind == "scene" and asset_type in SENSOR_REQUIRED_TYPES:
+            equipment.append((path, asset_type))
 
         # U501 구역 값
         zone, zone_type = _get_str(prim, "dct:zone")
@@ -145,6 +174,10 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
                 err("U501", path, f"dct:zone은 token이어야 한다 (현재 {zone_type})")
             elif zone not in ZONES:
                 err("U501", path, f"dct:zone 값이 올바르지 않다: '{zone}' (허용: {sorted(ZONES)})")
+
+    for path, asset_type in equipment:  # U401: 장비는 센서 앵커를 하나 이상 가진다
+        if anchors_of.get(path, 0) == 0:
+            err("U401", path, f"{asset_type}에는 센서 앵커(Anchors/Sensor_*)가 하나 이상 필요하다")
 
     if kind == "scene" and not stage.GetPrimAtPath(f"/{ROOT_NAME}"):
         err("U103", "/", f"/{ROOT_NAME} prim이 없다")

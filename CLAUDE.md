@@ -9,7 +9,9 @@ Omniverse(OpenUSD 기반 저작·시뮬레이션)와 Unreal Engine 5.7(운영자
 - 이 저장소는 **공개 포트폴리오용**이다. 재직 회사 프로젝트(`D:\UnrealProject\` 아래 업무 프로젝트)의 **코드·에셋·데이터·고객사/내부 명칭을 복사하거나 붙이지 않는다.** 금지어 목록은 저장소에 두지 않고 로컬 파일 `.claude/cleanroom-terms.local.txt`(gitignore)에 둔다.
 - 해당 프로젝트는 **읽기 전용 참조**다. 설계 아이디어(계층 구조, 서비스 분리, 배포 절차)만 참고하고 **코드는 새로 작성**한다.
 - 모델링은 직접 제작(Blender)한 **가상 시설**만 쓴다. 실제 시설 형상/도면/좌표/로고 금지.
-- 시뮬레이션 결과는 "시각화 목적"으로 표기한다. 공학적 정확성을 주장하지 않는다(`docs/04_clean_room_policy.md`).
+- 시뮬레이션 결과는 "시각화 목적"으로 표기한다. 공학적 정확성을 주장하지 않는다(`docs/04_clean_room_policy.md`). 외부 솔버(FDS, OpenFOAM) 결과는 나중에 같은 격자 `.npy` 형식으로 받는다(ADR-009).
+- 회사 자산을 참조하는 시험 스크립트는 gitignore된 `experiments/omniverse_probe/local_only/`(및 `out/local_only/`)에만 둔다. 시험용 Unreal 프로젝트는 저장소 밖 `D:\ue_probe\`에 둔다. 상용 도구(외부 CFD 제품 등)로 계산한 결과나 화면은 올리지 않는다.
+- 커밋 전에 `git diff --cached`에서 금지어(`.claude/cleanroom-terms.local.txt`)와 업무 머티리얼·파라미터 이름이 0건인지 확인한다(`.claude/skills/clean-room-check`).
 - `D:\UnrealProject\**`, `D:\omniverse-labs-main\**`는 수정하지 않는다(권한으로도 차단).
 
 ## 구조 요약
@@ -27,6 +29,8 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 | `blender/` | .blend 원본, 내보내기 스크립트 |
 | `usd/` | 내보낸 USD 에셋/씬 (`assets/`, `scenes/`) |
 | `sim/` | 센서 시나리오 생성기, 열/기류 데이터 생성, Omniverse 스크립트 |
+| `scripts/usd_tools/` | USD 검증(`validate_usd.py`), 에셋 마무리(`finalize_asset.py`), 장면 생성(`build_scene.py`) |
+| `usd/scenes/hall01.config.json` | 홀 배치 원본(랙 6줄 x 10기, CRAC 8기). 장면은 이 파일에서만 만든다 |
 | `gateway/` | MQTT → WebSocket/REST 게이트웨이 (Node) |
 | `unreal/` | UE 5.7 프로젝트 (`DCTwin.uproject`, 에디터에서 생성) |
 | `web/` | 하이브리드 UI용 웹 패널 (일부 패널) |
@@ -34,7 +38,8 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 | `scripts/` | 환경 점검, 실행 보조 스크립트 |
 
 ## 컨벤션
-- **USD 규칙**: prim 경로 `/DC/Hall{NN}/Row{NN}/Rack_{NN}/...`, 단위 cm, Up-axis Z, 커스텀 속성 접두 `dct:` (`dct:assetType`, `dct:sensorId`). 상세: `.claude/skills/usd-conventions`.
+- **USD 규칙(v2)**: prim 경로 `/DC/Hall{NN}/Row{NN}/Rack_{NN}/...`, 단위 cm, Up-axis Z, 커스텀 속성 접두 `dct:`. 센서는 장비 아래 `Anchors/Sensor_*` 앵커 prim이고 `dct:sensorId`는 장면에서 붙인다. 홀 아래에는 `Row##`, `Cooling`, `Power`, `Shell`, `Containment`, `Vents`, `Tour`만 둔다. 상세: `docs/09_usd_spec.md`, `.claude/skills/usd-conventions`.
+- **홀 장면**: 손으로 고치지 않는다. `usd/scenes/hall01.config.json`을 고치고 `scripts/usd_tools/build_scene.py`를 다시 실행한 뒤 `validate_usd.py`로 검증한다. 나중에 Unreal에서 랙을 옮기고 다시 시뮬레이션하는 흐름을 지원하도록, 시뮬레이션 입력은 장면 USD에서 읽는다(하드코딩 금지).
 - **MQTT 토픽**: `dct/{hall}/{asset}/{metric}`, 페이로드는 JSON(`ts`, `value`, `unit`, `quality`, `scenario`).
 - **UE C++**: 모듈 `DCTwin`, 계층 `Core / Data / World / UI / Streaming`. 접두 `DCT`. 새 코드만 작성, 회사 프로젝트 클래스명 재사용 금지.
 - **Python**: `uv`로 환경 관리, 3.13 권장(`ovrtx` 휠 호환). 시스템 Python 3.14는 사용하지 않는다.
@@ -47,6 +52,7 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 - 응답과 문서에서 "하네스", "클린룸", "스모크 테스트", "베이크"는 용어집 표기("작업 환경 설정", "회사 자산 분리 규칙", "동작 확인 테스트", "미리 계산한 데이터")를 쓴다.
 
 ## 작업 방식
+- **우선순위**: 가장 중요한 것은 Omniverse 시뮬레이션과 센서 데이터의 Unreal 연동·표현이다(`docs/14_sim_to_unreal_core.md`). 외관과 둘러보기는 보조다. 진행 순서는 ① 내부 구조 모델링 → ② 그 구조로 시뮬레이션 → ③ Unreal에서 확인이며, 외부 솔버 연동은 이 구조가 동작한 뒤에 붙인다.
 - 단계는 `docs/02_roadmap.md`의 Phase 순서를 따른다. 각 Phase 끝에 산출물과 측정값을 `experiments/` 또는 `docs/`에 남긴다.
 - 설계 결정은 `docs/decisions/ADR-XXX-*.md`에 한 장씩 기록한다(결정, 근거, 대안, 한계).
 - 외부 도구(Omniverse, UE 플러그인)의 지원 상태는 시기별로 변하므로 **공식 문서로 확인한 날짜와 버전**을 기록한다.
@@ -54,4 +60,5 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 
 ## 환경 (2026-10-15 확인)
 RTX 5090 32GB / Ryzen 9 9950X3D / RAM 126GB / UE 5.7.4 / Blender 5.1 / Node, Git, uv, WSL 있음 / Mosquitto, Docker 없음.
-Omniverse: Kit 앱 미설치, `ovrtx 0.3.0`·`ovphysx 0.3.7`(Omniverse Libraries)만 로컬 샘플 venv에 있음.
+Omniverse: Kit SDK 110.4.0 앱 설치·실행 확인(`D:\omniverse-kit\kit-app-template`, 앱 `dctwin.base_editor`), Warp 1.18.0, `ovrtx 0.3.0`, `ovphysx 0.3.7`. 시험 환경은 `experiments/omniverse_probe`(uv, Python 3.13), 결과는 `experiments/results/E0_omniverse_capability_probe.md`.
+도구 경로: Blender `C:\Program Files\Blender Foundation\Blender 5.1\blender.exe`, GitHub CLI `C:\Users\User\tools\gh-2.102.0\bin\bin\gh.exe`(PATH 미등록). 저장소는 `main` 보호(PR 필수, Squash merge만).

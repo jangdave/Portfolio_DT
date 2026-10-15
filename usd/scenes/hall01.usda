@@ -1,0 +1,2401 @@
+#usda 1.0
+(
+    defaultPrim = "DC"
+    metersPerUnit = 0.01
+    upAxis = "Z"
+)
+
+def Xform "DC"
+{
+    def Xform "Hall01"
+    {
+        custom float3 dct:hallSizeCm = (1100, 1360, 400)
+
+        def Xform "Row01"
+        {
+            def Xform "Rack_01" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (280, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK01-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK01-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK01-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_02" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (340, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK02-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK02-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK02-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_03" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (400, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK03-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK03-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK03-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_04" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (460, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK04-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK04-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK04-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_05" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (520, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK05-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK05-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK05-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_06" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (580, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK06-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK06-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK06-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_07" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (640, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK07-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK07-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK07-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_08" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (700, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK08-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK08-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK08-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_09" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (760, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK09-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK09-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK09-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_10" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (820, 150, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK10-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK10-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK10-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Row02"
+        {
+            def Xform "Rack_11" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (280, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK11-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK11-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK11-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_12" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (340, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK12-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK12-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK12-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_13" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (400, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK13-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK13-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK13-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_14" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (460, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK14-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK14-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK14-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_15" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (520, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK15-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK15-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK15-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_16" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (580, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK16-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK16-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK16-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_17" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (640, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK17-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK17-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK17-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_18" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (700, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK18-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK18-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK18-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_19" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (760, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK19-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK19-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK19-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_20" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (820, 370, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK20-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK20-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK20-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Row03"
+        {
+            def Xform "Rack_21" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (280, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK21-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK21-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK21-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_22" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (340, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK22-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK22-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK22-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_23" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (400, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK23-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK23-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK23-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_24" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (460, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK24-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK24-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK24-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_25" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (520, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK25-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK25-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK25-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_26" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (580, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK26-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK26-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK26-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_27" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (640, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK27-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK27-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK27-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_28" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (700, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK28-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK28-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK28-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_29" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (760, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK29-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK29-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK29-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_30" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (820, 570, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK30-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK30-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK30-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Row04"
+        {
+            def Xform "Rack_31" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (280, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK31-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK31-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK31-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_32" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (340, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK32-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK32-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK32-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_33" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (400, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK33-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK33-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK33-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_34" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (460, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK34-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK34-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK34-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_35" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (520, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK35-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK35-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK35-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_36" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (580, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK36-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK36-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK36-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_37" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (640, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK37-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK37-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK37-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_38" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (700, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK38-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK38-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK38-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_39" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (760, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK39-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK39-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK39-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_40" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (820, 790, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK40-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK40-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK40-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Row05"
+        {
+            def Xform "Rack_41" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (280, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK41-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK41-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK41-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_42" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (340, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK42-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK42-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK42-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_43" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (400, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK43-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK43-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK43-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_44" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (460, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK44-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK44-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK44-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_45" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (520, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK45-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK45-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK45-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_46" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (580, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK46-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK46-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK46-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_47" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (640, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK47-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK47-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK47-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_48" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (700, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK48-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK48-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK48-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_49" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (760, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK49-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK49-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK49-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_50" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 180
+                double3 xformOp:translate = (820, 990, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK50-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK50-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK50-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Row06"
+        {
+            def Xform "Rack_51" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (280, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK51-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK51-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK51-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_52" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (340, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK52-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK52-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK52-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_53" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (400, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK53-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK53-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK53-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_54" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (460, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK54-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK54-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK54-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_55" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (520, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK55-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK55-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK55-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_56" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (580, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK56-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK56-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK56-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_57" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (640, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK57-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK57-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK57-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_58" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (700, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK58-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK58-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK58-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_59" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (760, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK59-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK59-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK59-POWER"
+                    }
+                }
+            }
+
+            def Xform "Rack_60" (
+                prepend references = @../assets/rack.usda@
+            )
+            {
+                float xformOp:rotateZ = 0
+                double3 xformOp:translate = (820, 1210, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_TEMP_IN"
+                    {
+                        custom string dct:sensorId = "H01-RK60-TEMP-IN"
+                    }
+
+                    over "Sensor_TEMP_OUT"
+                    {
+                        custom string dct:sensorId = "H01-RK60-TEMP-OUT"
+                    }
+
+                    over "Sensor_POWER"
+                    {
+                        custom string dct:sensorId = "H01-RK60-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Cooling"
+        {
+            def Xform "CRAC_01" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = 90
+                double3 xformOp:translate = (50, 50, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR01-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR01-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR01-FAN-SPEED"
+                    }
+                }
+            }
+
+            def Xform "CRAC_02" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = 90
+                double3 xformOp:translate = (50, 470, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR02-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR02-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR02-FAN-SPEED"
+                    }
+                }
+            }
+
+            def Xform "CRAC_03" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = 90
+                double3 xformOp:translate = (50, 890, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR03-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR03-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR03-FAN-SPEED"
+                    }
+                }
+            }
+
+            def Xform "CRAC_04" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = 90
+                double3 xformOp:translate = (50, 1310, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR04-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR04-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR04-FAN-SPEED"
+                    }
+                }
+            }
+
+            def Xform "CRAC_05" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = -90
+                double3 xformOp:translate = (1050, 50, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR05-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR05-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR05-FAN-SPEED"
+                    }
+                }
+            }
+
+            def Xform "CRAC_06" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = -90
+                double3 xformOp:translate = (1050, 470, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR06-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR06-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR06-FAN-SPEED"
+                    }
+                }
+            }
+
+            def Xform "CRAC_07" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = -90
+                double3 xformOp:translate = (1050, 890, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR07-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR07-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR07-FAN-SPEED"
+                    }
+                }
+            }
+
+            def Xform "CRAC_08" (
+                prepend references = @../assets/crac.usda@
+            )
+            {
+                float xformOp:rotateZ = -90
+                double3 xformOp:translate = (1050, 1310, 0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZ"]
+
+                over "Anchors"
+                {
+                    over "Sensor_SUPPLY_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR08-SUPPLY-TEMP"
+                    }
+
+                    over "Sensor_RETURN_TEMP"
+                    {
+                        custom string dct:sensorId = "H01-CR08-RETURN-TEMP"
+                    }
+
+                    over "Sensor_FAN_SPEED"
+                    {
+                        custom string dct:sensorId = "H01-CR08-FAN-SPEED"
+                    }
+                }
+            }
+        }
+
+        def Xform "Shell"
+        {
+            def Cube "Floor"
+            {
+                custom token dct:assetType = "shell"
+                color3f[] primvars:displayColor = [(0.55, 0.55, 0.58)]
+                double size = 1
+                float3 xformOp:scale = (1140, 1400, 20)
+                double3 xformOp:translate = (550, 680, -10)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Wall_West"
+            {
+                custom token dct:assetType = "shell"
+                color3f[] primvars:displayColor = [(0.85, 0.85, 0.87)]
+                double size = 1
+                float3 xformOp:scale = (20, 1400, 400)
+                double3 xformOp:translate = (-10, 680, 200)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Wall_East"
+            {
+                custom token dct:assetType = "shell"
+                color3f[] primvars:displayColor = [(0.85, 0.85, 0.87)]
+                double size = 1
+                float3 xformOp:scale = (20, 1400, 400)
+                double3 xformOp:translate = (1110, 680, 200)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Wall_South"
+            {
+                custom token dct:assetType = "shell"
+                color3f[] primvars:displayColor = [(0.85, 0.85, 0.87)]
+                double size = 1
+                float3 xformOp:scale = (1100, 20, 400)
+                double3 xformOp:translate = (550, -10, 200)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Wall_North"
+            {
+                custom token dct:assetType = "shell"
+                color3f[] primvars:displayColor = [(0.85, 0.85, 0.87)]
+                double size = 1
+                float3 xformOp:scale = (1100, 20, 400)
+                double3 xformOp:translate = (550, 1370, 200)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Ceiling"
+            {
+                custom token dct:assetType = "shell"
+                color3f[] primvars:displayColor = [(0.9, 0.9, 0.92)]
+                double size = 1
+                float3 xformOp:scale = (1140, 1400, 20)
+                double3 xformOp:translate = (550, 680, 410)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+        }
+
+        def Xform "Containment"
+        {
+            def Cube "HotAisle_01_Roof"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (900, 100, 5)
+                double3 xformOp:translate = (550, 50, 202.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_01_SideN_W"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (175, 102.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_01_SideN_E"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (925, 102.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_02_Roof"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (900, 100, 5)
+                double3 xformOp:translate = (550, 470, 202.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_02_SideS_W"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (175, 417.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_02_SideS_E"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (925, 417.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_02_SideN_W"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (175, 522.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_02_SideN_E"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (925, 522.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_03_Roof"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (900, 100, 5)
+                double3 xformOp:translate = (550, 890, 202.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_03_SideS_W"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (175, 837.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_03_SideS_E"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (925, 837.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_03_SideN_W"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (175, 942.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_03_SideN_E"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (925, 942.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_04_Roof"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (900, 100, 5)
+                double3 xformOp:translate = (550, 1310, 202.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_04_SideS_W"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (175, 1257.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "HotAisle_04_SideS_E"
+            {
+                custom token dct:assetType = "containment"
+                color3f[] primvars:displayColor = [(0.35, 0.6, 0.85)]
+                double size = 1
+                float3 xformOp:scale = (150, 5, 200)
+                double3 xformOp:translate = (925, 1257.5, 100)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+        }
+
+        def Xform "Vents"
+        {
+            def Cube "Vent_01"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (280, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_02"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (340, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_03"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (400, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_04"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (460, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_05"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (520, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_06"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (580, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_07"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (640, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_08"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (700, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_09"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (760, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_10"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (820, 260, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_11"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (280, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_12"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (340, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_13"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (400, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_14"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (460, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_15"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (520, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_16"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (580, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_17"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (640, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_18"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (700, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_19"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (760, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_20"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (820, 680, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_21"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (280, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_22"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (340, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_23"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (400, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_24"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (460, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_25"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (520, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_26"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (580, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_27"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (640, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_28"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (700, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_29"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (760, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "Vent_30"
+            {
+                custom token dct:assetType = "vent"
+                color3f[] primvars:displayColor = [(0.1, 0.35, 0.7)]
+                double size = 1
+                float3 xformOp:scale = (50, 100, 1)
+                double3 xformOp:translate = (820, 1100, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+        }
+    }
+}
+
