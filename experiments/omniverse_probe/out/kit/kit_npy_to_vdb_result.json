@@ -1,0 +1,119 @@
+{
+  "frames": [
+    {
+      "file": "T_0030.vdb",
+      "bytes": 75820,
+      "half": false,
+      "active_voxels": 21512,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0030_half.vdb",
+      "bytes": 44233,
+      "half": true,
+      "active_voxels": 21512,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0060.vdb",
+      "bytes": 77026,
+      "half": false,
+      "active_voxels": 21540,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0060_half.vdb",
+      "bytes": 44763,
+      "half": true,
+      "active_voxels": 21540,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0090.vdb",
+      "bytes": 81129,
+      "half": false,
+      "active_voxels": 21582,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0090_half.vdb",
+      "bytes": 46815,
+      "half": true,
+      "active_voxels": 21582,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0120.vdb",
+      "bytes": 81447,
+      "half": false,
+      "active_voxels": 21584,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0120_half.vdb",
+      "bytes": 46768,
+      "half": true,
+      "active_voxels": 21584,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0150.vdb",
+      "bytes": 81306,
+      "half": false,
+      "active_voxels": 21598,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0150_half.vdb",
+      "bytes": 46820,
+      "half": true,
+      "active_voxels": 21598,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0180.vdb",
+      "bytes": 80339,
+      "half": false,
+      "active_voxels": 21594,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0180_half.vdb",
+      "bytes": 46227,
+      "half": true,
+      "active_voxels": 21594,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0210.vdb",
+      "bytes": 79975,
+      "half": false,
+      "active_voxels": 21590,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0210_half.vdb",
+      "bytes": 46550,
+      "half": true,
+      "active_voxels": 21590,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0240.vdb",
+      "bytes": 79233,
+      "half": false,
+      "active_voxels": 21590,
+      "dense_cells": 21600
+    },
+    {
+      "file": "T_0240_half.vdb",
+      "bytes": 46049,
+      "half": true,
+      "active_voxels": 21590,
+      "dense_cells": 21600
+    }
+  ],
+  "openvdb_module": "c:/users/user/appdata/local/ov/data/kit/dctwin.base_editor/0.1/exts/3/omni.volume-0.5.2+187cf21b.wx64.r.cp312/openvdb.cp312-win_amd64.pyd",
+  "openvdb_version": "?",
+  "ok": true
+}

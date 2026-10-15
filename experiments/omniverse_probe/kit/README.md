@@ -29,3 +29,5 @@ kit\kit.exe apps\dctwin.base_editor.kit --/app/file/ignoreUnsavedOnExit=true --e
 `kit_flow_sim.py`는 환경 변수로 조절한다: `DCT_EXPORT=0`(내보내기 끄기), `DCT_FRAMES`, `DCT_SNAPS`(화면 저장 프레임), `DCT_EYE`, `DCT_TARGET`(카메라).
 **주의:** 내보내기를 켜면 몇 분에 수 GB의 `.vdb` 파일이 생긴다. 실행 후 `out/kit/flow_vdb`를 정리한다. (`*.vdb`는 Git에서 제외된다.)
 | `kit_list_exts.py` | Kit 확장 레지스트리 전체 조회(685개 이름), 시뮬레이션 관련 키워드 검색 | `out/kit/kit_list_exts.json` |
+| `kit_npy_to_vdb.py` | numpy 온도 프레임을 OpenVDB(`.vdb`)로 변환(`omni.volume`의 `openvdb` 모듈 사용) | `out/frames/vdb/*.vdb`, `out/kit/kit_npy_to_vdb_result.json` |
+| `kit_vdb_roundtrip.py` | 변환한 `.vdb`를 다시 읽어 원본과 비교(float, half) | `out/kit/kit_vdb_roundtrip_result.json` |

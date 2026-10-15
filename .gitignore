@@ -37,3 +37,6 @@ Thumbs.db
 experiments/omniverse_probe/out/*.nvdb
 experiments/omniverse_probe/out/*_stdout.txt
 experiments/omniverse_probe/out/*_stderr.txt
+
+# 시험용 중간 프레임(numpy, vdb): 스크립트로 다시 만들 수 있다
+experiments/omniverse_probe/out/frames/
