@@ -18,6 +18,8 @@ from pathlib import Path
 
 from pxr import Sdf, Usd, UsdGeom
 
+from dct_ids import sensor_id_from_path
+
 # --- 규칙 값 ---------------------------------------------------------------
 METERS_PER_UNIT = 0.01  # 단위 cm
 UP_AXIS = "Z"
@@ -41,8 +43,6 @@ PATH_RULES = {
     "building": re.compile(r"^/DC/Building\d{2}$"),  # 09 규격 12장
     "outdoor": re.compile(r"^/DC/Building\d{2}/Outdoor(/[A-Za-z0-9_]+)?$"),  # Outdoor 자신 또는 바로 아래 설비
 }
-SENSOR_PATH_RE = re.compile(r"^/DC/Hall(\d{2})/(?:Row\d{2}/Rack|Cooling/CRAC|Power/PDU)_(\d{2,})/Anchors/Sensor_([A-Z0-9_]+)$")
-SENSOR_CODE_BY_FOLDER = (("/Rack_", "RK"), ("/CRAC_", "CR"), ("/PDU_", "PD"))
 HALL_RE = re.compile(r"^Hall\d{2}$")
 BUILDING_RE = re.compile(r"^Building\d{2}$")
 BUILDING_CHILD_RE = re.compile(r"^(Exterior|Floors|Outdoor)$")
@@ -161,12 +161,9 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
             elif not SENSOR_ID_RE.match(sensor_id):
                 err("U402", path, f"센서 ID 형식이 올바르지 않다: '{sensor_id}' (예: H01-RK01-TEMP-IN)")
             elif kind == "scene":
-                m = SENSOR_PATH_RE.match(path)
-                if m:
-                    code = next(c for key, c in SENSOR_CODE_BY_FOLDER if key in path)
-                    expected = f"H{m.group(1)}-{code}{m.group(2)}-{m.group(3).replace('_', '-')}"
-                    if sensor_id != expected:
-                        err("U402", path, f"센서 ID가 경로에서 만든 값과 다르다: '{sensor_id}' (기대 '{expected}')")
+                expected = sensor_id_from_path(path)  # 변환 규칙은 dct_ids.py 한 곳에만 있다
+                if expected is not None and sensor_id != expected:
+                    err("U402", path, f"센서 ID가 경로에서 만든 값과 다르다: '{sensor_id}' (기대 '{expected}')")
             if kind == "scene" and isinstance(sensor_id, str):
                 if sensor_id in sensor_ids:
                     err("U403", path, f"센서 ID가 중복되었다: '{sensor_id}' (이미 {sensor_ids[sensor_id]})")
