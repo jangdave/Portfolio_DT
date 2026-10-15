@@ -1,0 +1,45 @@
+#usda 1.0
+(
+    defaultPrim = "DC"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "DC"
+{
+    def Xform "Hall01"
+    {
+        def Xform "Row01"
+        {
+            def Xform "Rack_01"
+            {
+                token dct:assetType = "rack"
+                string dct:sensorId = "H01-R01-RK01-TEMP-IN"
+                token dct:zone = "warm"
+
+                def Xform "Server_U01"
+                {
+                    token dct:assetType = "server"
+                }
+            }
+        }
+
+        def Xform "Cooling"
+        {
+            def Xform "CRAC_01"
+            {
+                token dct:assetType = "crac"
+                string dct:sensorId = "H01-CRAC01-FAN"
+            }
+        }
+
+        def Xform "Power"
+        {
+            def Xform "PDU_01"
+            {
+                token dct:assetType = "pdu"
+                string dct:sensorId = "H01-CRAC01-FAN"
+            }
+        }
+    }
+}

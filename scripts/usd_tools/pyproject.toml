@@ -1,0 +1,17 @@
+[project]
+name = "dctwin-usd-tools"
+version = "0.1.0"
+description = "DC-Twin USD 규칙 검증 도구"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "usd-core",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
