@@ -38,7 +38,7 @@ UE 5.7 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 - **MQTT 토픽**: `dct/{hall}/{asset}/{metric}`, 페이로드는 JSON(`ts`, `value`, `unit`, `quality`, `scenario`).
 - **UE C++**: 모듈 `DCTwin`, 계층 `Core / Data / World / UI / Streaming`. 접두 `DCT`. 새 코드만 작성, 회사 프로젝트 클래스명 재사용 금지.
 - **Python**: `uv`로 환경 관리, 3.13 권장(`ovrtx` 휠 호환). 시스템 Python 3.14는 사용하지 않는다.
-- 커밋 메시지는 한국어 또는 영어 중 하나로 일관. 사용자가 요청할 때만 커밋/푸시한다.
+- **Git 워크플로**(`docs/06_workflow.md`): `main`에서 직접 작업하지 않는다. 작업 시작 시 `feat|fix|docs|chore|exp/<주제>` 브랜치를 먼저 만들고, Conventional Commits로 커밋(`type(scope)`는 영어 키워드, **제목·본문은 한글**: 예 `feat(sim): cooling_failure 시나리오 생성기 추가`), PR → Squash merge. 바이너리는 Git LFS. 사용자가 요청할 때만 commit/push/PR을 만든다. force push 금지.
 
 ## 작업 방식
 - 단계는 `docs/02_roadmap.md`의 Phase 순서를 따른다. 각 Phase 끝에 산출물과 측정값을 `experiments/` 또는 `docs/`에 남긴다.
