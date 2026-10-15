@@ -26,7 +26,7 @@ def Xform "CRAC"
             float3[] extent = [(-45, -50, -5), (45, 50, 5)]
             int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
             int[] faceVertexIndices = [0, 1, 3, 2, 2, 3, 7, 6, 6, 7, 5, 4, 4, 5, 1, 0, 2, 6, 4, 0, 7, 3, 1, 5]
-            rel material:binding = </root/_materials/M_CracTop>
+            rel material:binding = </CRAC/_materials/M_CracTop>
             normal3f[] normals = [(-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
                 interpolation = "faceVarying"
             )
@@ -91,7 +91,7 @@ def Xform "CRAC"
             float3[] extent = [(-40, -1, -90), (40, 1, 90)]
             int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
             int[] faceVertexIndices = [0, 1, 3, 2, 2, 3, 7, 6, 6, 7, 5, 4, 4, 5, 1, 0, 2, 6, 4, 0, 7, 3, 1, 5]
-            rel material:binding = </root/_materials/M_CracReturn>
+            rel material:binding = </CRAC/_materials/M_CracReturn>
             normal3f[] normals = [(-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
                 interpolation = "faceVarying"
             )
@@ -120,7 +120,7 @@ def Xform "CRAC"
             float3[] extent = [(-45, -49, -105), (45, 49, 105)]
             int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
             int[] faceVertexIndices = [0, 1, 3, 2, 2, 3, 7, 6, 6, 7, 5, 4, 4, 5, 1, 0, 2, 6, 4, 0, 7, 3, 1, 5]
-            rel material:binding = </root/_materials/M_CracBody>
+            rel material:binding = </CRAC/_materials/M_CracBody>
             normal3f[] normals = [(-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
                 interpolation = "faceVarying"
             )
@@ -137,7 +137,7 @@ def Xform "CRAC"
     {
         def Material "M_CracTop"
         {
-            token outputs:surface.connect = </root/_materials/M_CracTop/Principled_BSDF.outputs:surface>
+            token outputs:surface.connect = </CRAC/_materials/M_CracTop/Principled_BSDF.outputs:surface>
 
             def Shader "Principled_BSDF"
             {
@@ -156,7 +156,7 @@ def Xform "CRAC"
 
         def Material "M_CracReturn"
         {
-            token outputs:surface.connect = </root/_materials/M_CracReturn/Principled_BSDF.outputs:surface>
+            token outputs:surface.connect = </CRAC/_materials/M_CracReturn/Principled_BSDF.outputs:surface>
 
             def Shader "Principled_BSDF"
             {
@@ -175,7 +175,7 @@ def Xform "CRAC"
 
         def Material "M_CracBody"
         {
-            token outputs:surface.connect = </root/_materials/M_CracBody/Principled_BSDF.outputs:surface>
+            token outputs:surface.connect = </CRAC/_materials/M_CracBody/Principled_BSDF.outputs:surface>
 
             def Shader "Principled_BSDF"
             {

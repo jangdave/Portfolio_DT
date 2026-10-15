@@ -3,7 +3,8 @@
 하는 일:
 1. `/root` 아래에 있는 가장 바깥 오브젝트를 최상위로 올리고 `/root`를 없앤다.
 2. 기본 prim(defaultPrim) 지정, 단위 cm(0.01), 위쪽 축 Z 지정
-3. `dct:assetType`, `dct:zone`, `dct:metric`을 string에서 token으로 바꾼다.
+3. `/root`를 가리키던 재질 바인딩 등 관계의 대상 경로를 새 위치로 고친다.
+4. `dct:assetType`, `dct:zone`, `dct:metric`을 string에서 token으로 바꾼다.
 
 사용 (scripts/usd_tools 폴더에서):
     uv run --python 3.13 python finalize_asset.py <입력.usd> <출력.usda>
@@ -47,6 +48,30 @@ def flatten_root(stage: Usd.Stage, root_path: str = "/root") -> str:
     return str(new_path)
 
 
+def retarget_root_refs(stage: Usd.Stage, top: str, root_path: str = "/root") -> int:
+    """`/root/...`를 가리키던 관계(재질 바인딩)와 속성 연결(셰이더)의 대상을 올라온 최상위(`/<top>/...`)로 고친다. 고친 개수를 돌려준다.
+
+    prim을 `/root` 밖으로 옮겨도 관계의 대상 경로는 따라가지 않아서, 그대로 두면 재질이 연결되지 않는다.
+    """
+    prefix = root_path + "/"
+    changed = 0
+    for prim in stage.Traverse():
+        for rel in prim.GetRelationships():
+            targets = rel.GetTargets()
+            if not any(str(t).startswith(prefix) for t in targets):
+                continue
+            new = [Sdf.Path("/" + top.lstrip("/") + "/" + str(t)[len(prefix):]) if str(t).startswith(prefix) else t for t in targets]
+            rel.SetTargets(new)
+            changed += 1
+        for attr in prim.GetAttributes():  # 셰이더 연결(outputs:surface.connect 등)도 같은 문제가 있다
+            conns = attr.GetConnections()
+            if not any(str(c).startswith(prefix) for c in conns):
+                continue
+            attr.SetConnections([Sdf.Path("/" + top.lstrip("/") + "/" + str(c)[len(prefix):]) if str(c).startswith(prefix) else c for c in conns])
+            changed += 1
+    return changed
+
+
 def to_token(stage: Usd.Stage) -> int:
     """string 속성을 token으로 바꾸고 바뀐 개수를 돌려준다."""
     changed = 0
@@ -68,12 +93,13 @@ def finalize(src: Path, dst: Path) -> dict:
     if stage is None:
         raise RuntimeError(f"파일을 열 수 없다: {src}")
     top = flatten_root(stage)
+    n_rel = retarget_root_refs(stage, top.lstrip("/"))
     stage.SetDefaultPrim(stage.GetPrimAtPath(top))
     UsdGeom.SetStageMetersPerUnit(stage, 0.01)
     UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.z)
     n = to_token(stage)
     stage.GetRootLayer().Export(str(dst))
-    return {"default_prim": top, "token_attrs_changed": n, "output": str(dst)}
+    return {"default_prim": top, "token_attrs_changed": n, "relationships_retargeted": n_rel, "output": str(dst)}
 
 
 def main(argv: list[str] | None = None) -> int:

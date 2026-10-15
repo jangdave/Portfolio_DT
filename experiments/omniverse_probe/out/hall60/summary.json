@@ -1,0 +1,64 @@
+{
+  "scene": "D:\\Test\\usd\\scenes\\hall01.usda",
+  "grid": [
+    110,
+    136,
+    40
+  ],
+  "dt_phys_s": 0.04,
+  "slow_factor": 10.0,
+  "power_kw_per_rack": 10.0,
+  "flow_normal": null,
+  "flow_fail": {
+    "solve_s": 3.7,
+    "cg_info": 0,
+    "cells": 501600,
+    "max_speed_ms": 5.21,
+    "p99_speed_ms": 4.69,
+    "crac_return_m3s": [
+      4.8,
+      0.0,
+      9.6,
+      4.8,
+      4.8,
+      0.0,
+      9.6,
+      4.8
+    ],
+    "aisle_leak_m3s": [
+      0.0,
+      19.2,
+      0.0,
+      0.0
+    ],
+    "supply_m3s": 38.4,
+    "rack_m3s": 57.6
+  },
+  "fail": "CRAC_02,CRAC_06",
+  "fail_time_s": 120,
+  "rack_inlet_C": {
+    "t=120s": {
+      "min": 18.39,
+      "mean": 18.41,
+      "max": 18.47,
+      "end_racks_mean": 18.47,
+      "middle_racks_mean": 18.39
+    },
+    "t=900s": {
+      "min": 19.07,
+      "mean": 19.98,
+      "max": 23.44,
+      "end_racks_mean": 22.43,
+      "middle_racks_mean": 19.36
+    }
+  },
+  "hottest_inlet_racks_end": [
+    "Rack_30",
+    "Rack_21",
+    "Rack_50",
+    "Rack_41",
+    "Rack_11"
+  ],
+  "wall_clock_s": 4.3,
+  "realtime_ratio": 208.9
+}
