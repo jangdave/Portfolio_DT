@@ -22,17 +22,22 @@ description: 이 프로젝트의 USD 에셋/씬 작성 규칙(prim 경로, 단�
     /Containment/...                  (뜨거운 통로 격벽)
     /Vents/Vent_01 ...                (바닥 급기구)
     /Tour/View_01 ...                 (투어 지점, 예정)
+  /Building01                         (건물 외관, assetType = building)
+    /Exterior  /Floors  /Outdoor      (Outdoor는 assetType = outdoor, 09 규격 12장)
 ```
+- `/DC` 바로 아래는 `Hall##`, `Building##` 둘 다 허용. `Building##` 아래는 `Exterior`, `Floors`, `Outdoor`만 허용.
 - 번호는 두 자리 이상 0 패딩, 영문 PascalCase + 언더스코어 번호.
 
 ## 커스텀 속성 (접두 `dct:`)
 | 속성 | 타입 | 붙는 곳 | 예 |
 |---|---|---|---|
-| `dct:assetType` | token | 장비, 센서 앵커, 외피 등 | rack, server, crac, pdu, sensor, shell, containment, vent |
+| `dct:assetType` | token | 장비, 센서 앵커, 외피 등 | rack, server, crac, pdu, sensor, shell, containment, vent, building, outdoor |
 | `dct:sensorId` | string | 센서 앵커(장면에서만) | `H01-RK01-TEMP-IN` |
 | `dct:metric` | token | 센서 앵커 | `temp_in` |
 | `dct:unit` | string | 센서 앵커 | `degC` |
 | `dct:zone` | token | 랙, 센서 앵커(선택) | cold_aisle, hot_aisle |
+| `dct:title` | string | 건물 | `Data Center Building` |
+| `dct:floor` | int | 홀, 층 표시 모양(선택) | 3 |
 
 - 센서 ID는 경로에서 계산한다: `H` + 홀 번호 + `-` + 장비 코드(RK, CR, PD) + 장비 번호 + `-` + 측정 종류(대문자, `_`는 `-`). MQTT 주소는 `dct/v1/hall01/rack_01/temp_in` 형식.
 - 앵커 이름은 `Sensor_<METRIC 대문자>`이고 `dct:metric`과 같아야 한다.
@@ -50,11 +55,12 @@ description: 이 프로젝트의 USD 에셋/씬 작성 규칙(prim 경로, 단�
 | U101 / U102 / U103 | 단위(cm), 위쪽 축(Z), 기본 prim(장면은 `DC`) |
 | U201 | 에셋의 기본 prim에 `dct:assetType`이 없음 |
 | U202 / U203 | 장비 이름인데 `dct:assetType`이 없음 / 값이 올바르지 않음 |
-| U301 / U302 | 장면의 계층 이름(Hall##, 그 아래 Row##, Cooling, Power, Containment, Shell, Vents, Tour) / 종류별 경로 규칙 |
+| U301 / U302 | 장면의 계층 이름(`/DC` 아래 Hall## 또는 Building##, Hall 아래 Row##, Cooling, Power, Containment, Shell, Vents, Tour, Building 아래 Exterior, Floors, Outdoor) / 종류별 경로 규칙 |
 | U401 | 랙·CRAC·PDU에 센서 앵커가 하나도 없음 |
 | U402 / U403 | 센서 ID 누락·형식 오류·경로에서 만든 값과 다름 / 중복 |
 | U404 | 센서 앵커에 `dct:metric`, `dct:unit`이 없거나 앵커 이름이 metric과 다름 |
 | U501 | `dct:zone` 값 오류 |
+| U502 | `dct:floor`가 1 이상의 정수가 아님 |
 
 ## 검증 방법
 ```

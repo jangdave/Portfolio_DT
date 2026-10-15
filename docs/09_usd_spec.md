@@ -141,6 +141,8 @@ def Xform "Rack_01" (
 | `M_ServerFront` | 서버 **앞면 패널**. 온도에 따라 색을 바꾸는 부분이므로 **반드시 별도 재질 칸**으로 둔다. |
 | `M_Door` | 문 (있는 경우) |
 
+건물 외관 재질은 12장 표를 따른다. 외관은 **4096x4096 이미지 텍스처**를 연결한 재질을 쓴다(아래 12장).
+
 - Blender의 Principled BSDF 재질은 USD로 나갈 때 `UsdPreviewSurface`로 바뀐다. 복잡한 노드는 바뀌지 않으므로 단순한 값(색, 금속성, 거칠기)만 쓴다.
 - 온도 색 표시는 재질을 바꾸지 않고 Unreal에서 **인스턴스별 값**(Custom Primitive Data)으로 처리한다. ([12](12_unreal_design.md) 5장)
 
@@ -148,11 +150,13 @@ def Xform "Rack_01" (
 
 | 속성 | 타입 | 붙는 곳 | 필수 |
 |---|---|---|---|
-| `dct:assetType` | token (`rack`, `server`, `crac`, `pdu`, `sensor`) | 장비, 센서 앵커, 에셋의 기본 prim | 필수 |
+| `dct:assetType` | token (`rack`, `server`, `crac`, `pdu`, `sensor`, `shell`, `containment`, `vent`, `building`, `outdoor`) | 장비, 센서 앵커, 에셋의 기본 prim | 필수 |
 | `dct:sensorId` | string | 센서 앵커 (장면) | 장면에서 필수 |
 | `dct:metric` | token | 센서 앵커 | 필수 |
 | `dct:unit` | string | 센서 앵커 | 필수 |
 | `dct:zone` | token (`cold_aisle`, `hot_aisle`) | 랙, 센서 앵커 | 선택 |
+| `dct:title` | string | 건물(`Building`) | 건물에서 필수 |
+| `dct:floor` | int (1 이상) | 홀, 건물의 층 표시 모양(`Floor_NN`) | 선택 |
 
 Blender에서 사용자 속성으로 만들면 USD에는 string으로 나온다. `finalize_asset.py`가 `assetType`, `zone`, `metric`을 token으로 바꾼다.
 
@@ -173,6 +177,7 @@ Blender에서 사용자 속성으로 만들면 USD에는 string으로 나온다.
 | 랙 | `usd/assets/rack.usda` | 블록아웃 완료(삼각형 312개). 센서 앵커 2개(v1 형식)이며 v2로 고쳐야 한다. 직접 모델링 예정 ([이슈 #4](https://github.com/jangdave/Portfolio_DT/issues/4)) |
 | CRAC | `usd/assets/crac.usda` | 블록아웃 완료(90 x 100 x 220 cm). 센서 앵커 3개(v2 형식) |
 | PDU | `usd/assets/pdu.usda` | 예정 (Phase 2) |
+| 건물 외관 | `usd/assets/building.usda` + `usd/assets/textures/building/` | 직접 모델링과 4K 텍스처 완료(2026-10-15, 삼각형 약 13.8만). 형상 33개 오브젝트, 재질 14개. 만드는 방법은 12장 |
 | 홀 외피(바닥, 벽, 천장) | 별도 에셋 없음 | 장면 생성 스크립트가 상자로 생성 (Phase 2) |
 
 ## 11. 방(홀)과 둘러보기 규격 (초안 v2.1)
@@ -255,3 +260,44 @@ Blender에서 사용자 속성으로 만들면 USD에는 string으로 나온다.
 - 건물 외관과 옥외 설비는 **직접 모델링**한다. 외벽은 모듈형 패널로 만들어 반복해 쓴다.
 - 외관 모델은 걸어 다니지 않으므로 충돌 형상이 필요 없고, 열 시뮬레이션에도 쓰이지 않는다. 외관 정보는 보기 위한 모양이다.
 - 검증 스크립트는 `building`, `outdoor`를 `dct:assetType` 허용 값에 추가하고, `/DC` 바로 아래에 `Hall##`과 `Building##`을 모두 허용하도록 고친다([이슈 #10](https://github.com/jangdave/Portfolio_DT/issues/10)).
+
+### 12.1 건물 외관 에셋 (`building.usda`) 규격
+
+가상 시설이다. 실제 시설의 형상, 도면, 로고, 상표, 간판 문구를 따라 하지 않았다. 설계의 근거는 [15 외관 레퍼런스](15_exterior_references.md)에 있다.
+
+| 항목 | 값 |
+|---|---|
+| 기본 prim | `Building` (`dct:assetType = "building"`, `dct:title`). 장면에서는 `/DC/Building01`로 참조한다. |
+| 원점, 방향 | 지면 중앙. 정문 방향이 -Y, 위쪽 +Z, 단위 cm |
+| 건물 크기 | 72 x 45.6 m, 3층 x 4.8 m, 지붕면 높이 14.4 m (난간벽 위 15.4 m). 서버 랙 홀(11.0 x 13.6 x 4.0 m)이 3층 안에 들어간다. |
+| 부지 | 울타리 안쪽 130 x 105 m (x -65~65 m, y -55~50 m). 정문(울타리 앞쪽 가운데 12 m)은 -Y. |
+| 이 크기의 근거 | 공개 자료에서 본 "저층 대형 직육면체"의 느낌에 맞춰 **직접 정한 값**이다. 실제 시설의 치수가 아니다. |
+
+```
+Building                (assetType = building, title)
+ ├─ Exterior            Plinth, WallCore, WallPanels, WallTrim, Louvers, ServiceDoors, Entrance,
+ │                      RoofDeck, RoofEquipment, RoofScreens
+ ├─ Floors              Floor_01, Floor_02, Floor_03   (dct:floor = 1, 2, 3. 외벽 안쪽에 들어가는 단순 상자)
+ ├─ Outdoor             (assetType = outdoor)
+ │    SiteGround, CoolingTower_01~04, CoolingPipes, Generator_01~08, FuelTanks, Substation,
+ │    Fence, GateAndGuardHouse, LightPoles, Landscape     (각각 assetType = outdoor)
+ └─ _materials
+```
+
+- `Hall01`은 3층(`dct:floor = 3`)에 둔다. `Floor_03` 상자가 홀을 덮는 자리이며, 외관 화면에서 층을 열 때 `Floors` 아래 상자를 숨기고 `Hall01` 서브레벨을 불러온다.
+- 외벽은 1.2 x 2.4 m 패널을 하나씩 모델링했고(틈 2 cm), 패널 칸마다 텍스처를 패널 한 칸 단위로 옮겨 같은 얼룩이 반복돼 보이지 않게 했다.
+
+#### 외관 재질과 텍스처 (4096 x 4096 PNG, 8비트, 타일링 가능)
+
+| 재질 | 용도 | 텍스처 | 타일 크기 |
+|---|---|---|---|
+| `M_BldgPanelMetal` | 외벽 금속 패널, 경비실, 차양 | `T_BldgPanelMetal_` BaseColor, Normal, Roughness, Metallic (+AO 파일, 재질에는 연결 안 함) | 4.8 m (패널 4열 x 2행) |
+| `M_BldgConcrete` | 기초, 포장, 설비 바닥판, 수조 | `T_BldgConcrete_` BaseColor, Normal, Roughness | 4.0 m (줄눈 2 m 간격) |
+| `M_BldgRoof` | 지붕 방수막 | `T_BldgRoof_` BaseColor, Normal, Roughness | 4.8 m (이음 1.2 m 간격) |
+| `M_Asphalt` | 부지 바닥 | `T_Asphalt_` BaseColor, Normal, Roughness | 4.0 m |
+| `M_BldgLouver`, `M_BldgGlass`, `M_BldgWallCore`, `M_BldgFan`, `M_BldgFloorProxy`, `M_OutdoorEquip`, `M_Fence`, `M_ParkingPaint`, `M_Foliage`, `M_Trunk` | 단색 재질(텍스처 없음) | - | - |
+
+- 텍셀 밀도: 약 850~1020 픽셀/m. UV는 면마다 세계 길이를 타일 크기로 나눈 값이며, 늘어나지 않게 이어진다(타일 범위를 넘는 UV, 반복 설정 `repeat`).
+- 노멀 맵 녹색 채널: **OpenGL 규약(녹색 = 위쪽이 +)** 으로 저장한다. Blender와 USD UsdPreviewSurface가 이 규약(`scale 2, bias -1`)을 쓴다. **Unreal은 DirectX 규약(녹색 = 아래쪽이 +)** 이므로 가져올 때 "Flip Green Channel"을 켜거나, 텍스처 생성 스크립트에 `--directx`를 붙여 다시 만든다. (Unreal 5.7에서 USD로 가져올 때 자동으로 뒤집히는지는 **확인하지 못했다.** Phase 5.5 때 확인한다.)
+- 텍스처 원본 폴더는 `blender/textures/building/`(스크립트로 다시 만들 수 있어 저장소에 올리지 않음), USD가 쓰는 복사본은 `usd/assets/textures/building/`이다.
+- 만드는 순서: 텍스처(`make_building_textures.py`) → 모델(`make_building_exterior.py`) → `export_usd.py ... --textures NEW` → `finalize_asset.py ... --textures-dir ...` ([10 모델링 가이드](10_modeling_guide.md) 11장).

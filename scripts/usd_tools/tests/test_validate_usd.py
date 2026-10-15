@@ -94,6 +94,47 @@ def Xform "DC"
 }
 """
 
+BUILDING_BODY = """
+    def Xform "Building01"
+    {
+        token dct:assetType = "building"
+        string dct:title = "Data Center"
+
+        def Xform "Exterior"
+        {
+            def Xform "Walls"
+            {
+            }
+        }
+
+        def Xform "Floors"
+        {
+            def Xform "Floor_03"
+            {
+                int dct:floor = 3
+            }
+        }
+
+        def Xform "Outdoor"
+        {
+            token dct:assetType = "outdoor"
+
+            def Xform "CoolingTower_01"
+            {
+                token dct:assetType = "outdoor"
+            }
+        }
+    }
+"""
+
+
+def with_building(extra: str = BUILDING_BODY) -> str:
+    """GOOD_BODY의 /DC 안(마지막 닫는 중괄호 앞)에 건물을 끼워 넣는다."""
+    body = GOOD_BODY.rstrip()
+    assert body.endswith("}")
+    return HEADER + body[:-1] + extra + "}\n"
+
+
 def write(tmp_path: Path, text: str, name: str = "t.usda") -> Path:
     p = tmp_path / name
     p.write_text(text, encoding="utf-8")
@@ -235,3 +276,54 @@ def test_cli_exit_codes(tmp_path, capsys):
     assert main([str(bad)]) == 1
     out = capsys.readouterr().out
     assert "통과" in out and "실패" in out
+
+
+# --- 건물 외관 (09 규격 12장) ---
+def test_scene_with_building_passes(tmp_path):
+    assert validate_file(write(tmp_path, with_building())) == []
+
+
+def test_building_and_outdoor_are_valid_asset_types(tmp_path):
+    text = """#usda 1.0
+(
+    defaultPrim = "Building"
+    metersPerUnit = 0.01
+    upAxis = "Z"
+)
+def Xform "Building"
+{
+    token dct:assetType = "building"
+    def Xform "Outdoor"
+    {
+        token dct:assetType = "outdoor"
+    }
+}
+"""
+    assert rules(tmp_path, text, kind="asset") == set()
+
+
+def test_building_name_must_have_two_digit_number(tmp_path):
+    text = with_building().replace('"Building01"', '"Building1"')
+    assert "U301" in rules(tmp_path, text)
+
+
+def test_building_child_name_rule(tmp_path):
+    text = with_building().replace('def Xform "Floors"', 'def Xform "Levels"')
+    assert "U301" in rules(tmp_path, text)
+
+
+def test_outdoor_must_be_under_building_outdoor(tmp_path):
+    text = with_building().replace('def Xform "Outdoor"', 'def Xform "Yard"')
+    found = rules(tmp_path, text)  # Yard는 허용 이름이 아니고, assetType=outdoor가 허용 경로 밖에 있다
+    assert "U301" in found and "U302" in found
+
+
+def test_building_asset_type_in_wrong_place(tmp_path):
+    inner = 'def Xform "Cooling3"\n        {\n            token dct:assetType = "building"\n        }\n        def Xform "Shell"'
+    text = (HEADER + GOOD_BODY).replace('def Xform "Shell"', inner, 1)
+    assert "U302" in rules(tmp_path, text)
+
+
+def test_floor_must_be_positive_integer(tmp_path):
+    assert "U502" in rules(tmp_path, with_building().replace("int dct:floor = 3", "int dct:floor = 0"))
+    assert "U502" in rules(tmp_path, with_building().replace("int dct:floor = 3", 'string dct:floor = "3"'))
