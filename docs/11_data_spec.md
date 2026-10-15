@@ -139,6 +139,30 @@ JSON 텍스트다. `type`으로 종류를 구분한다.
 | `GET /api/history?sensorId=...&minutes=15` | 최근 이력 (기본 15분 보관, 메모리) |
 | `WS /ws` | 실시간 전달 |
 
+### 4.6 게이트웨이 구현 현황 (2026-10-15)
+`gateway/`(Node 22 이상, 서버용으로 `ws` 하나만 쓴다)에 4장의 규칙을 구현했다.
+
+```
+cd gateway
+npm install
+npm test                                     # Node 내장 시험 21개
+node src/index.js --manifest ../sim/out/sensor_manifest.json --replay ../sim/out/recordings/cooling_failure.jsonl --time-scale 10
+```
+
+| 기능 | 내용 |
+|---|---|
+| 입력 | `--replay 파일.jsonl`(생성기가 만든 파일을 센서 시각 간격대로 재생, **MQTT 없이도 같은 값**), `--mqtt mqtt://호스트:포트`(선택, `mqtt` 패키지 필요, 브로커는 설치하지 않았다) |
+| 검증 | 형식이 틀리거나 센서를 모르거나 단위가 다르면 버리고 로그에 남김, 범위 밖이면 `quality: bad`이고 알람 판정 안 함(4.2장) |
+| 알람 | 2번 연속, 히스테리시스 0.5, 낮을수록 위험(4.4장). 생성기와 **같은 시험 자료** `sim/sensors/tests/alarm_vectors.json`으로 검증 |
+| stale | 센서 시각 기준 5초 동안 값이 없으면 `stale`로 알리고 마지막 값은 유지(센서 시각을 시계로 써서 재생해도 같은 판정) |
+| 이력 | 센서마다 15분을 메모리에 보관 |
+| 집계 | `it_power`, `cooling_power`, `facility_power`, `pue`, `energy_kwh`(9장). 생성기의 `aggregate` 줄은 무시하고 게이트웨이가 다시 계산 |
+| 내보내기 | REST `/healthz`, `/api/sensors`, `/api/latest`, `/api/history?sensorId=&minutes=`, `/api/aggregates`, WebSocket `/ws`(접속 직후 `snapshot`, 이후 `sample`, `alarm`, `scenario`, `aggregate`). 기본은 `127.0.0.1`만 연다(8장) |
+| 녹화 | `--record 파일.jsonl` |
+
+- 확인: `cooling_failure` 녹화(센서 204개, 81,600건)를 `--time-scale 0`으로 재생하면 버린 메시지 0건, 마지막에 알람 상태 센서 38개, IT 전력 약 440 kW, PUE 약 1.13이 나온다(합성 추정값).
+- 한계: MQTT 입력은 브로커 없이 시험하지 못했다(코드만 있음). WebSocket 인증과 외부 노출은 8장 방식을 따라야 한다.
+
 ## 5. 시간과 재현
 
 - **시간 기준:** 센서 값의 시각(`ts`)은 **생성기가 정한 시각**이다. 게이트웨이와 Unreal은 받은 시각이 아니라 `ts`를 기준으로 이력과 그래프를 그린다.
