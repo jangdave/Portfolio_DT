@@ -10,4 +10,5 @@ dependencies = [
     "warp-lang",
     "ovrtx==0.3.0.312915",
     "ovphysx==0.3.7",
+    "scipy>=1.18.1",
 ]

@@ -49,3 +49,4 @@ experiments/omniverse_probe/out/local_only/
 
 # 방향 정보 중간 파일(numpy): export_direction_fields.py로 다시 만들 수 있다
 experiments/omniverse_probe/out/direction/*.npy
+experiments/omniverse_probe/out/circulation/*.npy
