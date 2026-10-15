@@ -20,12 +20,18 @@ import traceback
 
 import unreal
 
-PKG = "/Game/HeatDemo"
+PKG = "/Game/" + os.environ.get("DCT_PKG", "HeatDemo")
 SVT_PARAM = "SparseVolumeTexture"  # 엔진 기본 Sparse Volume 머티리얼과 같은 파라미터 이름
-T_MIN, T_MAX, T_WARN, T_CRIT = 24.0, 54.0, 27.0, 32.0
+T_MIN = float(os.environ.get("DCT_TMIN", "24"))
+T_MAX = float(os.environ.get("DCT_TMAX", "54"))
+T_WARN = float(os.environ.get("DCT_TWARN", "27"))  # 주의 기준(랙 입구 권장 상한)
+T_CRIT = float(os.environ.get("DCT_TCRIT", "32"))  # 위험 기준
+DENSITY = float(os.environ.get("DCT_DENSITY", "0.004"))
+FAILED = [n for n in os.environ.get("DCT_FAILED", "CRAC_02").split(",") if n]  # 고장 표시할 CRAC 이름
 WARN_N = (T_WARN - T_MIN) / (T_MAX - T_MIN)
 CRIT_N = (T_CRIT - T_MIN) / (T_MAX - T_MIN)
-HALL_CM = (800.0, 600.0, 350.0)
+HALL_CM = (800.0, 600.0, 350.0)  # 레이아웃 파일에서 읽어 덮어쓴다
+PKG_NAME = os.environ.get("DCT_PKG", "HeatDemo")
 VARIANTS = [("N", "TempN"), ("FX", "TempFX"), ("FY", "TempFY")]
 result_path = os.environ.get("DCT_UE_RESULT", "D:/ue_probe/heat_result.json")
 layout_path = os.environ.get("DCT_LAYOUT", "D:/Test/experiments/omniverse_probe/out/layout.json")
@@ -120,7 +126,7 @@ def build_material(tag, svt):
     ramp = lerp(mat, lerp(mat, lerp(mat, c_cool, c_warn, a1, -200, -600), c_crit, a2, 0, -500), c_hot, a3, 200, -400)
 
     contrast = param(mat, "Contrast", 1.2, 0, 700)
-    density = param(mat, "DensityScale", 0.004, 0, 800)  # 홀 폭 600cm에서 값 0.5일 때 광학 두께가 약 1.2
+    density = param(mat, "DensityScale", DENSITY, 0, 800)  # 홀 폭 600cm에서 값 0.5일 때 광학 두께가 약 1.2
     gain = param(mat, "EmissiveGain", 2.0, 0, 900)
     powv = new(mat, unreal.MaterialExpressionPower, 250, 700)
     mel.connect_material_expressions(v, "", powv, "Base")
@@ -169,7 +175,7 @@ def spawn_box(actor_sub, label, bmin, bmax):
 def build_level(tag, mi, svt, layout):
     level_sub = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
     actor_sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-    path = f"{PKG}/HeatDemo_{tag}"
+    path = f"{PKG}/{PKG_NAME}_{tag}"
     ok = level_sub.new_level(path)
     size = (svt.get_size_x(), svt.get_size_y(), svt.get_size_z())
 
@@ -193,19 +199,27 @@ def build_level(tag, mi, svt, layout):
     for r in layout["racks"]:
         spawn_box(actor_sub, f"{r['name']}", r["min"], r["max"])
     for c in layout["cracs"]:
-        spawn_box(actor_sub, f"{c['name']}{' (고장)' if c['name'].endswith('02') else ''}", c["min"], c["max"])
+        spawn_box(actor_sub, f"{c['name']}{' (고장)' if c['name'] in FAILED else ''}", c["min"], c["max"])
+    for v in layout.get("vents", []):
+        spawn_box(actor_sub, f"{v['name']}", v["min"], v["max"])
 
-    floor = actor_sub.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(400, 300, -2))
+    W, L, H = HALL_CM
+    floor = actor_sub.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(W / 2, L / 2, -2))
     floor.set_actor_label("Floor")
     floor.static_mesh_component.set_static_mesh(unreal.load_asset("/Engine/BasicShapes/Plane"))
-    floor.set_actor_scale3d(unreal.Vector(10, 8, 1))
+    floor.set_actor_scale3d(unreal.Vector(W / 100.0, L / 100.0, 1))
     sun = actor_sub.spawn_actor_from_class(unreal.DirectionalLight, unreal.Vector(0, 0, 600))
     sun.set_actor_rotation(unreal.Rotator(roll=0, pitch=-45, yaw=30), False)
     sun.get_component_by_class(unreal.DirectionalLightComponent).set_editor_property("intensity", 3.0)
     actor_sub.spawn_actor_from_class(unreal.SkyLight, unreal.Vector(0, 0, 700))
-    cam = actor_sub.spawn_actor_from_class(unreal.CameraActor, unreal.Vector(1250, -650, 520))
+    import math
+    cx, cy, cz = W + 350.0, -0.25 * L, H * 2.2  # 홀 남동쪽 위에서 중심을 본다
+    tx, ty, tz = W / 2, L / 2, H * 0.3
+    yaw = math.degrees(math.atan2(ty - cy, tx - cx))
+    pitch = math.degrees(math.atan2(tz - cz, math.hypot(tx - cx, ty - cy)))
+    cam = actor_sub.spawn_actor_from_class(unreal.CameraActor, unreal.Vector(cx, cy, cz))
     cam.set_actor_label("Cam_Hall")
-    cam.set_actor_rotation(unreal.Rotator(roll=0, pitch=-19, yaw=132), False)
+    cam.set_actor_rotation(unreal.Rotator(roll=0, pitch=pitch, yaw=yaw), False)
     saved = level_sub.save_current_level()
     log(f"level_{tag}", bool(ok) and bool(saved), {"svt_size": size, "prop_failures": props})
 
@@ -214,7 +228,9 @@ def setup():
     files = os.environ.get("DCT_VDB_FILES", "").split(";")
     with open(layout_path, encoding="utf-8") as f:
         layout = json.load(f)
-    log("layout", True, {"racks": len(layout["racks"]), "cracs": len(layout["cracs"])})
+    global HALL_CM
+    HALL_CM = tuple(layout.get("hall_cm", HALL_CM))
+    log("layout", True, {"racks": len(layout["racks"]), "cracs": len(layout["cracs"]), "vents": len(layout.get("vents", [])), "hall_cm": HALL_CM})
     for (tag, asset_name), first in zip(VARIANTS, files):
         svt = import_svt(first, asset_name)
         log(f"import_{tag}", svt is not None, {"class": svt.get_class().get_name() if svt else None, "frames": svt.get_num_frames() if svt else None})

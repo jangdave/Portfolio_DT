@@ -1,0 +1,125 @@
+{
+  "usd": "D:/Test/usd/scenes/hall01.usda",
+  "engine": "5.8.3-58210709+++UE5+Release-5.8",
+  "steps": {
+    "interchange_import": {
+      "ok": true,
+      "detail": {
+        "objects": 1840,
+        "classes": {
+          "MaterialInstanceConstant": 204,
+          "StaticMesh": 1636
+        },
+        "assets_under_path": 1840,
+        "sample": [
+          "/Game/UsdProbe/hall01/Materials/M_CracBody.M_CracBody",
+          "/Game/UsdProbe/hall01/Materials/M_CracBody1.M_CracBody1",
+          "/Game/UsdProbe/hall01/Materials/M_CracBody2.M_CracBody2",
+          "/Game/UsdProbe/hall01/Materials/M_CracBody3.M_CracBody3",
+          "/Game/UsdProbe/hall01/Materials/M_CracBody4.M_CracBody4",
+          "/Game/UsdProbe/hall01/Materials/M_CracBody5.M_CracBody5"
+        ]
+      }
+    },
+    "stage_actor_open": {
+      "ok": true,
+      "detail": {
+        "root_layer": "<Struct 'FilePath' (0x000001EDD797C268) {file_path: \"D:/Test/usd/scenes/hall01.usda\"}>"
+      }
+    },
+    "stage_components": {
+      "ok": true,
+      "detail": {
+        "components": 3572,
+        "Rack_": 60,
+        "CRAC_": 8,
+        "Sensor_": 204,
+        "first": [
+          "DC_0",
+          "Hall01_0",
+          "Row01_0",
+          "Row02_0",
+          "Row03_0",
+          "Row04_0",
+          "Row05_0",
+          "Row06_0"
+        ],
+        "rack_01_class": "SceneComponent",
+        "rack_01_world_loc_cm": [
+          280.0,
+          -150.0,
+          0.0
+        ],
+        "rack_01_metadata": [
+          {
+            "class": "UsdAssetUserData",
+            "methods": [
+              "prim_paths",
+              "stage_identifier_to_metadata"
+            ],
+            "prim_paths": "[]",
+            "stage_identifier_to_metadata": "{\"D:/Test/usd/scenes/hall01.usda\": {prim_path_to_metadata: ()}}"
+          }
+        ],
+        "sensor_name": "Sensor_TEMP_IN_0",
+        "sensor_metadata": [
+          {
+            "class": "UsdAssetUserData",
+            "methods": [
+              "prim_paths",
+              "stage_identifier_to_metadata"
+            ],
+            "prim_paths": "[]",
+            "stage_identifier_to_metadata": "{\"D:/Test/usd/scenes/hall01.usda\": {prim_path_to_metadata: ()}}"
+          }
+        ]
+      }
+    },
+    "level_actors": {
+      "ok": true,
+      "detail": {
+        "actors": 139,
+        "rack_like": 0,
+        "crac_like": 0,
+        "sensor_like": 0,
+        "first_names": [
+          "WorldDataLayers-1",
+          "WorldPartitionMiniMap",
+          "DirectionalLight",
+          "SM_SkySphere",
+          "SkyAtmosphere",
+          "SkyLight",
+          "PlayerStart",
+          "ExponentialHeightFog",
+          "VolumetricCloud",
+          "Landscape",
+          "LandscapeStreamingProxy_3_2_0",
+          "LandscapeStreamingProxy_3_3_0"
+        ],
+        "actors_with_tags": {}
+      }
+    }
+  },
+  "stage_actor_methods": [
+    "data_layers",
+    "get_isolated_root_layer",
+    "get_source_prim_path",
+    "metadata_options",
+    "new_stage",
+    "root_component",
+    "root_layer",
+    "root_motion_handling",
+    "set_collect_metadata",
+    "set_isolated_root_layer",
+    "set_root_layer",
+    "set_root_motion_handling",
+    "set_share_assets_for_identical_prims",
+    "set_stage_state",
+    "set_use_prim_kinds_for_collapsing",
+    "share_assets_for_identical_prims",
+    "stage_state",
+    "use_prim_kinds_for_collapsing"
+  ],
+  "stage_state": "<UsdStageState.OPENED_AND_LOADED: 2>",
+  "metadata_options": "<Struct 'UsdMetadataImportOptions' (0x000001EDD797C2D8) {collect_metadata: True, collect_from_entire_subtrees: True, collect_on_components: True, blocked_prefix_filters: , invert_filters: False}>"
+}
