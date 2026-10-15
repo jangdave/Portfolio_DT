@@ -25,12 +25,22 @@ def Xform "DC"
             def Xform "Rack_01"
             {
                 token dct:assetType = "rack"
-                string dct:sensorId = "H01-R01-RK01-TEMP-IN"
                 token dct:zone = "cold_aisle"
 
                 def Xform "Server_U01"
                 {
                     token dct:assetType = "server"
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        token dct:assetType = "sensor"
+                        token dct:metric = "temp_in"
+                        string dct:unit = "degC"
+                        string dct:sensorId = "H01-RK01-TEMP-IN"
+                    }
                 }
             }
         }
@@ -40,7 +50,17 @@ def Xform "DC"
             def Xform "CRAC_01"
             {
                 token dct:assetType = "crac"
-                string dct:sensorId = "H01-CRAC01-FAN"
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_FAN_SPEED"
+                    {
+                        token dct:assetType = "sensor"
+                        token dct:metric = "fan_speed"
+                        string dct:unit = "percent"
+                        string dct:sensorId = "H01-CR01-FAN-SPEED"
+                    }
+                }
             }
         }
 
@@ -49,7 +69,25 @@ def Xform "DC"
             def Xform "PDU_01"
             {
                 token dct:assetType = "pdu"
-                string dct:sensorId = "H01-PDU01-POWER"
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_POWER"
+                    {
+                        token dct:assetType = "sensor"
+                        token dct:metric = "power"
+                        string dct:unit = "kW"
+                        string dct:sensorId = "H01-PD01-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Shell"
+        {
+            def Cube "Floor"
+            {
+                token dct:assetType = "shell"
             }
         }
     }
@@ -111,18 +149,43 @@ def test_invalid_asset_type(tmp_path):
     assert "U203" in rules(tmp_path, text)
 
 
-def test_missing_sensor_id_on_rack(tmp_path):
-    text = (HEADER + GOOD_BODY).replace('string dct:sensorId = "H01-R01-RK01-TEMP-IN"', "")
+def test_rack_without_sensor_anchor(tmp_path):
+    text = (HEADER + GOOD_BODY).replace('def Xform "Anchors"', 'def Xform "Anchorz"', 1)  # 랙의 앵커 그룹 이름을 어긋나게 한다
     assert "U401" in rules(tmp_path, text)
 
 
+def test_missing_sensor_id_on_anchor(tmp_path):
+    text = (HEADER + GOOD_BODY).replace('string dct:sensorId = "H01-RK01-TEMP-IN"', "")
+    assert "U402" in rules(tmp_path, text)
+
+
+def test_sensor_id_differs_from_path(tmp_path):
+    text = (HEADER + GOOD_BODY).replace("H01-RK01-TEMP-IN", "H01-RK02-TEMP-IN")
+    assert "U402" in rules(tmp_path, text)
+
+
+def test_anchor_without_unit(tmp_path):
+    text = (HEADER + GOOD_BODY).replace('string dct:unit = "degC"', "")
+    assert "U404" in rules(tmp_path, text)
+
+
+def test_anchor_name_must_match_metric(tmp_path):
+    text = (HEADER + GOOD_BODY).replace('token dct:metric = "temp_in"', 'token dct:metric = "temp_out"')
+    assert "U404" in rules(tmp_path, text)
+
+
+def test_shell_in_wrong_place(tmp_path):
+    text = (HEADER + GOOD_BODY).replace('def Xform "Shell"', 'def Xform "Cooling2"')
+    assert {"U301", "U302"} & rules(tmp_path, text)
+
+
 def test_bad_sensor_id_format(tmp_path):
-    text = (HEADER + GOOD_BODY).replace("H01-R01-RK01-TEMP-IN", "rack1_temp")
+    text = (HEADER + GOOD_BODY).replace("H01-RK01-TEMP-IN", "rack1_temp")
     assert "U402" in rules(tmp_path, text)
 
 
 def test_duplicate_sensor_id(tmp_path):
-    text = (HEADER + GOOD_BODY).replace("H01-PDU01-POWER", "H01-CRAC01-FAN")
+    text = (HEADER + GOOD_BODY).replace("H01-PD01-POWER", "H01-CR01-FAN-SPEED")
     assert "U403" in rules(tmp_path, text)
 
 

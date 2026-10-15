@@ -14,12 +14,22 @@ def Xform "DC"
             def Xform "Rack_01"
             {
                 token dct:assetType = "rack"
-                string dct:sensorId = "H01-R01-RK01-TEMP-IN"
-                token dct:zone = "warm"
+                token dct:zone = "cold_aisle"
 
                 def Xform "Server_U01"
                 {
                     token dct:assetType = "server"
+                }
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_TEMP_IN"
+                    {
+                        token dct:assetType = "sensor"
+                        token dct:metric = "temp_in"
+                        string dct:unit = "degC"
+                        string dct:sensorId = "rack1_temp"
+                    }
                 }
             }
         }
@@ -29,7 +39,17 @@ def Xform "DC"
             def Xform "CRAC_01"
             {
                 token dct:assetType = "crac"
-                string dct:sensorId = "H01-CRAC01-FAN"
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_FAN_SPEED"
+                    {
+                        token dct:assetType = "sensor"
+                        token dct:metric = "fan_speed"
+                        string dct:unit = "percent"
+                        string dct:sensorId = "H01-CR01-FAN-SPEED"
+                    }
+                }
             }
         }
 
@@ -38,7 +58,25 @@ def Xform "DC"
             def Xform "PDU_01"
             {
                 token dct:assetType = "pdu"
-                string dct:sensorId = "H01-CRAC01-FAN"
+
+                def Xform "Anchors"
+                {
+                    def Xform "Sensor_POWER"
+                    {
+                        token dct:assetType = "sensor"
+                        token dct:metric = "power"
+                        string dct:unit = "kW"
+                        string dct:sensorId = "H01-PD01-POWER"
+                    }
+                }
+            }
+        }
+
+        def Xform "Shell"
+        {
+            def Cube "Floor"
+            {
+                token dct:assetType = "shell"
             }
         }
     }
