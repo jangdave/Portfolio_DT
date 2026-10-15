@@ -7,6 +7,7 @@ OpenUSD 기반 저작·시뮬레이션(Omniverse 계열)과 Unreal Engine 5.7 �
 - 비교 실험: [docs/03_experiments.md](docs/03_experiments.md)
 - 정책: [docs/04_clean_room_policy.md](docs/04_clean_room_policy.md)
 - 환경 상태: [docs/05_env_status.md](docs/05_env_status.md)
+- 개발 워크플로: [docs/06_workflow.md](docs/06_workflow.md)
 - 설계 결정: [docs/decisions/](docs/decisions/)
 
 > 상태: Phase 0 (하네스·환경). 모든 모델과 데이터는 직접 제작한 가상 시설이며, 시뮬레이션은 시각화 목적입니다.
