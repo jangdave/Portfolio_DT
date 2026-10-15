@@ -54,7 +54,8 @@ async def main() -> None:
         # 정규화 버전: 온도를 0~1로 바꾸고 주변 공기(TMIN 이하)를 0(빈 공간)으로 둔다. UE에서 열이 뭉친 곳만 보이게 한다.
         tmin = float(os.environ.get("DCT_TMIN", "20"))
         tmax = float(os.environ.get("DCT_TMAX", "55"))
-        norm_dir = FRAMES / "vdb_norm"
+        sub = os.environ.get("DCT_OUTSUB", "vdb_norm")  # 출력 폴더 이름 앞부분 (변환 규약별로 구분)
+        norm_dir = FRAMES / sub
         norm_dir.mkdir(parents=True, exist_ok=True)
         res["normalize"] = {"tmin_degC": tmin, "tmax_degC": tmax, "formula": "value = clip((T - tmin) / (tmax - tmin), 0, 1)"}
         res["normalized_frames"] = []
@@ -72,7 +73,7 @@ async def main() -> None:
         # 모델과 맞는 방향을 눈으로 확인하려고 X, Y 축을 뒤집은 버전도 만든다. (Z는 높이라 뒤집지 않는다)
         res["flips"] = {}
         for flip_name, axis in (("flipx", 0), ("flipy", 1)):
-            fdir = FRAMES / f"vdb_norm_{flip_name}"
+            fdir = FRAMES / f"{sub}_{flip_name}"
             fdir.mkdir(parents=True, exist_ok=True)
             res["flips"][flip_name] = []
             for fr in meta["frames"]:

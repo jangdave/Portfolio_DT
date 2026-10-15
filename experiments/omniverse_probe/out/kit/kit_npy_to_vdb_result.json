@@ -116,66 +116,66 @@
   "openvdb_module": "c:/users/user/appdata/local/ov/data/kit/dctwin.base_editor/0.1/exts/3/omni.volume-0.5.2+187cf21b.wx64.r.cp312/openvdb.cp312-win_amd64.pyd",
   "openvdb_version": "?",
   "normalize": {
-    "tmin_degC": 24.0,
-    "tmax_degC": 54.0,
+    "tmin_degC": 0.0,
+    "tmax_degC": 60.0,
     "formula": "value = clip((T - tmin) / (tmax - tmin), 0, 1)"
   },
   "normalized_frames": [
     {
       "file": "T_0030.vdb",
-      "bytes": 237239,
-      "active_voxels": 62240,
+      "bytes": 505200,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 0.381
+      "max_value": 0.59
     },
     {
       "file": "T_0060.vdb",
-      "bytes": 351496,
-      "active_voxels": 96976,
+      "bytes": 510362,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 0.425
+      "max_value": 0.612
     },
     {
       "file": "T_0090.vdb",
-      "bytes": 418607,
-      "active_voxels": 117970,
+      "bytes": 517202,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 0.689
+      "max_value": 0.744
     },
     {
       "file": "T_0120.vdb",
-      "bytes": 466268,
-      "active_voxels": 135690,
+      "bytes": 512591,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 0.791
+      "max_value": 0.796
     },
     {
       "file": "T_0150.vdb",
-      "bytes": 475405,
-      "active_voxels": 140768,
+      "bytes": 510590,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 0.863
+      "max_value": 0.832
     },
     {
       "file": "T_0180.vdb",
-      "bytes": 485053,
-      "active_voxels": 144486,
+      "bytes": 507604,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 0.922
+      "max_value": 0.861
     },
     {
       "file": "T_0210.vdb",
-      "bytes": 494824,
-      "active_voxels": 148854,
+      "bytes": 505487,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 0.971
+      "max_value": 0.885
     },
     {
       "file": "T_0240.vdb",
-      "bytes": 498665,
-      "active_voxels": 151018,
+      "bytes": 504164,
+      "active_voxels": 168000,
       "dense_cells": 168000,
-      "max_value": 1.0
+      "max_value": 0.905
     }
   ],
   "flips": {
