@@ -4,13 +4,14 @@ param(
     [string]$Engine = "C:\Program Files\Epic Games\UE_5.8",
     [string]$Work = "$env:TEMP\dct_usd_probe",
     [string]$Usd = "D:\Test\usd\scenes\hall01.usda",
+    [string]$Script = "probe_usd_import.py",
     [string]$Result = "D:\Test\experiments\omniverse_probe\out\ue58_usd_probe.json",
     [string]$Log = "$env:TEMP\dct_usd_probe.log",
     [int]$TimeoutSec = 300,
     [switch]$Keep
 )
 $ue = Join-Path $Engine "Engine\Binaries\Win64\UnrealEditor.exe"
-$script = (Resolve-Path "experiments\omniverse_probe\ue\probe_usd_import.py").Path
+$script = (Resolve-Path "experiments\omniverse_probe\ue\$Script").Path
 if (Test-Path $Work) { Remove-Item -Recurse -Force $Work }
 New-Item -ItemType Directory -Force "$Work\Config" | Out-Null
 $uproject = @"
