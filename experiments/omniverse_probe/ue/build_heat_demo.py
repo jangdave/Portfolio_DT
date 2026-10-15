@@ -126,7 +126,7 @@ def build_material(svt):
 
     # 불투명도(extinction) = v^Contrast * DensityScale, 발광 = 색 * v * EmissiveGain
     contrast = param(mat, "Contrast", 1.2, 0, 700)
-    density = param(mat, "DensityScale", 0.02, 0, 800)
+    density = param(mat, "DensityScale", 0.004, 0, 800)  # 홀 폭 600cm에서 값 0.5일 때 광학 두께가 약 1.2가 되도록
     gain = param(mat, "EmissiveGain", 2.0, 0, 900)
     powv = new(mat, unreal.MaterialExpressionPower, 250, 700)
     mel.connect_material_expressions(v, "", powv, "Base")
@@ -185,9 +185,12 @@ def setup():
             props[name] = "OK"
         except Exception as exc:  # noqa: BLE001
             props[name] = f"실패: {str(exc)[:80]}"
-    cell_cm = 800.0 / sx  # 홀 길이 8 m를 가로 칸 수로 나눈 값 = 한 칸의 크기(cm)
-    hv.set_actor_scale3d(unreal.Vector(cell_cm, cell_cm, cell_cm))
-    log("heterogeneous_volume", True, {"cell_cm": cell_cm, "props": props})
+    # HeterogeneousVolume의 영역은 SVT 크기가 아니라 액터 스케일이 정하는 상자다(기본 1 x 1 x 1 단위 상자가 중심 기준).
+    # 그래서 홀 크기(가로 800, 세로 600, 높이 350 cm)로 직접 키우고, 홀 중심에 놓는다.
+    hall_cm = (800.0, 600.0, 350.0)
+    hv.set_actor_scale3d(unreal.Vector(*hall_cm))
+    hv.set_actor_location(unreal.Vector(hall_cm[0] / 2, hall_cm[1] / 2, hall_cm[2] / 2), False, False)
+    log("heterogeneous_volume", True, {"box_cm": hall_cm, "props": props})
 
     floor = actor_sub.spawn_actor_from_class(unreal.StaticMeshActor, unreal.Vector(400, 300, -2))
     floor.set_actor_label("Floor")
