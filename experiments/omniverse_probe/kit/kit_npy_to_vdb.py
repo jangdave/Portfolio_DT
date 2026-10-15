@@ -51,6 +51,23 @@ async def main() -> None:
                 out = VDB_OUT / (Path(fr["file"]).stem + ("_half" if half else "") + ".vdb")
                 vdb.write(str(out), grids=[grid])
                 res["frames"].append({"file": out.name, "bytes": out.stat().st_size, "half": half, "active_voxels": int(grid.activeVoxelCount()), "dense_cells": int(arr.size)})
+        # 정규화 버전: 온도를 0~1로 바꾸고 주변 공기(TMIN 이하)를 0(빈 공간)으로 둔다. UE에서 열이 뭉친 곳만 보이게 한다.
+        tmin = float(os.environ.get("DCT_TMIN", "20"))
+        tmax = float(os.environ.get("DCT_TMAX", "55"))
+        norm_dir = FRAMES / "vdb_norm"
+        norm_dir.mkdir(parents=True, exist_ok=True)
+        res["normalize"] = {"tmin_degC": tmin, "tmax_degC": tmax, "formula": "value = clip((T - tmin) / (tmax - tmin), 0, 1)"}
+        res["normalized_frames"] = []
+        for fr in meta["frames"]:
+            arr = np.load(FRAMES / fr["file"]).astype(np.float32)
+            nrm = np.clip((arr - tmin) / (tmax - tmin), 0.0, 1.0).astype(np.float32)
+            grid = vdb.FloatGrid(0.0)
+            grid.name = "temperature"
+            grid.transform = vdb.createLinearTransform(voxelSize=voxel)
+            grid.copyFromArray(nrm, ijk=(0, 0, 0), tolerance=0.002)  # 거의 0인 칸은 저장하지 않는다(희소)
+            out = norm_dir / (Path(fr["file"]).stem + ".vdb")
+            vdb.write(str(out), grids=[grid])
+            res["normalized_frames"].append({"file": out.name, "bytes": out.stat().st_size, "active_voxels": int(grid.activeVoxelCount()), "dense_cells": int(nrm.size), "max_value": round(float(nrm.max()), 3)})
         res["ok"] = all(f["bytes"] > 0 for f in res["frames"]) and len(res["frames"]) > 0
     except Exception:  # noqa: BLE001
         res["fatal"] = traceback.format_exc()
