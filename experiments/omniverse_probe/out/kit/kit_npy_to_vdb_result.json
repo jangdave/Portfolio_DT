@@ -2,115 +2,115 @@
   "frames": [
     {
       "file": "T_0030.vdb",
-      "bytes": 75820,
+      "bytes": 500170,
       "half": false,
-      "active_voxels": 21512,
-      "dense_cells": 21600
+      "active_voxels": 166620,
+      "dense_cells": 168000
     },
     {
       "file": "T_0030_half.vdb",
-      "bytes": 44233,
+      "bytes": 255229,
       "half": true,
-      "active_voxels": 21512,
-      "dense_cells": 21600
+      "active_voxels": 166620,
+      "dense_cells": 168000
     },
     {
       "file": "T_0060.vdb",
-      "bytes": 77026,
+      "bytes": 506729,
       "half": false,
-      "active_voxels": 21540,
-      "dense_cells": 21600
+      "active_voxels": 167547,
+      "dense_cells": 168000
     },
     {
       "file": "T_0060_half.vdb",
-      "bytes": 44763,
+      "bytes": 260839,
       "half": true,
-      "active_voxels": 21540,
-      "dense_cells": 21600
+      "active_voxels": 167547,
+      "dense_cells": 168000
     },
     {
       "file": "T_0090.vdb",
-      "bytes": 81129,
+      "bytes": 517093,
       "half": false,
-      "active_voxels": 21582,
-      "dense_cells": 21600
+      "active_voxels": 167914,
+      "dense_cells": 168000
     },
     {
       "file": "T_0090_half.vdb",
-      "bytes": 46815,
+      "bytes": 265773,
       "half": true,
-      "active_voxels": 21582,
-      "dense_cells": 21600
+      "active_voxels": 167914,
+      "dense_cells": 168000
     },
     {
       "file": "T_0120.vdb",
-      "bytes": 81447,
+      "bytes": 515805,
       "half": false,
-      "active_voxels": 21584,
-      "dense_cells": 21600
+      "active_voxels": 167912,
+      "dense_cells": 168000
     },
     {
       "file": "T_0120_half.vdb",
-      "bytes": 46768,
+      "bytes": 266000,
       "half": true,
-      "active_voxels": 21584,
-      "dense_cells": 21600
+      "active_voxels": 167912,
+      "dense_cells": 168000
     },
     {
       "file": "T_0150.vdb",
-      "bytes": 81306,
+      "bytes": 511401,
       "half": false,
-      "active_voxels": 21598,
-      "dense_cells": 21600
+      "active_voxels": 167918,
+      "dense_cells": 168000
     },
     {
       "file": "T_0150_half.vdb",
-      "bytes": 46820,
+      "bytes": 264142,
       "half": true,
-      "active_voxels": 21598,
-      "dense_cells": 21600
+      "active_voxels": 167918,
+      "dense_cells": 168000
     },
     {
       "file": "T_0180.vdb",
-      "bytes": 80339,
+      "bytes": 508311,
       "half": false,
-      "active_voxels": 21594,
-      "dense_cells": 21600
+      "active_voxels": 167946,
+      "dense_cells": 168000
     },
     {
       "file": "T_0180_half.vdb",
-      "bytes": 46227,
+      "bytes": 263701,
       "half": true,
-      "active_voxels": 21594,
-      "dense_cells": 21600
+      "active_voxels": 167946,
+      "dense_cells": 168000
     },
     {
       "file": "T_0210.vdb",
-      "bytes": 79975,
+      "bytes": 505524,
       "half": false,
-      "active_voxels": 21590,
-      "dense_cells": 21600
+      "active_voxels": 167936,
+      "dense_cells": 168000
     },
     {
       "file": "T_0210_half.vdb",
-      "bytes": 46550,
+      "bytes": 262057,
       "half": true,
-      "active_voxels": 21590,
-      "dense_cells": 21600
+      "active_voxels": 167936,
+      "dense_cells": 168000
     },
     {
       "file": "T_0240.vdb",
-      "bytes": 79233,
+      "bytes": 503000,
       "half": false,
-      "active_voxels": 21590,
-      "dense_cells": 21600
+      "active_voxels": 167970,
+      "dense_cells": 168000
     },
     {
       "file": "T_0240_half.vdb",
-      "bytes": 46049,
+      "bytes": 258850,
       "half": true,
-      "active_voxels": 21590,
-      "dense_cells": 21600
+      "active_voxels": 167970,
+      "dense_cells": 168000
     }
   ],
   "openvdb_module": "c:/users/user/appdata/local/ov/data/kit/dctwin.base_editor/0.1/exts/3/omni.volume-0.5.2+187cf21b.wx64.r.cp312/openvdb.cp312-win_amd64.pyd",
@@ -123,59 +123,59 @@
   "normalized_frames": [
     {
       "file": "T_0030.vdb",
-      "bytes": 35047,
-      "active_voxels": 6588,
-      "dense_cells": 21600,
-      "max_value": 0.351
+      "bytes": 237239,
+      "active_voxels": 62240,
+      "dense_cells": 168000,
+      "max_value": 0.381
     },
     {
       "file": "T_0060.vdb",
-      "bytes": 56593,
-      "active_voxels": 12524,
-      "dense_cells": 21600,
-      "max_value": 0.382
+      "bytes": 351496,
+      "active_voxels": 96976,
+      "dense_cells": 168000,
+      "max_value": 0.425
     },
     {
       "file": "T_0090.vdb",
-      "bytes": 67096,
-      "active_voxels": 15116,
-      "dense_cells": 21600,
-      "max_value": 0.65
+      "bytes": 418607,
+      "active_voxels": 117970,
+      "dense_cells": 168000,
+      "max_value": 0.689
     },
     {
       "file": "T_0120.vdb",
-      "bytes": 74573,
-      "active_voxels": 17806,
-      "dense_cells": 21600,
-      "max_value": 0.757
+      "bytes": 466268,
+      "active_voxels": 135690,
+      "dense_cells": 168000,
+      "max_value": 0.791
     },
     {
       "file": "T_0150.vdb",
-      "bytes": 76009,
-      "active_voxels": 18348,
-      "dense_cells": 21600,
-      "max_value": 0.824
+      "bytes": 475405,
+      "active_voxels": 140768,
+      "dense_cells": 168000,
+      "max_value": 0.863
     },
     {
       "file": "T_0180.vdb",
-      "bytes": 76219,
-      "active_voxels": 18662,
-      "dense_cells": 21600,
-      "max_value": 0.88
+      "bytes": 485053,
+      "active_voxels": 144486,
+      "dense_cells": 168000,
+      "max_value": 0.922
     },
     {
       "file": "T_0210.vdb",
-      "bytes": 77247,
-      "active_voxels": 18984,
-      "dense_cells": 21600,
-      "max_value": 0.932
+      "bytes": 494824,
+      "active_voxels": 148854,
+      "dense_cells": 168000,
+      "max_value": 0.971
     },
     {
       "file": "T_0240.vdb",
-      "bytes": 77706,
-      "active_voxels": 19280,
-      "dense_cells": 21600,
-      "max_value": 0.974
+      "bytes": 498665,
+      "active_voxels": 151018,
+      "dense_cells": 168000,
+      "max_value": 1.0
     }
   ],
   "ok": true
