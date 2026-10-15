@@ -3,15 +3,18 @@
 하는 일:
 1. `/root` 아래에 있는 가장 바깥 오브젝트를 최상위로 올리고 `/root`를 없앤다.
 2. 기본 prim(defaultPrim) 지정, 단위 cm(0.01), 위쪽 축 Z 지정
-3. `/root`를 가리키던 재질 바인딩 등 관계의 대상 경로를 새 위치로 고친다.
+3. `/root`를 가리키던 재질 바인딩과 셰이더 연결의 대상 경로를 새 위치로 고친다.
 4. `dct:assetType`, `dct:zone`, `dct:metric`을 string에서 token으로 바꾼다.
+5. (옵션) 텍스처가 있으면 `--textures-dir`로 복사하고 USD 안의 경로를 `./<--textures-rel>/<파일>`로 고친다.
 
 사용 (scripts/usd_tools 폴더에서):
     uv run --python 3.13 python finalize_asset.py <입력.usd> <출력.usda>
+    uv run --python 3.13 python finalize_asset.py <입력.usd> ../../usd/assets/building.usda         --textures-dir ../../usd/assets/textures/building --textures-rel textures/building
 """
 from __future__ import annotations
 
 import argparse
+import shutil
 import sys
 from pathlib import Path
 
@@ -88,7 +91,28 @@ def to_token(stage: Usd.Stage) -> int:
     return changed
 
 
-def finalize(src: Path, dst: Path) -> dict:
+def relocate_textures(stage: Usd.Stage, src: Path, tex_dir: Path, rel: str) -> int:
+    """UsdUVTexture의 이미지를 tex_dir로 복사하고 경로를 `./<rel>/<파일명>`으로 바꾼다. 바꾼 개수를 돌려준다."""
+    tex_dir.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for prim in stage.Traverse():
+        attr = prim.GetAttribute("inputs:file")
+        if not attr or not attr.HasAuthoredValue():
+            continue
+        ap = attr.Get()
+        raw = ap.path if hasattr(ap, "path") else str(ap)
+        if not raw:
+            continue
+        origin = (src.parent / raw).resolve()
+        if not origin.is_file():
+            raise FileNotFoundError(f"텍스처 파일이 없다: {origin} ({prim.GetPath()})")
+        shutil.copy2(origin, tex_dir / origin.name)
+        attr.Set(Sdf.AssetPath(f"./{rel}/{origin.name}"))
+        n += 1
+    return n
+
+
+def finalize(src: Path, dst: Path, textures_dir: Path | None = None, textures_rel: str = "textures") -> dict:
     stage = Usd.Stage.Open(str(src))
     if stage is None:
         raise RuntimeError(f"파일을 열 수 없다: {src}")
@@ -98,18 +122,23 @@ def finalize(src: Path, dst: Path) -> dict:
     UsdGeom.SetStageMetersPerUnit(stage, 0.01)
     UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.z)
     n = to_token(stage)
+    info = {"default_prim": top, "token_attrs_changed": n, "relationships_retargeted": n_rel, "output": str(dst)}
+    if textures_dir is not None:
+        info["textures_relocated"] = relocate_textures(stage, src, textures_dir, textures_rel)
     stage.GetRootLayer().Export(str(dst))
-    return {"default_prim": top, "token_attrs_changed": n, "relationships_retargeted": n_rel, "output": str(dst)}
+    return info
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Blender USD를 에셋 규칙에 맞게 마무리")
     ap.add_argument("src", type=Path)
     ap.add_argument("dst", type=Path)
+    ap.add_argument("--textures-dir", type=Path, default=None, help="텍스처를 복사할 폴더 (예: usd/assets/textures/building)")
+    ap.add_argument("--textures-rel", default="textures", help="USD 안에 적을 상대 경로 (dst 폴더 기준, 예: textures/building)")
     args = ap.parse_args(argv)
     if not sys.stdout.isatty() and hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    info = finalize(args.src, args.dst)
+    info = finalize(args.src, args.dst, args.textures_dir, args.textures_rel)
     print(info)
     return 0
 

@@ -53,6 +53,9 @@ experiments/omniverse_probe/out/local_only/
 experiments/omniverse_probe/out/direction/*.npy
 experiments/omniverse_probe/out/circulation/*.npy
 
+# 외관 텍스처 원본: make_building_textures.py로 다시 만들 수 있다 (USD가 쓰는 복사본은 usd/assets/textures/building/에 있다)
+blender/textures/building/
+
 # 작업 도구가 만드는 임시 작업 폴더(에이전트 워크트리)
 .claude/worktrees/
 

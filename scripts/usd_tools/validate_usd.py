@@ -22,7 +22,7 @@ from pxr import Sdf, Usd, UsdGeom
 METERS_PER_UNIT = 0.01  # 단위 cm
 UP_AXIS = "Z"
 ROOT_NAME = "DC"
-ASSET_TYPES = {"rack", "server", "crac", "pdu", "sensor", "shell", "containment", "vent"}
+ASSET_TYPES = {"rack", "server", "crac", "pdu", "sensor", "shell", "containment", "vent", "building", "outdoor"}
 SENSOR_REQUIRED_TYPES = {"rack", "crac", "pdu"}  # 장면(scene)에서 센서 앵커가 하나 이상 있어야 하는 종류
 EQUIPMENT_CODES = {"Rack": "RK", "CRAC": "CR", "PDU": "PD"}  # 센서 ID의 장비 코드 (09 규격 5장)
 ZONES = {"cold_aisle", "hot_aisle"}
@@ -38,10 +38,14 @@ PATH_RULES = {
     "shell": re.compile(r"^/DC/Hall\d{2}/Shell/[A-Za-z0-9_]+$"),
     "containment": re.compile(r"^/DC/Hall\d{2}/Containment/[A-Za-z0-9_]+$"),
     "vent": re.compile(r"^/DC/Hall\d{2}/Vents/Vent_\d{2,}$"),
+    "building": re.compile(r"^/DC/Building\d{2}$"),  # 09 규격 12장
+    "outdoor": re.compile(r"^/DC/Building\d{2}/Outdoor(/[A-Za-z0-9_]+)?$"),  # Outdoor 자신 또는 바로 아래 설비
 }
 SENSOR_PATH_RE = re.compile(r"^/DC/Hall(\d{2})/(?:Row\d{2}/Rack|Cooling/CRAC|Power/PDU)_(\d{2,})/Anchors/Sensor_([A-Z0-9_]+)$")
 SENSOR_CODE_BY_FOLDER = (("/Rack_", "RK"), ("/CRAC_", "CR"), ("/PDU_", "PD"))
 HALL_RE = re.compile(r"^Hall\d{2}$")
+BUILDING_RE = re.compile(r"^Building\d{2}$")
+BUILDING_CHILD_RE = re.compile(r"^(Exterior|Floors|Outdoor)$")
 HALL_CHILD_RE = re.compile(r"^(Row\d{2}|Cooling|Power|Containment|Shell|Vents|Tour)$")
 # 이름만 보고 "이건 장비다"라고 판단하는 패턴 (assetType이 빠졌는지 찾는 용도)
 EQUIPMENT_NAME_RE = re.compile(r"^(Rack|Server_U|CRAC|PDU)_?\d+$")
@@ -106,14 +110,18 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
         path = str(prim.GetPath())
         name = prim.GetName()
 
-        # U301 계층 이름 (장면에서만): /DC 바로 아래는 Hall##, Hall 아래는 Row##/Cooling/Power
+        # U301 계층 이름 (장면에서만): /DC 바로 아래는 Hall## 또는 Building##,
+        # Hall 아래는 Row##/Cooling/Power/..., Building 아래는 Exterior/Floors/Outdoor
         if kind == "scene":
             parent = str(prim.GetParent().GetPath())
-            if parent == f"/{ROOT_NAME}" and not HALL_RE.match(name):
-                err("U301", path, f"/{ROOT_NAME} 바로 아래 이름은 Hall## 형식이어야 한다")
+            if parent == f"/{ROOT_NAME}" and not (HALL_RE.match(name) or BUILDING_RE.match(name)):
+                err("U301", path, f"/{ROOT_NAME} 바로 아래 이름은 Hall## 또는 Building## 형식이어야 한다")
             elif prim.GetParent().GetParent() and str(prim.GetParent().GetParent().GetPath()) == f"/{ROOT_NAME}":
-                if HALL_RE.match(prim.GetParent().GetName()) and not HALL_CHILD_RE.match(name):
+                grand = prim.GetParent().GetName()
+                if HALL_RE.match(grand) and not HALL_CHILD_RE.match(name):
                     err("U301", path, "Hall 바로 아래 이름은 Row##, Cooling, Power, Containment, Shell, Vents, Tour 중 하나여야 한다")
+                elif BUILDING_RE.match(grand) and not BUILDING_CHILD_RE.match(name):
+                    err("U301", path, "Building 바로 아래 이름은 Exterior, Floors, Outdoor 중 하나여야 한다")
 
         asset_type, type_name = _get_str(prim, "dct:assetType")
 
@@ -166,6 +174,11 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
                     sensor_ids[sensor_id] = path
         if kind == "scene" and asset_type in SENSOR_REQUIRED_TYPES:
             equipment.append((path, asset_type))
+
+        # U502 층 번호(dct:floor)는 1 이상의 정수 (Hall의 층, 건물 층 표시 모양)
+        floor, _ = _get_str(prim, "dct:floor")
+        if floor is not None and (isinstance(floor, bool) or not isinstance(floor, int) or floor < 1):
+            err("U502", path, f"dct:floor는 1 이상의 정수여야 한다 (현재 {floor!r})")
 
         # U501 구역 값
         zone, zone_type = _get_str(prim, "dct:zone")

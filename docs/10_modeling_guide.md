@@ -138,3 +138,32 @@ uv run --python 3.13 python validate_usd.py --kind asset ..\..\usd\assets\rack.u
 모델링하는 사람이 신경 쓸 점은 두 가지다.
 - 랙을 눈높이에서 가까이 보므로 **서버 앞면과 문의 세부가 눈에 띈다.** 삼각형 예산 안에서 앞면 세부를 우선한다.
 - 통로 폭(차가운 통로 120 cm 이상, 뜨거운 통로 100 cm 이상)은 랙의 **깊이와 배치 간격**으로 정해지므로, 랙 외형 치수(60 x 100 x 200 cm)를 바꾸면 배치 설정도 다시 확인한다.
+
+## 11. 건물 외관 만들기 (2026-10-15 추가)
+
+랙과 달리 건물 외관은 **스크립트 하나로 모델 전체를 다시 만든다.** 형상을 손으로 고치지 말고 `make_building_exterior.py`를 고쳐서 다시 실행한다. 규격은 [09 USD 규격](09_usd_spec.md) 12.1장.
+
+| 순서 | 할 일 | 명령 (저장소 루트에서) |
+|---|---|---|
+| 1 | 4K 텍스처 만들기 (약 30초) | `uv run --python 3.13 --with numpy --with pillow python blender/scripts/make_building_textures.py` |
+| 2 | 이음새 확인 이미지 만들기 | `uv run --python 3.13 --with numpy --with pillow python blender/scripts/check_texture_tiling.py` |
+| 3 | 모델 만들기 (삼각형 수가 출력됨) | `blender -b --factory-startup --python blender/scripts/make_building_exterior.py -- blender/building_exterior.blend` |
+| 4 | USD로 내보내기 (텍스처 복사 포함) | `blender -b blender/building_exterior.blend --python blender/scripts/export_usd.py -- <스크래치>/building_raw.usd --textures NEW` |
+| 5 | 마무리 (`scripts/usd_tools`에서) | `uv run --python 3.13 python finalize_asset.py <스크래치>/building_raw.usd ../../usd/assets/building.usda --textures-dir ../../usd/assets/textures/building --textures-rel textures/building` |
+| 6 | 검증 | `uv run --python 3.13 python validate_usd.py --kind asset ../../usd/assets/building.usda` |
+| 7 | 미리보기 렌더(검수용) | `blender -b blender/building_exterior.blend --python blender/scripts/render_building_previews.py -- blender/previews 24` |
+
+### 저장소를 받은 뒤 텍스처 준비하기 (4K 텍스처는 저장소에 올리지 않는다)
+4K 텍스처 PNG 13개(약 250 MB)는 **생성 스크립트가 시드를 고정해 같은 결과를 만들기 때문에** 저장소에 올리지 않는다(`usd/assets/textures/`는 `.gitignore`에 있다). `building.usda`는 `./textures/building/*.png`를 상대 경로로 참조하므로, 저장소를 받은 뒤 한 번 만들어 둔다.
+
+```
+uv run --python 3.13 --with numpy --with pillow python blender/scripts/make_building_textures.py
+New-Item -ItemType Directory -Force usd/assets/textures/building | Out-Null
+Copy-Item blender/textures/building/*.png usd/assets/textures/building/ -Exclude *_AO.png
+```
+- 첫 줄이 `blender/textures/building/`에 14개를 만들고(약 30초), 아래 두 줄이 AO를 뺀 13개를 USD가 찾는 위치로 복사한다. AO는 USD 재질에 연결하지 않았고 Unreal에서 쓸 수 있게 남겨 둔 파일이다.
+- 텍스처가 없으면 `building.usda`는 열리지만 재질이 회색으로 보인다.
+
+- 길이는 스크립트 안에서 **미터**로 쓰고, 만들 때 100배(cm)한다.
+- 삼각형 예산: 건물 전체 200만 이하(Nanite 사용 전제). 2026-10-15 기준 약 13.8만.
+- 7번 렌더는 Blender 안에서 **상대 경로**로 저장하면 드라이브 루트(`C:\blender\...`)에 써 버리므로 스크립트가 절대 경로로 바꾼다.
