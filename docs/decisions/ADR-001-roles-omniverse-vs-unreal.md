@@ -16,7 +16,7 @@ Omniverse 단독 구현(Kit 앱/ovrtx 뷰어). → E2에서 같은 씬으로 비
 
 ## 정정 (2026-10-15, 설계 재점검 후)
 - 처음 표현은 "시뮬레이션/저작은 Omniverse 계열"이었다. 실제로는 **OpenUSD(장면 형식)와 Omniverse 라이브러리(ovrtx 렌더링)** 만 쓰고, 센서 값과 열·기류 데이터는 일반 Python 코드가 만든다. Kit 앱(Replicator, Isaac Sim 등)은 설치하지 않았다.
-- Omniverse를 더 깊이 쓸지는 결정 D1로 남긴다. 자세한 내용은 [08 설계 재점검](../08_design_review.md) P4와 5장.
+- 이후 **시뮬레이션과 데이터도 Omniverse 계열로 만들기로 결정**했다. [ADR-006](ADR-006-omniverse-based-simulation.md)과 [08 설계 재점검](../08_design_review.md) P4.
 
 ## 한계 / 정직한 주의
 - Omniverse 단독이 충분한 용도(제작자용 뷰, 합성 데이터)가 있다.

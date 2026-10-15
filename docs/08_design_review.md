@@ -40,7 +40,7 @@
   1. OpenUSD를 장면의 기준 형식으로 쓴다.
   2. ovrtx로 같은 장면을 그려 보며 Unreal과 비교한다(비교 실험 E2).
   3. (선택) ovphysx 같은 물리 기능, 필요하면 Kit 앱을 나중에 추가한다.
-- **조치:** 01 문서와 ADR-001의 표현을 이 사실에 맞게 고친다. Omniverse를 더 깊이 쓸지는 **결정 D1**로 남긴다(5장).
+- **조치:** 01 문서와 ADR-001의 표현을 이 사실에 맞게 고쳤다. 이후 **시뮬레이션과 데이터도 Omniverse 계열로 만들기로 결정**했다(D1 해결, [ADR-006](decisions/ADR-006-omniverse-based-simulation.md)).
 
 ### P5. 열·기류 VDB를 만드는 도구가 정해지지 않았다
 - **문제:** Python으로 VDB 파일을 쓰려면 OpenVDB 라이브러리가 필요한데, Windows에서 Python으로 쉽게 설치되는지 확인하지 않았다. 앞서 설치한 `usd-core`는 VDB를 쓰지 못한다.
@@ -69,7 +69,7 @@
 ## 5. 아직 정해지지 않은 결정
 | 번호 | 질문 | 언제, 어떻게 정하나 |
 |---|---|---|
-| D1 | Omniverse Kit 앱(Replicator, Isaac Sim, Flow 등)을 쓸 것인가 | Phase 2의 E1(USD 변환 손실) 결과를 본 뒤 정한다. 지금은 라이브러리만으로 진행한다. Omniverse 활용 폭이 포폴의 핵심 질문이라면 이때 설치를 검토한다. |
+| D1 | 시뮬레이션과 데이터를 Omniverse 기반으로 할 것인가 | **해결(2026-10-15):** Omniverse 계열(Warp 포함)로 만든다. [ADR-006](decisions/ADR-006-omniverse-based-simulation.md). Kit 앱 설치와 Flow 사용은 연구 과제 R1, R2로 시험한다([13](13_omniverse_research.md)). |
 | D2 | VDB를 어떤 도구로 만드는가 | Phase 4 시작 때 후보 3개를 하루 안에 시험해 정한다. |
 | D3 | Unreal이 USD 속성을 읽을 수 있는가 | Phase 2 E1에서 확인한다. 안 되어도 매니페스트가 있어서 진행에는 지장이 없다. |
 | D4 | 센서 값 갱신 주기를 몇 초로 하는가 | 기본 1초로 시작하고 Phase 3에서 측정해 조정한다. |

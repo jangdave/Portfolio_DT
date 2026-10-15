@@ -17,7 +17,8 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
 | [09 USD 규격](09_usd_spec.md) | 3D 에셋과 장면의 구조, 이름, 센서 앵커 |
 | [10 모델링 가이드](10_modeling_guide.md) | 서버 랙을 만드는 방법과 점검표 |
 | [11 데이터 규격](11_data_spec.md) | 센서, MQTT, 게이트웨이, 시나리오 |
-| [12 Unreal 설계](12_unreal_design.md) | 클라이언트 구성, 화면, 시험 |
+| [12 Unreal 설계](12_unreal_design.md) | 클라이언트 구성, 화면, 내부 둘러보기, Unreal 고유 기능, 시험 |
+| [13 Omniverse 연구 계획](13_omniverse_research.md) | 확인한 사실, 열 시뮬레이션 설계, 연구 과제 R1~R6 |
 | [설계 결정 기록](decisions/) | 왜 이렇게 정했는지 |
 
 ## 3. 왜 Omniverse와 Unreal을 나눠 쓰는가
@@ -29,14 +30,21 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
 
 - "Unreal이 더 낫다"는 주장이 아니라 **운영 화면이라는 용도에서의 선택**이다. 같은 장면을 Omniverse 쪽 뷰어(ovrtx)로도 그려 비교한다([03 비교 실험](03_experiments.md)).
 
-### Omniverse를 실제로 쓰는 범위 (사실대로)
-지금 설치되어 있는 것은 Omniverse **라이브러리**(ovrtx, ovphysx)뿐이다. Kit 앱(Replicator, Isaac Sim 등)은 설치하지 않았다. 센서 값과 열·기류 데이터는 **일반 Python 코드**가 만든다.
+### Omniverse를 쓰는 범위 ([ADR-006](decisions/ADR-006-omniverse-based-simulation.md))
+시뮬레이션과 데이터 생성은 **Omniverse 계열 기술**로 만든다. 현재 설치된 것은 라이브러리(ovrtx, ovphysx)뿐이고 Kit 앱은 설치하지 않았다. Kit 앱은 연구 과제로 시험한다.
 
-| Omniverse 쪽에서 쓰는 것 | 설명 |
-|---|---|
-| OpenUSD | 장면의 기준 형식. 이 프로젝트의 중심 약속이다. |
-| ovrtx | 같은 장면을 그려서 Unreal과 비교하는 기준(비교 실험 E2) |
-| (선택) ovphysx, Kit 앱 | 필요해지면 추가. 쓸지는 결정 D1 ([08 설계 재점검](08_design_review.md) 5장) |
+| Omniverse 쪽에서 맡는 것 | 쓰는 기술 | 상태 |
+|---|---|---|
+| 장면의 기준 | OpenUSD | 사용 중 |
+| 열 시뮬레이션과 가상 센서 | NVIDIA Warp (USD 형상을 읽어 계산) | 연구 R5 |
+| 열·기류 부피 데이터 | Warp(NanoVDB) 또는 Flow | 연구 R2, R6 |
+| 같은 장면 그리기(비교 기준) | ovrtx | 동작 확인 완료 |
+| Kit 앱 | Kit SDK, Flow, 스트리밍 | 연구 R1 (RTX 5090 지원 미확인) |
+
+연구 계획과 확인한 사실은 [13 Omniverse 연구 계획](13_omniverse_research.md)에 있다.
+
+### Unreal에서만 만들기 쉬운 기능
+운영 화면에는 걸어 다니기, 안내 투어, 상호작용, 실시간 시각·음향 효과처럼 Unreal이 기본으로 제공하는 기능을 더한다. Omniverse에서 만들 수 없다는 뜻이 아니라 **구현 비용이 낮은 기능**이며, 같은 기능을 양쪽에서 만드는 비용을 비교 실험(E2)에서 잰다. 목록은 [12 Unreal 설계](12_unreal_design.md) 11장에 있다.
 
 ## 4. 데이터가 흐르는 길 세 가지
 
@@ -60,10 +68,10 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
               (센서 목록·위치·기준값)                     · USD 가져오기, 센서 위치 연결
                  │         │                              · 온도 색, 알람 강조, 열·기류 볼륨
                  │         │                              · CommonUI 패널 + 일부 웹 패널
-   [센서 값 생성기] ─MQTT─▶ [Mosquitto] ─▶ [게이트웨이] ─WebSocket/REST─▶ Unreal
-     (Python)                              (최근 값, 알람 판정, 이력)         │
-                                                                              └─▶ Pixel Streaming ─▶ 브라우저
-   [열·기류 생성] ─VDB 파일─▶ Unreal 볼륨
+   [열 시뮬레이션(Warp) + 가상 센서] ─MQTT─▶ [Mosquitto] ─▶ [게이트웨이] ─WebSocket/REST─▶ Unreal
+     (센서 앵커 위치에서 온도를 읽음)                    (최근 값, 알람 판정, 이력)         │
+                                                                                          └─▶ Pixel Streaming ─▶ 브라우저
+   [같은 시뮬레이션 결과] ─VDB 파일─▶ Unreal 볼륨
 
    [Omniverse ovrtx] ─같은 USD 장면을 그림─▶ 비교 실험(E2)
 ```
@@ -89,7 +97,8 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
 1. 정상 가동: 랙 온도가 색으로 보이고 전력이 완만하게 변한다.
 2. 냉각 장치(CRAC) 고장: 온도가 오르고, 주의 → 위험 알람이 뜨고, 해당 랙이 강조되고, 기류 볼륨이 변한다.
 3. 알람 목록에서 항목을 누르면 해당 장비로 카메라가 이동하고, 추이 그래프를 본다.
-4. (선택) AI 에이전트가 알람을 요약하고 조치를 제안한다.
+4. **내부 둘러보기:** 1인칭으로 통로를 걸으며 가까운 랙의 센서 값을 보고, 안내 투어로 주요 지점을 돌아본다. 팬 소리와 기류 효과가 상태에 따라 변한다.
+5. (선택) AI 에이전트가 알람을 요약하고 조치를 제안한다.
 
 ## 9. 범위 밖
 실제 열역학 해석의 정확도 주장, 장비 제어(읽기 전용), 로그인과 권한, 모바일과 XR, 상용 수준의 확장성. 필요하면 "향후 과제"로 문서에 적는다.
