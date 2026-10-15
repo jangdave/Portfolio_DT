@@ -1,13 +1,66 @@
 # DC-Twin
 
-OpenUSD 기반 저작·시뮬레이션(Omniverse 계열)과 Unreal Engine 5.7 운영자 클라이언트를 연결한 **가상 데이터센터 디지털 트윈** 포트폴리오 프로젝트.
+가상 데이터센터의 **디지털 트윈**을 만드는 개인 포트폴리오 프로젝트입니다.
+센서 값과 열·기류 데이터를 만들어 내고, 운영자가 보는 화면(운영 화면)을 Unreal Engine 5.7로 구현합니다.
 
-- 설계: [docs/01_architecture.md](docs/01_architecture.md)
-- 로드맵: [docs/02_roadmap.md](docs/02_roadmap.md)
-- 비교 실험: [docs/03_experiments.md](docs/03_experiments.md)
-- 정책: [docs/04_clean_room_policy.md](docs/04_clean_room_policy.md)
-- 환경 상태: [docs/05_env_status.md](docs/05_env_status.md)
-- 개발 워크플로: [docs/06_workflow.md](docs/06_workflow.md)
-- 설계 결정: [docs/decisions/](docs/decisions/)
+> 모든 3D 모델과 데이터는 직접 만든 가상 시설입니다. 시뮬레이션은 화면에 보여 주기 위한 용도이며, 공학적으로 정확하다고 주장하지 않습니다.
 
-> 상태: Phase 0 (하네스·환경). 모든 모델과 데이터는 직접 제작한 가상 시설이며, 시뮬레이션은 시각화 목적입니다.
+## 한눈에 보기
+```
+Blender로 모델링 → USD 파일 → Omniverse(데이터 생성)  ┐
+센서 값 생성기(Python) → MQTT → 게이트웨이 → WebSocket ┴→ Unreal 운영 화면 → 브라우저(Pixel Streaming)
+```
+쉬운 설명은 [용어집](docs/07_glossary_and_writing_rules.md)에 있습니다.
+
+## 현재 상태
+- Phase 0(작업 환경 설정) 완료, **Phase 1(USD·Omniverse 기초) 진행 중**
+- 진행 상황은 [Milestone](https://github.com/jangdave/Portfolio_DT/milestones)과 [Issue](https://github.com/jangdave/Portfolio_DT/issues)에서 볼 수 있습니다.
+
+## 처음 시작하기
+필요한 것: Windows, NVIDIA RTX GPU, Unreal Engine 5.7, Blender 5.1, Git, Git LFS, `uv`(Python 환경 도구).
+
+1. 저장소를 받습니다.
+   ```
+   git clone https://github.com/jangdave/Portfolio_DT.git
+   cd Portfolio_DT
+   git lfs install
+   ```
+2. 개발 환경을 점검합니다. 설치하거나 바꾸는 것은 없고, 무엇이 있고 없는지만 보여 줍니다.
+   ```
+   .\scripts\check_env.ps1
+   ```
+3. 동작 확인 테스트를 실행합니다. (Phase 1 PR이 병합된 뒤 사용할 수 있습니다.)
+   ```
+   cd experiments\p1_ovrtx_smoke
+   uv run --python 3.13 python smoke_test.py
+   ```
+   처음 실행은 셰이더 캐시를 만드느라 1~2분 걸릴 수 있습니다.
+
+## 폴더 안내
+| 폴더 | 내용 |
+|---|---|
+| `docs/` | 설계, 계획, 실험, 규칙 문서 |
+| `docs/decisions/` | 설계 결정 기록(왜 이렇게 정했는지) |
+| `blender/` | Blender 원본 파일과 내보내기 스크립트 |
+| `usd/` | 만들어 둔 USD 에셋과 장면 |
+| `sim/` | 센서 값과 열·기류 데이터 생성 코드 |
+| `gateway/` | MQTT를 WebSocket으로 바꿔 주는 중간 프로그램 |
+| `unreal/` | Unreal 프로젝트 |
+| `web/` | 웹으로 만드는 일부 화면 |
+| `experiments/` | 비교 실험 코드와 결과 |
+| `scripts/` | 점검·실행 보조 스크립트 |
+
+## 문서 읽는 순서
+1. [전체 구조](docs/01_architecture.md)
+2. [단계별 계획](docs/02_roadmap.md)
+3. [비교 실험 계획](docs/03_experiments.md)
+4. [설계 결정 기록](docs/decisions/)
+5. [작업 방식(브랜치·커밋·PR)](docs/06_workflow.md)
+6. [회사 자산 분리 규칙](docs/04_clean_room_policy.md)
+7. [환경 상태](docs/05_env_status.md)
+8. [용어집과 문서 작성 규칙](docs/07_glossary_and_writing_rules.md)
+
+## 작업 방식 요약
+- `main`에서 직접 작업하지 않고, 브랜치를 만들어 작업한 뒤 PR로 합칩니다(Squash merge).
+- 커밋 제목은 `type(scope): 한글 요약` 형식입니다. 예: `feat(sim): cooling_failure 시나리오 생성기 추가`
+- 자세한 내용은 [작업 방식 문서](docs/06_workflow.md)를 봅니다.
