@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(uv:*)",
+      "Bash(node --version)",
+      "Bash(npm run:*)",
+      "PowerShell(Get-ChildItem:*)",
+      "PowerShell(Get-Content:*)",
+      "PowerShell(.\\scripts\\check_env.ps1:*)",
+      "Read(//d/UnrealProject/**)",
+      "Read(//d/omniverse-labs-main/**)"
+    ],
+    "deny": [
+      "Edit(//d/UnrealProject/**)",
+      "Write(//d/UnrealProject/**)",
+      "Edit(//d/omniverse-labs-main/**)",
+      "Write(//d/omniverse-labs-main/**)"
+    ]
+  }
+}

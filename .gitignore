@@ -1,0 +1,34 @@
+# Unreal
+unreal/Binaries/
+unreal/Intermediate/
+unreal/Saved/
+unreal/DerivedDataCache/
+unreal/.vs/
+unreal/*.sln
+unreal/*.suo
+
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# 생성 데이터 / 대용량 (필요한 것만 Git LFS 또는 별도 보관)
+sim/out/
+*.vdb
+experiments/results/raw/
+*.mp4
+*.mov
+
+# Blender
+*.blend1
+*.blend2
+
+# OS / IDE
+.vs/
+.idea/
+Thumbs.db
+.claude/settings.local.json
+.claude/cleanroom-terms.local.txt
