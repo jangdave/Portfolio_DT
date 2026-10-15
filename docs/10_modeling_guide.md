@@ -145,24 +145,40 @@ uv run --python 3.13 python validate_usd.py --kind asset ..\..\usd\assets\rack.u
 
 | 순서 | 할 일 | 명령 (저장소 루트에서) |
 |---|---|---|
-| 1 | 4K 텍스처 만들기 (약 30초) | `uv run --python 3.13 --with numpy --with pillow python blender/scripts/make_building_textures.py` |
+| 0 | CC0 텍스처 내려받기(콘크리트, 아스팔트) | `uv run --python 3.13 --with numpy --with pillow python scripts/fetch_cc0_textures.py` |
+| 1 | 4K 텍스처 만들기(패널, 지붕. 약 15초) | `uv run --python 3.13 --with numpy --with pillow python blender/scripts/make_building_textures.py` |
 | 2 | 이음새 확인 이미지 만들기 | `uv run --python 3.13 --with numpy --with pillow python blender/scripts/check_texture_tiling.py` |
 | 3 | 모델 만들기 (삼각형 수가 출력됨) | `blender -b --factory-startup --python blender/scripts/make_building_exterior.py -- blender/building_exterior.blend` |
 | 4 | USD로 내보내기 (텍스처 복사 포함) | `blender -b blender/building_exterior.blend --python blender/scripts/export_usd.py -- <스크래치>/building_raw.usd --textures NEW` |
-| 5 | 마무리 (`scripts/usd_tools`에서) | `uv run --python 3.13 python finalize_asset.py <스크래치>/building_raw.usd ../../usd/assets/building.usda --textures-dir ../../usd/assets/textures/building --textures-rel textures/building` |
+| 5 | 마무리 (`scripts/usd_tools`에서, 텍스처는 `.jpg`와 `.png`를 모두 복사한다) | `uv run --python 3.13 python finalize_asset.py <스크래치>/building_raw.usd ../../usd/assets/building.usda --textures-dir ../../usd/assets/textures/building --textures-rel textures/building` |
 | 6 | 검증 | `uv run --python 3.13 python validate_usd.py --kind asset ../../usd/assets/building.usda` |
 | 7 | 미리보기 렌더(검수용) | `blender -b blender/building_exterior.blend --python blender/scripts/render_building_previews.py -- blender/previews 24` |
 
 ### 저장소를 받은 뒤 텍스처 준비하기 (4K 텍스처는 저장소에 올리지 않는다)
-4K 텍스처 PNG 13개(약 250 MB)는 **생성 스크립트가 시드를 고정해 같은 결과를 만들기 때문에** 저장소에 올리지 않는다(`usd/assets/textures/`는 `.gitignore`에 있다). `building.usda`는 `./textures/building/*.png`를 상대 경로로 참조하므로, 저장소를 받은 뒤 한 번 만들어 둔다.
+4K 텍스처(약 250 MB)는 저장소에 올리지 않는다(`usd/assets/textures/`는 `.gitignore`에 있다). 패널과 지붕은 **생성 스크립트가 시드를 고정해 같은 결과를 만들고**, 콘크리트와 아스팔트는 **CC0 실사 텍스처(ambientCG)** 를 내려받는다. `building.usda`는 `./textures/building/*`를 상대 경로로 참조하므로 저장소를 받은 뒤 한 번 준비한다.
 
 ```
+uv run --python 3.13 --with numpy --with pillow python scripts/fetch_cc0_textures.py
 uv run --python 3.13 --with numpy --with pillow python blender/scripts/make_building_textures.py
 New-Item -ItemType Directory -Force usd/assets/textures/building | Out-Null
-Copy-Item blender/textures/building/*.png usd/assets/textures/building/ -Exclude *_AO.png
+Copy-Item blender/textures/building/* usd/assets/textures/building/ -Exclude *_AO.png
 ```
-- 첫 줄이 `blender/textures/building/`에 14개를 만들고(약 30초), 아래 두 줄이 AO를 뺀 13개를 USD가 찾는 위치로 복사한다. AO는 USD 재질에 연결하지 않았고 Unreal에서 쓸 수 있게 남겨 둔 파일이다.
+- 첫 줄: CC0 텍스처 2개를 내려받는다(약 230 MB, 라이선스와 크기는 `blender/textures/cc0_sources.json`, 출처 기록은 [ASSET_LICENSES](ASSET_LICENSES.md)).
+- 둘째 줄: 패널과 지붕 4K 텍스처를 만든다(약 15초). 셋째, 넷째 줄: AO를 뺀 파일을 USD가 찾는 위치로 복사한다. AO는 USD 재질에 연결하지 않았고 Unreal에서 쓸 수 있게 남겨 둔 파일이다.
 - 텍스처가 없으면 `building.usda`는 열리지만 재질이 회색으로 보인다.
+
+### 텍스처와 형상을 맞추는 원칙 (노이즈를 막는다)
+1. **중복하지 않는다.** 형상에 이미 있는 디테일(패널 틈, 루버 슬랫, 난간)을 텍스처에 또 그리지 않는다. 우리 패널은 틈을 형상으로 만들었으므로 텍스처는 이음선이 없는 평평한 면이 맞고, 골판 텍스처는 맞지 않는다.
+2. **실제 크기를 맞춘다.** 텍스처의 실제 크기(아스팔트 250 cm, 콘크리트 240 cm)를 UV 타일 크기(`TS_ASPH`, `TS_CONC`)와 같게 둔다. 어긋나면 골재 알갱이가 거인이나 개미 크기로 보인다.
+3. **큰 것은 형상, 작은 것은 텍스처.** 베벨, 틈, 슬랫은 형상이고 질감, 얼룩은 텍스처다.
+4. **노멀의 세기를 제한한다.** 노멀 맵의 평균 기울기가 0.3을 넘으면 먼 거리에서 반짝이는 노이즈가 된다(2026-10-15: 절차 아스팔트 0.62, 콘크리트 0.34로 측정). CC0 아스팔트는 0.40이라 0.6배로 줄여 0.24로 썼다(`cc0_sources.json`의 `normal_strength`).
+5. **같은 평면에 면을 겹치지 않는다.** 같은 방향의 면이 같은 평면(0.5 cm 이내)에 겹치면 서로 깜빡이는 노이즈(z-파이팅)가 된다. 예: 벽 속 면(`WallCore`)이 난간 높이까지 올라가 패널 안쪽 면과 겹쳤다. 다음 검사로 찾는다.
+```
+cd scripts/usd_tools
+uv run --python 3.13 python check_coplanar_faces.py ../../usd/assets/building.usda --z-min 1380
+```
+   - 맞붙은 반대 방향 면(패널 뒷면과 벽 앞면)은 단면 렌더에서 보이지 않아 세지 않는다. 모든 메시는 단면(`doubleSided=False`)으로 내보내고 유리(`Entrance`)만 양면이다.
+   - 삼각형 부채꼴 면은 오탐이라 제외한다.
 
 - 길이는 스크립트 안에서 **미터**로 쓰고, 만들 때 100배(cm)한다.
 - 삼각형 예산: 건물 전체 200만 이하(Nanite 사용 전제). 2026-10-15 기준 약 13.8만.

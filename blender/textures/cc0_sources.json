@@ -1,0 +1,33 @@
+{
+  "_comment": "건물 외관에 쓰는 CC0 텍스처 목록. scripts/fetch_cc0_textures.py가 읽는다. 실제 크기(tile_cm)는 ambientCG 자산 정보의 값이며 make_building_exterior.py의 타일 크기(TS_CONC, TS_ASPH)와 같아야 한다.",
+  "provider": "ambientCG",
+  "license": "CC0 1.0 Universal",
+  "license_url": "https://docs.ambientcg.com/license/",
+  "attribute": "4K-JPG",
+  "assets": [
+    {
+      "id": "Asphalt033",
+      "prefix": "T_Asphalt",
+      "tile_cm": 250,
+      "use": "부지 바닥(주차장, 도로)",
+      "maps": {
+        "Color": "BaseColor",
+        "NormalGL": "Normal",
+        "Roughness": "Roughness"
+      },
+      "normal_strength": 0.6,
+      "note": "원본 노멀 평균 기울기 0.40이라 먼 거리에서 반짝여서 0.6배로 줄임"
+    },
+    {
+      "id": "Concrete046",
+      "prefix": "T_BldgConcrete",
+      "tile_cm": 240,
+      "use": "기초, 포장, 설비 받침, 수조",
+      "maps": {
+        "Color": "BaseColor",
+        "NormalGL": "Normal",
+        "Roughness": "Roughness"
+      }
+    }
+  ]
+}

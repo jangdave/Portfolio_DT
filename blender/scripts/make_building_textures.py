@@ -241,7 +241,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--only", default="", help="쉼표로 구분한 세트 이름")
     args = ap.parse_args(argv)
     args.out.mkdir(parents=True, exist_ok=True)
-    names = [n for n in args.only.split(",") if n] or list(SETS)
+    # 기본은 패널과 지붕만 만든다. 콘크리트와 아스팔트는 CC0 실사 텍스처(scripts/fetch_cc0_textures.py)를 쓴다.
+    # 절차 생성 버전은 `--only concrete,asphalt`로 만들 수 있다(내려받을 수 없을 때의 대체용, 노멀이 거칠다).
+    names = [n for n in args.only.split(",") if n] or ["panel", "roof"]
     for n in names:
         t = time.time()
         SETS[n](args.out, args.directx)

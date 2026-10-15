@@ -9,7 +9,7 @@
 - 원점은 지면 중앙, 정문 쪽이 -Y, 위쪽이 +Z. 가상 건물이며 실제 시설, 상표, 간판 문구를 따라 하지 않았다.
 - 구조 (09 규격 12장): Building(assetType=building, title) / Exterior / Floors / Outdoor(assetType=outdoor)
 - 형상은 모두 진짜 지오메트리다. 오브젝트마다 점을 따로 만들어 붙이지 않고, 재질별 UV(텍셀 밀도 일정)를 넣는다.
-  - 타일 크기: 패널 4.8 m, 지붕 4.8 m, 콘크리트 4.0 m, 아스팔트 4.0 m (텍스처 4096 px -> 약 850~1020 px/m)
+  - 타일 크기: 패널 4.8 m, 지붕 4.8 m, 콘크리트 2.4 m, 아스팔트 2.5 m (텍스처 4096 px -> 850~1700 px/m). 콘크리트와 아스팔트는 CC0 실사 텍스처(실제 크기 기준)
 - 만든 뒤 삼각형 수를 출력한다.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ PLINTH = 0.6  # 기초 높이
 PW, PH = 1.2, 2.4  # 패널 크기
 PD = 0.12  # 패널 두께
 GAP = 0.02
-TS_PANEL, TS_CONC, TS_ASPH, TS_ROOF = 4.8, 4.0, 4.0, 4.8
+TS_PANEL, TS_CONC, TS_ASPH, TS_ROOF = 4.8, 2.4, 2.5, 4.8  # 콘크리트와 아스팔트는 CC0 텍스처의 실제 크기(2.4 m, 2.5 m)
 
 SITE_X0, SITE_X1, SITE_Y0, SITE_Y1 = -65.0, 65.0, -55.0, 50.0  # 울타리 안쪽 부지
 
@@ -49,6 +49,13 @@ def _img(name: str, colorspace: str, blend_dir: str):
     if name in _images:
         return _images[name]
     path = os.path.join(TEX_DIR, name)
+    if not os.path.splitext(name)[1]:  # 확장자 없이 이름만 주면 .png, .jpg 순서로 찾는다 (CC0 텍스처는 jpg)
+        for ext in (".png", ".jpg", ".jpeg"):
+            if os.path.exists(path + ext):
+                path += ext
+                break
+        else:
+            raise FileNotFoundError(f"텍스처가 없다: {path}(.png/.jpg). make_building_textures.py와 scripts/fetch_cc0_textures.py를 먼저 실행한다")
     im = bpy.data.images.load(path)
     im.colorspace_settings.name = colorspace
     try:
@@ -59,9 +66,10 @@ def _img(name: str, colorspace: str, blend_dir: str):
     return im
 
 
-def flat_material(name, rgb, metallic, roughness):
+def flat_material(name, rgb, metallic, roughness, cull=True):
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
+    mat.use_backface_culling = cull  # 뒷면을 그리지 않는다(같은 평면에 겹친 면이 뒤에서 비치는 것을 막음)
     b = mat.node_tree.nodes["Principled BSDF"]
     b.inputs["Base Color"].default_value = (*rgb, 1)
     b.inputs["Metallic"].default_value = metallic
@@ -73,6 +81,7 @@ def textured_material(name, prefix, blend_dir, metallic=0.0, use_metal_map=False
     """Principled BSDF 하나에 이미지 노드를 연결한다. (기본색, 노멀, 거칠기, 필요하면 금속성)"""
     mat = bpy.data.materials.new(name)
     mat.use_nodes = True
+    mat.use_backface_culling = True
     nt = mat.node_tree
     b = nt.nodes["Principled BSDF"]
     b.inputs["Metallic"].default_value = metallic
@@ -85,14 +94,14 @@ def textured_material(name, prefix, blend_dir, metallic=0.0, use_metal_map=False
         n.location = (x, y)
         return n
 
-    base = tex(f"{prefix}_BaseColor.png", "sRGB", -700, 300)
+    base = tex(f"{prefix}_BaseColor", "sRGB", -700, 300)
     nt.links.new(base.outputs["Color"], b.inputs["Base Color"])
-    rough = tex(f"{prefix}_Roughness.png", "Non-Color", -700, 0)
+    rough = tex(f"{prefix}_Roughness", "Non-Color", -700, 0)
     nt.links.new(rough.outputs["Color"], b.inputs["Roughness"])
     if use_metal_map:
-        met = tex(f"{prefix}_Metallic.png", "Non-Color", -700, -300)
+        met = tex(f"{prefix}_Metallic", "Non-Color", -700, -300)
         nt.links.new(met.outputs["Color"], b.inputs["Metallic"])
-    nrm_img = tex(f"{prefix}_Normal.png", "Non-Color", -700, -600)
+    nrm_img = tex(f"{prefix}_Normal", "Non-Color", -700, -600)
     nm = nt.nodes.new("ShaderNodeNormalMap")
     nm.location = (-350, -600)
     nt.links.new(nrm_img.outputs["Color"], nm.inputs["Color"])
@@ -106,7 +115,7 @@ def make_materials(blend_dir: str) -> dict:
         "M_BldgConcrete": textured_material("M_BldgConcrete", "T_BldgConcrete", blend_dir),
         "M_BldgRoof": textured_material("M_BldgRoof", "T_BldgRoof", blend_dir),
         "M_Asphalt": textured_material("M_Asphalt", "T_Asphalt", blend_dir),
-        "M_BldgGlass": flat_material("M_BldgGlass", (0.07, 0.12, 0.17), 0.0, 0.1),
+        "M_BldgGlass": flat_material("M_BldgGlass", (0.07, 0.12, 0.17), 0.0, 0.1, cull=False),
         "M_BldgLouver": flat_material("M_BldgLouver", (0.62, 0.64, 0.66), 0.85, 0.38),
         "M_BldgWallCore": flat_material("M_BldgWallCore", (0.05, 0.055, 0.06), 0.2, 0.7),
         "M_BldgFan": flat_material("M_BldgFan", (0.04, 0.045, 0.05), 0.5, 0.45),
@@ -386,7 +395,8 @@ def build_exterior(mats, parent):
 
     # 벽 속(어두운 안쪽 벽): 패널 틈이 어둡게 보이도록
     core = MB("WallCore")
-    core.box((0, 0, H / 2 + PAR / 2 - 0.0), (W - 2 * PD, D - 2 * PD, H + PAR), "M_BldgWallCore", TS_CONC, skip=("-z", "+z"))
+    # 난간(지붕 위 1.0 m)은 패널만으로 만든다. 코어가 난간까지 올라가면 패널 안쪽 면과 같은 평면에 겹쳐 깜빡인다.
+    core.box((0, 0, H / 2), (W - 2 * PD, D - 2 * PD, H), "M_BldgWallCore", TS_CONC, skip=("-z", "+z"))
     objs.append(core)
 
     # 패널: 벽마다 1.2 x 2.4 m, 틈 2 cm. 뚫린 칸은 건너뛴다.
@@ -414,7 +424,8 @@ def build_exterior(mats, parent):
             wall_box(trim, face, 0, 0.03, z, L, 0.12, 0.14, "M_BldgLouver", skip=())
     for sx in (-1, 1):
         for sy in (-1, 1):
-            trim.box((sx * (W / 2 + 0.01), sy * (D / 2 + 0.01), (H + PAR) / 2 + PLINTH / 2), (0.3, 0.3, H + PAR - PLINTH), "M_BldgLouver")
+            # 모서리 기둥의 안쪽 면은 패널 두께(12 cm) 안쪽 3 cm에 묻는다(패널 안쪽 면과 같은 평면 근처에 두지 않음)
+            trim.box((sx * (W / 2 + 0.04), sy * (D / 2 + 0.04), (H + PAR) / 2 + PLINTH / 2), (0.26, 0.26, H + PAR - PLINTH), "M_BldgLouver")
     for x, y, sx, sy in ((0, D / 2 + 0.08, W + 0.4, 0.5), (0, -D / 2 - 0.08, W + 0.4, 0.5), (W / 2 + 0.08, 0, 0.5, D + 0.4), (-W / 2 - 0.08, 0, 0.5, D + 0.4)):
         trim.box((x, y, H + PAR + 0.05), (sx, sy, 0.1), "M_BldgLouver")
     objs.append(trim)
@@ -480,7 +491,8 @@ def build_exterior(mats, parent):
 
     # 지붕 바닥과 옥상 설비
     rf = MB("RoofDeck")
-    rf.box((0, 0, H + 0.05), (W - 2 * PD - 0.1, D - 2 * PD - 0.1, 0.1), "M_BldgRoof", TS_ROOF, skip=("-z",), uvo=(W / 2, D / 2, 0))
+    # 지붕 바닥은 난간 패널 안쪽 면보다 1 cm씩 패널 속으로 넣는다(틈이 있으면 건물 속이 비쳐 보이고, 맞붙이면 옆면이 패널 안쪽 면과 같은 평면에 놓임).
+    rf.box((0, 0, H + 0.05), (W - 2 * PD + 0.02, D - 2 * PD + 0.02, 0.1), "M_BldgRoof", TS_ROOF, skip=("-z",), uvo=(W / 2, D / 2, 0))
     objs.append(rf)
 
     re_ = MB("RoofEquipment")
@@ -553,7 +565,7 @@ def build_outdoor(mats, parent):
     gr.box((0, 0, 0.01), (W + 12, D + 12, 0.02), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(W / 2 + 6, D / 2 + 6, 0))  # 건물 둘레 포장
     gr.box((4.5, -39.0, 0.01), (3.0, 32.0, 0.02), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(0, 0, 0))  # 정문 보도
     # 설비 바닥판
-    for name, cx, cy, wx, wy in (("ct", 50, 2.5, 20, 48), ("gen", -50, -2, 17, 46), ("sub", 0, 38, 40, 20), ("fuel", -60, 1, 6, 28)):
+    for name, cx, cy, wx, wy in (("ct", 50, 2.5, 20, 48), ("gen", -50, -2, 17, 46), ("sub", 0, 38, 40, 20), ("fuel", -61.0, 1, 5, 28)):  # 연료 탱크 바닥판은 발전기 바닥판(x -58.5 ~ -41.5)과 겹치지 않게 x -63.5 ~ -58.5
         gr.box((cx, cy, 0.03), (wx, wy, 0.06), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(cx, cy, 0))
     # 주차선
     for side in (-1, 1):

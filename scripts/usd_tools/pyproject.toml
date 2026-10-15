@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "DC-Twin USD 규칙 검증 도구"
 requires-python = ">=3.13,<3.14"
 dependencies = [
+    "numpy>=2.5.4",
     "usd-core",
 ]
 
