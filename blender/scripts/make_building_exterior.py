@@ -132,8 +132,9 @@ def make_materials(blend_dir: str) -> dict:
 class MB:
     """재질 칸이 여러 개인 메시 하나를 모으는 도우미. 모든 길이는 미터."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, group: str = ""):
         self.name = name
+        self.group = group  # 비어 있지 않으면 같은 이름의 빈 오브젝트 아래에 묶는다
         self.verts: list[tuple[float, float, float]] = []
         self.loops: list[int] = []
         self.starts: list[int] = []
@@ -307,6 +308,27 @@ class MB:
         return ob
 
 
+class Parts:
+    """같은 종류의 부품을 부품마다 메시 하나로 나눠서 만드는 도우미.
+
+    `P = Parts("WallPanels", objs)` 뒤에 `P("South_F1")`을 부르면 이름이 `WallPanels_South_F1`인 메시(MB)를 돌려준다.
+    같은 키를 다시 부르면 같은 메시를 돌려주고, 처음 부를 때만 objs에 등록한다. 그룹(WallPanels)은 USD에서 한 단계 위 prim이 된다.
+    """
+
+    def __init__(self, group: str, sink: list):
+        self.group, self.sink, self.items = group, sink, {}
+
+    def __call__(self, key: str) -> "MB":
+        if key not in self.items:
+            mb = MB(f"{self.group}_{key}", group=self.group)
+            self.items[key] = mb
+            self.sink.append(mb)
+        return self.items[key]
+
+
+FN = {"S": "South", "N": "North", "E": "East", "W": "West"}  # 벽 이름
+
+
 def face_world(face, along, out, z):
     """벽면 기준 좌표(along: 벽을 따라, out: 바깥으로, z)를 월드 좌표로."""
     if face == "S":
@@ -385,13 +407,12 @@ def build_exterior(mats, parent):
     cut = opening_mask()
 
     # 기초(콘크리트 고리)
-    pl = MB("Plinth")
+    pl = Parts("Plinth", objs)
     t = 0.15
-    pl.box((0, -D / 2 - t / 2 + 0.05, PLINTH / 2), (W + 0.2, t + 0.1, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
-    pl.box((0, D / 2 + t / 2 - 0.05, PLINTH / 2), (W + 0.2, t + 0.1, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
-    pl.box((-W / 2 - t / 2 + 0.05, 0, PLINTH / 2), (t + 0.1, D - 0.0, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
-    pl.box((W / 2 + t / 2 - 0.05, 0, PLINTH / 2), (t + 0.1, D - 0.0, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
-    objs.append(pl)
+    pl("South").box((0, -D / 2 - t / 2 + 0.05, PLINTH / 2), (W + 0.2, t + 0.1, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
+    pl("North").box((0, D / 2 + t / 2 - 0.05, PLINTH / 2), (W + 0.2, t + 0.1, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
+    pl("West").box((-W / 2 - t / 2 + 0.05, 0, PLINTH / 2), (t + 0.1, D - 0.0, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
+    pl("East").box((W / 2 + t / 2 - 0.05, 0, PLINTH / 2), (t + 0.1, D - 0.0, PLINTH), "M_BldgConcrete", TS_CONC, skip=("-z",))
 
     # 벽 속(어두운 안쪽 벽): 패널 틈이 어둡게 보이도록
     core = MB("WallCore")
@@ -400,7 +421,7 @@ def build_exterior(mats, parent):
     objs.append(core)
 
     # 패널: 벽마다 1.2 x 2.4 m, 틈 2 cm. 뚫린 칸은 건너뛴다.
-    pan = MB("WallPanels")
+    pan = Parts("WallPanels", objs)
     nrows = int(round(H / PH))  # 6행. 7번째 행(난간벽)은 높이 1.0 m
     for face in "SNEW":
         for i in range(wall_cells(face)):
@@ -412,82 +433,80 @@ def build_exterior(mats, parent):
                 z1 = (k + 1) * PH - GAP / 2 if k < nrows else H + PAR
                 # 패널마다 텍스처를 패널 한 칸(1.2 x 2.4 m) 단위로 옮겨 같은 얼룩이 반복돼 보이지 않게 한다 (이음선 위치는 유지)
                 rx, rz = (i * 7 + k * 3 + "SNEW".index(face)) % 4, (i * 5 + k) % 2
-                wall_box(pan, face, a0 + (PW - GAP) / 2, -PD / 2, (z0 + z1) / 2, PW - GAP, PD, z1 - z0, "M_BldgPanelMetal", TS_PANEL,
+                part = f"F{k // 2 + 1}" if k < nrows else "Parapet"  # 층(2행 = 한 층)과 난간
+                wall_box(pan(f"{FN[face]}_{part}"), face, a0 + (PW - GAP) / 2, -PD / 2, (z0 + z1) / 2, PW - GAP, PD, z1 - z0, "M_BldgPanelMetal", TS_PANEL,
                          uvo=(W / 2 + rx * PW, D / 2 + rx * PW, rz * PH))
-    objs.append(pan)
 
     # 층 경계 띠(알루미늄) + 난간 덮개 + 모서리 기둥
-    trim = MB("WallTrim")
+    trim = Parts("WallTrim", objs)
     for face in "SNEW":
         L = W if face in "NS" else D
-        for z in (FH, 2 * FH):
-            wall_box(trim, face, 0, 0.03, z, L, 0.12, 0.14, "M_BldgLouver", skip=())
+        for fi, z in enumerate((FH, 2 * FH), start=1):
+            wall_box(trim(f"Band_{FN[face]}_{fi}"), face, 0, 0.03, z, L, 0.12, 0.14, "M_BldgLouver", skip=())
     for sx in (-1, 1):
         for sy in (-1, 1):
             # 모서리 기둥의 안쪽 면은 패널 두께(12 cm) 안쪽 3 cm에 묻는다(패널 안쪽 면과 같은 평면 근처에 두지 않음)
-            trim.box((sx * (W / 2 + 0.04), sy * (D / 2 + 0.04), (H + PAR) / 2 + PLINTH / 2), (0.26, 0.26, H + PAR - PLINTH), "M_BldgLouver")
-    for x, y, sx, sy in ((0, D / 2 + 0.08, W + 0.4, 0.5), (0, -D / 2 - 0.08, W + 0.4, 0.5), (W / 2 + 0.08, 0, 0.5, D + 0.4), (-W / 2 - 0.08, 0, 0.5, D + 0.4)):
-        trim.box((x, y, H + PAR + 0.05), (sx, sy, 0.1), "M_BldgLouver")
-    objs.append(trim)
+            trim(f"CornerPost_{'N' if sy > 0 else 'S'}{'E' if sx > 0 else 'W'}").box((sx * (W / 2 + 0.04), sy * (D / 2 + 0.04), (H + PAR) / 2 + PLINTH / 2), (0.26, 0.26, H + PAR - PLINTH), "M_BldgLouver")
+    for nm, x, y, sx, sy in (("North", 0, D / 2 + 0.08, W + 0.4, 0.5), ("South", 0, -D / 2 - 0.08, W + 0.4, 0.5), ("East", W / 2 + 0.08, 0, 0.5, D + 0.4), ("West", -W / 2 - 0.08, 0, 0.5, D + 0.4)):
+        trim(f"Coping_{nm}").box((x, y, H + PAR + 0.05), (sx, sy, 0.1), "M_BldgLouver")
 
     # 환기 루버 묶음
-    lv = MB("Louvers")
+    lv = Parts("Louvers", objs)
     for face, s, n, k0, k1 in louver_banks():
+        bank = lv(f"{FN[face]}_{s:02d}_R{k0 // 2 + 1}")  # 벽, 시작 칸, 층
         z0, z1 = row_z(k0, k1)
         zc, hh = (z0 + z1) / 2, z1 - z0 - GAP
         a0 = -(W if face in "NS" else D) / 2 + PW * s
         aw = PW * n - GAP
         ac = a0 + aw / 2 + GAP / 2
         # 뒷판(어두운 면)
-        wall_box(lv, face, ac, -PD + 0.015, zc, aw, 0.03, hh, "M_BldgWallCore")
+        wall_box(bank, face, ac, -PD + 0.015, zc, aw, 0.03, hh, "M_BldgWallCore")
         # 테두리 4개
         fw = 0.10
-        wall_box(lv, face, ac, -PD / 2 + 0.02, zc + hh / 2 - fw / 2, aw, PD + 0.04, fw, "M_BldgLouver")
-        wall_box(lv, face, ac, -PD / 2 + 0.02, zc - hh / 2 + fw / 2, aw, PD + 0.04, fw, "M_BldgLouver")
-        wall_box(lv, face, ac - aw / 2 + fw / 2, -PD / 2 + 0.02, zc, fw, PD + 0.04, hh - 2 * fw, "M_BldgLouver")
-        wall_box(lv, face, ac + aw / 2 - fw / 2, -PD / 2 + 0.02, zc, fw, PD + 0.04, hh - 2 * fw, "M_BldgLouver")
+        wall_box(bank, face, ac, -PD / 2 + 0.02, zc + hh / 2 - fw / 2, aw, PD + 0.04, fw, "M_BldgLouver")
+        wall_box(bank, face, ac, -PD / 2 + 0.02, zc - hh / 2 + fw / 2, aw, PD + 0.04, fw, "M_BldgLouver")
+        wall_box(bank, face, ac - aw / 2 + fw / 2, -PD / 2 + 0.02, zc, fw, PD + 0.04, hh - 2 * fw, "M_BldgLouver")
+        wall_box(bank, face, ac + aw / 2 - fw / 2, -PD / 2 + 0.02, zc, fw, PD + 0.04, hh - 2 * fw, "M_BldgLouver")
         # 슬랫(기울어진 얇은 판)
         pitch = 0.09
         nsl = int((hh - 2 * fw) / pitch)
         for q in range(nsl):
             zq = zc - hh / 2 + fw + pitch * (q + 0.5)
-            wall_box(lv, face, ac, -PD / 2 + 0.0, zq, aw - 2 * fw, 0.11, 0.015, "M_BldgLouver", tilt=38.0)
-    objs.append(lv)
+            wall_box(bank, face, ac, -PD / 2 + 0.0, zq, aw - 2 * fw, 0.11, 0.015, "M_BldgLouver", tilt=38.0)
 
     # 작은 출입문(문짝, 계단, 차양)
-    dr = MB("ServiceDoors")
+    dr = Parts("ServiceDoors", objs)
     for face, i in doors():
+        d_ = dr(f"{FN[face]}_{i:02d}")
         ac = cell_center(face, i)
-        wall_box(dr, face, ac, -PD + 0.02, PLINTH + 1.05, 1.0, 0.04, 2.1, "M_BldgLouver")  # 문짝
-        wall_box(dr, face, ac, -PD / 2 + 0.02, PLINTH + 2.15, 1.2, PD + 0.04, 0.1, "M_BldgLouver")  # 문 위 보
-        wall_box(dr, face, ac - 0.55, -PD / 2 + 0.02, PLINTH + 1.05, 0.1, PD + 0.04, 2.1, "M_BldgLouver")
-        wall_box(dr, face, ac + 0.55, -PD / 2 + 0.02, PLINTH + 1.05, 0.1, PD + 0.04, 2.1, "M_BldgLouver")
-        wall_box(dr, face, ac, 0.9 + 0.1, PLINTH - 0.02, 2.0, 1.8, 0.04, "M_BldgConcrete", TS_CONC)  # 디딤판
-        wall_box(dr, face, ac, 0.55, PLINTH + 2.6, 2.0, 1.1, 0.06, "M_BldgLouver")  # 작은 차양
-        wall_box(dr, face, ac, -PD + 0.045, PLINTH + 1.05, 0.06, 0.02, 0.5, "M_BldgFan")  # 손잡이 자리
-    objs.append(dr)
+        wall_box(d_, face, ac, -PD + 0.02, PLINTH + 1.05, 1.0, 0.04, 2.1, "M_BldgLouver")  # 문짝
+        wall_box(d_, face, ac, -PD / 2 + 0.02, PLINTH + 2.15, 1.2, PD + 0.04, 0.1, "M_BldgLouver")  # 문 위 보
+        wall_box(d_, face, ac - 0.55, -PD / 2 + 0.02, PLINTH + 1.05, 0.1, PD + 0.04, 2.1, "M_BldgLouver")
+        wall_box(d_, face, ac + 0.55, -PD / 2 + 0.02, PLINTH + 1.05, 0.1, PD + 0.04, 2.1, "M_BldgLouver")
+        wall_box(d_, face, ac, 0.9 + 0.1, PLINTH - 0.04, 2.0, 1.8, 0.04, "M_BldgConcrete", TS_CONC)  # 디딤판(윗면을 기초 윗면보다 2 cm 낮게)
+        wall_box(d_, face, ac, 0.55, PLINTH + 2.6, 2.0, 1.1, 0.06, "M_BldgLouver")  # 작은 차양
+        wall_box(d_, face, ac, -PD + 0.045, PLINTH + 1.05, 0.06, 0.02, 0.5, "M_BldgFan")  # 손잡이 자리
 
     # 정문: 유리벽, 문틀, 차양, 기둥, 앞 포장
-    en = MB("Entrance")
+    en = Parts("Entrance", objs)
     face, s, n, k0, k1 = ENTRANCE
     ew = n * PW - GAP
     z0, z1 = row_z(k0, k1)
     eh = z1 - z0
-    en.box((0, -D / 2 - PD + 0.04, (z0 + z1) / 2), (ew, 0.04, eh), "M_BldgGlass")
+    en("Glass").box((0, -D / 2 - PD + 0.04, (z0 + z1) / 2), (ew, 0.04, eh), "M_BldgGlass")
     nm = 8
     for q in range(nm + 1):  # 세로 문틀
         x = -ew / 2 + ew * q / nm
-        en.box((x, -D / 2 - PD / 2 + 0.03, (z0 + z1) / 2), (0.08, PD, eh), "M_BldgLouver")
+        en("Frame").box((x, -D / 2 - PD / 2 + 0.04, (z0 + z1) / 2), (0.08, PD, eh), "M_BldgLouver")  # 바깥 면이 층 경계 띠보다 1 cm 안쪽
     for z in (z0 + 0.05, z0 + 2.4, z1 - 0.05):  # 가로 문틀
-        en.box((0, -D / 2 - PD / 2 + 0.03, z), (ew, PD, 0.08), "M_BldgLouver")
-    en.box((0, -D / 2 - 1.8, FH + 0.15), (ew + 1.6, 3.8, 0.3), "M_BldgPanelMetal", TS_PANEL, uvo=(W / 2, D / 2, 0))  # 차양
-    en.box((0, -D / 2 - 1.8, FH + 0.32), (ew + 1.6, 3.8, 0.04), "M_BldgLouver")
+        en("Frame").box((0, -D / 2 - PD / 2 + 0.04, z), (ew, PD, 0.08), "M_BldgLouver")
+    en("Canopy").box((0, -D / 2 - 1.8, FH + 0.15), (ew + 1.6, 3.8, 0.3), "M_BldgPanelMetal", TS_PANEL, uvo=(W / 2, D / 2, 0))  # 차양
+    en("Canopy").box((0, -D / 2 - 1.8, FH + 0.32), (ew + 1.6, 3.8, 0.04), "M_BldgLouver")
     for x in (-ew / 2 + 0.4, ew / 2 - 0.4):
-        en.cyl((x, -D / 2 - 3.3, 0.0), 0.18, FH, "M_BldgLouver", seg=16)  # 기둥
-    en.box((0, -D / 2 - 2.0, 0.15), (ew + 3.0, 4.4, 0.3), "M_BldgConcrete", TS_CONC)  # 앞 포장
+        en("Columns").cyl((x, -D / 2 - 3.3, 0.0), 0.18, FH, "M_BldgLouver", seg=16)  # 기둥
+    en("Paving").box((0, -D / 2 - 2.0, 0.15), (ew + 3.0, 4.4, 0.3), "M_BldgConcrete", TS_CONC)  # 앞 포장
     for k in range(7):  # 볼라드
-        en.cyl((-ew / 2 - 1.0 + (ew + 2.0) * k / 6, -D / 2 - 5.2, 0.0), 0.12, 1.0, "M_BldgLouver", seg=12)
-    objs.append(en)
+        en(f"Bollard_{k + 1:02d}").cyl((-ew / 2 - 1.0 + (ew + 2.0) * k / 6, -D / 2 - 5.2, 0.0), 0.12, 1.0, "M_BldgLouver", seg=12)
 
     # 지붕 바닥과 옥상 설비
     rf = MB("RoofDeck")
@@ -495,50 +514,52 @@ def build_exterior(mats, parent):
     rf.box((0, 0, H + 0.05), (W - 2 * PD + 0.02, D - 2 * PD + 0.02, 0.1), "M_BldgRoof", TS_ROOF, skip=("-z",), uvo=(W / 2, D / 2, 0))
     objs.append(rf)
 
-    re_ = MB("RoofEquipment")
+    re_ = Parts("RoofEquipment", objs)
     z_roof = H + 0.1
     chillers = []
     for row_y in (-9.0, 9.0):
         for i in range(10):
             chillers.append((-31.5 + 7.0 * i, row_y))
-    for cx, cy in chillers:
-        re_.box((cx, cy, z_roof + 0.15), (6.4, 2.6, 0.3), "M_BldgLouver", skip=("-z",))  # 받침 틀
-        re_.box((cx, cy, z_roof + 0.3 + 1.0), (6.0, 2.4, 2.0), "M_OutdoorEquip", skip=("-z",))  # 몸체
+    for ci, (cx, cy) in enumerate(chillers, start=1):
+        ch = re_(f"Chiller_{ci:02d}")
+        ch.box((cx, cy, z_roof + 0.15), (6.4, 2.6, 0.3), "M_BldgLouver", skip=("-z",))  # 받침 틀
+        ch.box((cx, cy, z_roof + 0.3 + 1.0), (6.0, 2.4, 2.0), "M_OutdoorEquip", skip=("-z",))  # 몸체
         for sy in (-1, 1):
-            re_.box((cx, cy + sy * 1.22, z_roof + 1.3), (5.6, 0.04, 1.6), "M_BldgFan", skip=("-z",))  # 열교환 코일 면
+            ch.box((cx, cy + sy * 1.22, z_roof + 1.3), (5.6, 0.04, 1.6), "M_BldgFan", skip=("-z",))  # 열교환 코일 면
         for q in (-1, 0, 1):
             fx = cx + q * 1.95
-            re_.tube((fx, cy, z_roof + 2.3), 0.85, 0.78, 0.22, "M_BldgLouver", seg=24)
-            re_.cyl((fx, cy, z_roof + 2.28), 0.2, 0.1, "M_BldgFan", seg=12, ts=1.0)  # 허브
+            ch.tube((fx, cy, z_roof + 2.3), 0.85, 0.78, 0.22, "M_BldgLouver", seg=24)
+            ch.cyl((fx, cy, z_roof + 2.28), 0.2, 0.1, "M_BldgFan", seg=12, ts=1.0)  # 허브
             for b in range(6):  # 팬 날개
                 ang = 60.0 * b
                 bx, by = 0.42 * math.cos(math.radians(ang)), 0.42 * math.sin(math.radians(ang))
-                re_.box((fx + bx, cy + by, z_roof + 2.36), (0.65, 0.16, 0.025), "M_BldgFan", rot=("z", ang + 20), ts=1.0)
+                ch.box((fx + bx, cy + by, z_roof + 2.36), (0.65, 0.16, 0.025), "M_BldgFan", rot=("z", ang + 20), ts=1.0)
             for r in (0.35, 0.6):  # 보호망 고리
-                re_.tube((fx, cy, z_roof + 2.42), r + 0.012, r - 0.012, 0.02, "M_BldgLouver", seg=20)
+                ch.tube((fx, cy, z_roof + 2.42), r + 0.012, r - 0.012, 0.02, "M_BldgLouver", seg=20)
     for i in range(8):  # 배기관
+        st = re_(f"ExhaustStack_{i + 1:02d}")
         x = -28 + 8.0 * i
-        re_.cyl((x, 0.0, z_roof), 0.4, 3.2, "M_OutdoorEquip", seg=20)
-        re_.cyl((x, 0.0, z_roof + 3.2), 0.6, 0.15, "M_BldgLouver", seg=20)
-    for x, y, sx, sy, hh in ((-30, 0, 6, 5, 3.6), (30, 0, 6, 5, 3.6), (0, 15.5, 8, 4, 2.6)):  # 계단실, 설비실
-        re_.box((x, y, z_roof + hh / 2), (sx, sy, hh), "M_BldgPanelMetal", TS_PANEL, skip=("-z",), uvo=(W / 2, D / 2, 0))
-        re_.box((x, y, z_roof + hh + 0.06), (sx + 0.3, sy + 0.3, 0.12), "M_BldgLouver")
-    for x, y in ((-34, -20), (34, -20), (-34, 20), (34, 20)):  # 피뢰침
-        re_.cyl((x, y, z_roof), 0.05, 4.0, "M_BldgLouver", seg=8, ts=1.0)
+        st.cyl((x, 0.0, z_roof), 0.4, 3.2, "M_OutdoorEquip", seg=20)
+        st.cyl((x, 0.0, z_roof + 3.2), 0.6, 0.15, "M_BldgLouver", seg=20)
+    for si, (x, y, sx, sy, hh) in enumerate(((-30, 0, 6, 5, 3.6), (30, 0, 6, 5, 3.6), (0, 15.5, 8, 4, 2.6)), start=1):  # 계단실 2, 설비실 1
+        hs = re_(("StairHouse_%02d" % si) if si < 3 else "MechRoom_01")
+        hs.box((x, y, z_roof + hh / 2), (sx, sy, hh), "M_BldgPanelMetal", TS_PANEL, skip=("-z",), uvo=(W / 2, D / 2, 0))
+        hs.box((x, y, z_roof + hh + 0.06), (sx + 0.3, sy + 0.3, 0.12), "M_BldgLouver")
+    for ri, (x, y) in enumerate(((-34, -20), (34, -20), (-34, 20), (34, 20)), start=1):  # 피뢰침
+        re_(f"LightningRod_{ri:02d}").cyl((x, y, z_roof), 0.05, 4.0, "M_BldgLouver", seg=8, ts=1.0)
     for z in (z_roof + 0.4,):  # 배관(가로)
-        re_.cyl((-31.5, -4.5, z), 0.18, 63.0, "M_BldgLouver", seg=12, axis="x")
-        re_.cyl((-31.5, 4.5, z), 0.18, 63.0, "M_BldgLouver", seg=12, axis="x")
-    objs.append(re_)
+        re_("RoofPipe_South").cyl((-31.5, -4.5, z), 0.18, 63.0, "M_BldgLouver", seg=12, axis="x")
+        re_("RoofPipe_North").cyl((-31.5, 4.5, z), 0.18, 63.0, "M_BldgLouver", seg=12, axis="x")
 
     # 옥상 가림벽(루버 슬랫)
-    sc = MB("RoofScreens")
+    sc = Parts("RoofScreens", objs)
     for y in (-12.5, 12.5):
+        scr = sc("South" if y < 0 else "North")
         for i in range(0, 12):  # 기둥
-            sc.box((-33.0 + 6.0 * i, y, z_roof + 1.6), (0.14, 0.14, 3.2), "M_BldgLouver", skip=("-z",))
-        sc.box((0, y, z_roof + 3.2), (66.2, 0.14, 0.12), "M_BldgLouver")
+            scr.box((-33.0 + 6.0 * i, y, z_roof + 1.6), (0.14, 0.14, 3.2), "M_BldgLouver", skip=("-z",))
+        scr.box((0, y, z_roof + 3.2), (66.2, 0.14, 0.12), "M_BldgLouver")
         for q in range(int(2.8 / 0.12)):
-            sc.box((0, y, z_roof + 0.3 + 0.12 * q), (66.0, 0.1, 0.02), "M_BldgLouver", rot=("x", 35.0))
-    objs.append(sc)
+            scr.box((0, y, z_roof + 0.3 + 0.12 * q), (66.0, 0.1, 0.02), "M_BldgLouver", rot=("x", 35.0))
     return objs
 
 
@@ -559,14 +580,14 @@ def build_outdoor(mats, parent):
     out: list[MB] = []
 
     # 부지 바닥: 아스팔트 + 건물 둘레 콘크리트 + 주차선
-    gr = MB("SiteGround")
+    gr = Parts("SiteGround", out)
     sx, sy = SITE_X1 - SITE_X0, SITE_Y1 - SITE_Y0
-    gr.box(((SITE_X0 + SITE_X1) / 2, (SITE_Y0 + SITE_Y1) / 2, -0.1), (sx, sy, 0.2), "M_Asphalt", TS_ASPH, skip=("-z",), uvo=(SITE_X1, SITE_Y1, 0))
-    gr.box((0, 0, 0.01), (W + 12, D + 12, 0.02), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(W / 2 + 6, D / 2 + 6, 0))  # 건물 둘레 포장
-    gr.box((4.5, -39.0, 0.01), (3.0, 32.0, 0.02), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(0, 0, 0))  # 정문 보도
+    gr("Asphalt").box(((SITE_X0 + SITE_X1) / 2, (SITE_Y0 + SITE_Y1) / 2, -0.1), (sx, sy, 0.2), "M_Asphalt", TS_ASPH, skip=("-z",), uvo=(SITE_X1, SITE_Y1, 0))
+    gr("Pavement_Building").box((0, 0, 0.01), (W + 12, D + 12, 0.02), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(W / 2 + 6, D / 2 + 6, 0))  # 건물 둘레 포장
+    gr("Walkway_Entrance").box((4.5, -39.0, 0.015), (3.0, 32.0, 0.03), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(0, 0, 0))  # 정문 보도
     # 설비 바닥판
-    for name, cx, cy, wx, wy in (("ct", 50, 2.5, 20, 48), ("gen", -50, -2, 17, 46), ("sub", 0, 38, 40, 20), ("fuel", -61.0, 1, 5, 28)):  # 연료 탱크 바닥판은 발전기 바닥판(x -58.5 ~ -41.5)과 겹치지 않게 x -63.5 ~ -58.5
-        gr.box((cx, cy, 0.03), (wx, wy, 0.06), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(cx, cy, 0))
+    for name, cx, cy, wx, wy in (("CoolingTowers", 50, 2.5, 20, 48), ("Generators", -50, -2, 17, 46), ("Substation", 0, 38, 40, 20), ("FuelTanks", -61.0, 1, 5, 28)):  # 연료 탱크 바닥판은 발전기 바닥판(x -58.5 ~ -41.5)과 겹치지 않게 x -63.5 ~ -58.5
+        gr(f"Pad_{name}").box((cx, cy, 0.03), (wx, wy, 0.06), "M_BldgConcrete", TS_CONC, skip=("-z",), uvo=(cx, cy, 0))
     # 주차선
     for side in (-1, 1):
         for row_y in (-47.0, -36.0, -35.0, -24.5):
@@ -574,21 +595,20 @@ def build_outdoor(mats, parent):
         for y0 in (-47.5, -36.5):
             for q in range(18):
                 x = side * (9.0 + 2.7 * q)
-                gr.box((x, y0 + 2.5, 0.025), (0.12, 5.0, 0.01), "M_ParkingPaint", 1.0, skip=("-z",))
+                gr(f"ParkingLines_{'East' if side > 0 else 'West'}").box((x, y0 + 2.5, 0.025), (0.12, 5.0, 0.01), "M_ParkingPaint", 1.0, skip=("-z",))
         for y0 in (-35.0,):
             pass
     # 횡단보도
     for q in range(8):
-        gr.box((-2.1 + 0.6 * q, -D / 2 - 8.0, 0.025), (0.35, 3.0, 0.01), "M_ParkingPaint", 1.0, skip=("-z",))
+        gr("Crosswalk").box((-2.1 + 0.6 * q, -D / 2 - 8.0, 0.025), (0.35, 3.0, 0.01), "M_ParkingPaint", 1.0, skip=("-z",))
     # 주차 구역 끝 연석(콘크리트)
     for side in (-1, 1):
-        gr.box((side * 32.0, -22.8 - 6.6, 0.08), (56.0, 0.3, 0.16), "M_BldgConcrete", TS_CONC)
-    out.append(gr)
+        gr(f"Curb_{'East' if side > 0 else 'West'}").box((side * 32.0, -22.8 - 6.6, 0.08), (56.0, 0.3, 0.16), "M_BldgConcrete", TS_CONC)
 
     # 냉각탑 4기
     towers = []
     for i in range(4):
-        mb = MB(f"CoolingTower_{i + 1:02d}")
+        mb = MB(f"CoolingTower_{i + 1:02d}", group="CoolingTowers")
         cx, cy = 50.0, -17.0 + 11.0 * i
         mb.box((cx, cy, 0.75), (9.4, 9.4, 1.5), "M_BldgConcrete", TS_CONC, skip=("-z",))  # 수조
         mb.box((cx, cy, 1.5 + 3.0), (8.6, 8.6, 6.0), "M_OutdoorEquip", skip=("-z",))  # 본체
@@ -612,7 +632,7 @@ def build_outdoor(mats, parent):
         mb.box((cx + 4.42, cy - 3.75, 4.0), (0.05, 0.05, 5.0), "M_BldgLouver", ts=1.0)
         mb.cyl((cx - 5.4, cy, 0.5), 0.45, 4.0, "M_BldgLouver", seg=16, axis="x")  # 배관 가지
         towers.append(mb)
-    pipe = MB("CoolingPipes")
+    pipe = MB("CoolingPipes", group="CoolingTowers")
     pipe.cyl((43.0, -20.0, 0.9), 0.5, 46.0, "M_BldgLouver", seg=20, axis="y")
     pipe.cyl((41.5, -20.0, 0.9), 0.5, 46.0, "M_OutdoorEquip", seg=20, axis="y")
     pipe.cyl((41.5, 24.0, 0.9), 0.5, 4.0, "M_OutdoorEquip", seg=20, axis="x")
@@ -621,7 +641,7 @@ def build_outdoor(mats, parent):
 
     # 발전기 8대(컨테이너형). 긴 쪽이 X 방향이고 Y 방향으로 나란히 놓는다. 바깥(-X)쪽 끝이 공기 흡입면
     for i in range(8):
-        mb = MB(f"Generator_{i + 1:02d}")
+        mb = MB(f"Generator_{i + 1:02d}", group="Generators")
         cx, cy = -49.5, -20.0 + 5.2 * i
         mb.box((cx, cy, 0.4), (12.4, 3.2, 0.8), "M_OutdoorEquip", skip=("-z",))  # 연료 받침 탱크
         mb.box((cx, cy, 0.8 + 1.6), (12.2, 3.0, 3.2), "M_OutdoorEquip", skip=("-z",))  # 컨테이너
@@ -638,17 +658,17 @@ def build_outdoor(mats, parent):
         out.append(mb)
 
     # 연료 탱크 2기
-    fu = MB("FuelTanks")
-    for y in (-8.0, 10.0):
+    for ti, y in enumerate((-8.0, 10.0), start=1):
+        fu = MB(f"FuelTank_{ti:02d}", group="FuelTanks")
         fu.cyl((-60.0, y - 5.0, 1.9), 1.6, 10.0, "M_OutdoorEquip", seg=32, axis="y", ts=4.0)
         for yy in (-3.0, 3.0):
             fu.box((-60.0, y + yy, 0.9), (3.4, 0.4, 1.8), "M_BldgConcrete", TS_CONC)
         fu.cyl((-60.0, y, 3.4), 0.35, 0.5, "M_BldgLouver", seg=12, ts=1.0)
-    out.append(fu)
+        out.append(fu)
 
     # 변전 설비
-    sb = MB("Substation")
     for i in range(4):
+        sb = MB(f"Transformer_{i + 1:02d}", group="Substation")
         cx, cy = -13.5 + 9.0 * i, 40.0
         sb.box((cx, cy, 0.3), (5.6, 3.8, 0.6), "M_BldgConcrete", TS_CONC)
         sb.box((cx, cy, 0.6 + 1.7), (4.4, 2.6, 3.4), "M_OutdoorEquip", skip=("-z",))
@@ -659,6 +679,8 @@ def build_outdoor(mats, parent):
             sb.cyl((cx + q * 1.1, cy, 4.0), 0.14, 1.2, "M_BldgWallCore", seg=12, ts=1.0)
             for r in range(4):
                 sb.cyl((cx + q * 1.1, cy, 4.2 + 0.25 * r), 0.24, 0.06, "M_BldgWallCore", seg=12, ts=1.0)
+        out.append(sb)
+    sb = MB("Gantry", group="Substation")
     for x in (-18, 18):  # 문형 철골
         for dy in (-3, 3):
             sb.box((x, 33.0 + dy, 4.0), (0.4, 0.4, 8.0), "M_Fence", ts=1.0)
@@ -669,72 +691,75 @@ def build_outdoor(mats, parent):
     out.append(sb)
 
     # 울타리 (기둥 3 m 간격 + 가로대 + 세로 창살). 정문은 가운데 12 m를 문으로 쓴다.
-    fe = MB("Fence")
+    fe = Parts("Fence", out)
     FH_ = 2.4
 
-    def fence_run(p0, p1):
+    def fence_run(p0, p1, nm):
+        part = fe(nm)
         (x0, y0), (x1, y1) = p0, p1
         L = math.hypot(x1 - x0, y1 - y0)
         n = max(1, int(round(L / 3.0)))
         ux, uy = (x1 - x0) / L, (y1 - y0) / L
         ang = math.degrees(math.atan2(uy, ux))
         for q in range(n + 1):
-            fe.box((x0 + ux * L * q / n, y0 + uy * L * q / n, FH_ / 2), (0.1, 0.1, FH_ + 0.1), "M_Fence", 1.0, rot=("z", ang), skip=("-z",))
+            part.box((x0 + ux * L * q / n, y0 + uy * L * q / n, FH_ / 2), (0.1, 0.1, FH_ + 0.1), "M_Fence", 1.0, rot=("z", ang), skip=("-z",))
         for zc in (0.25, FH_ - 0.2):  # 아래, 위 가로대
-            fe.box(((x0 + x1) / 2, (y0 + y1) / 2, zc), (L, 0.05, 0.06), "M_Fence", 1.0, rot=("z", ang))
+            part.box(((x0 + x1) / 2, (y0 + y1) / 2, zc), (L, 0.05, 0.06), "M_Fence", 1.0, rot=("z", ang))
         nb = int(L / 0.14)
         for q in range(nb):  # 창살
             t = (q + 0.5) / nb * L
-            fe.box((x0 + ux * t, y0 + uy * t, FH_ / 2 + 0.03), (0.025, 0.025, FH_ - 0.1), "M_Fence", 1.0, rot=("z", ang), skip=("-z",))
+            part.box((x0 + ux * t, y0 + uy * t, FH_ / 2 + 0.03), (0.025, 0.025, FH_ - 0.1), "M_Fence", 1.0, rot=("z", ang), skip=("-z",))
 
     corners = [(SITE_X0, SITE_Y0), (SITE_X1, SITE_Y0), (SITE_X1, SITE_Y1), (SITE_X0, SITE_Y1)]
-    fence_run((SITE_X0, SITE_Y0), (-6.0, SITE_Y0))
-    fence_run((6.0, SITE_Y0), (SITE_X1, SITE_Y0))
-    fence_run((SITE_X1, SITE_Y0), (SITE_X1, SITE_Y1))
-    fence_run((SITE_X1, SITE_Y1), (SITE_X0, SITE_Y1))
-    fence_run((SITE_X0, SITE_Y1), (SITE_X0, SITE_Y0))
-    out.append(fe)
+    fence_run((SITE_X0, SITE_Y0), (-6.0, SITE_Y0), "South_West")
+    fence_run((6.0, SITE_Y0), (SITE_X1, SITE_Y0), "South_East")
+    fence_run((SITE_X1, SITE_Y0), (SITE_X1, SITE_Y1), "East")
+    fence_run((SITE_X1, SITE_Y1), (SITE_X0, SITE_Y1), "North")
+    fence_run((SITE_X0, SITE_Y1), (SITE_X0, SITE_Y0), "West")
 
-    gt = MB("GateAndGuardHouse")
+    gt = Parts("GateAndGuardHouse", out)
     for x in (-6.0, 6.0):  # 문 기둥
-        gt.box((x, SITE_Y0, 1.5), (0.5, 0.5, 3.0), "M_BldgConcrete", TS_CONC, skip=("-z",))
+        gt("Posts").box((x, SITE_Y0, 1.5), (0.5, 0.5, 3.0), "M_BldgConcrete", TS_CONC, skip=("-z",))
     for sgn in (-1, 1):  # 미닫이 문 두 짝(닫힘). 아래 레일 + 가로대 + 창살
         x0, x1 = (0.0, sgn * 5.7)
         xc = (x0 + x1) / 2
-        gt.box((xc, SITE_Y0 - 0.15, 2.1), (5.7, 0.06, 0.08), "M_Fence", 1.0)
-        gt.box((xc, SITE_Y0 - 0.15, 0.3), (5.7, 0.06, 0.08), "M_Fence", 1.0)
+        gt(f"Leaf_{'East' if sgn > 0 else 'West'}").box((xc, SITE_Y0 - 0.15, 2.1), (5.7, 0.06, 0.08), "M_Fence", 1.0)
+        gt(f"Leaf_{'East' if sgn > 0 else 'West'}").box((xc, SITE_Y0 - 0.15, 0.3), (5.7, 0.06, 0.08), "M_Fence", 1.0)
         for q in range(int(5.7 / 0.12)):
-            gt.box((x0 + sgn * 0.12 * (q + 0.5), SITE_Y0 - 0.15, 1.2), (0.03, 0.03, 1.9), "M_Fence", 1.0)
-    gt.box((0, SITE_Y0, 0.02), (12.0, 0.2, 0.04), "M_BldgConcrete", TS_CONC)  # 레일 받침
-    gt.box((-10.0, SITE_Y0 + 5.0, 1.5 + 0.1), (4.0, 3.0, 3.0), "M_BldgPanelMetal", TS_PANEL, skip=("-z",))  # 경비실
-    gt.box((-10.0, SITE_Y0 + 5.0, 3.2), (4.8, 3.8, 0.2), "M_BldgLouver")
-    gt.box((-10.0, SITE_Y0 + 3.48, 1.9), (3.2, 0.04, 1.2), "M_BldgGlass")  # 정문 쪽 창
-    gt.box((-8.0 + 0.0, SITE_Y0 + 5.0, 1.9), (0.04, 2.2, 1.2), "M_BldgGlass")
-    gt.cyl((-6.8, SITE_Y0 + 8.0, 0.0), 0.2, 1.1, "M_BldgLouver", seg=12)  # 차단기 기둥
-    gt.box((-3.4, SITE_Y0 + 8.0, 1.0), (6.4, 0.1, 0.1), "M_ParkingPaint", 1.0)  # 차단봉
-    out.append(gt)
+            gt(f"Leaf_{'East' if sgn > 0 else 'West'}").box((x0 + sgn * 0.12 * (q + 0.5), SITE_Y0 - 0.15, 1.2), (0.03, 0.03, 1.9), "M_Fence", 1.0)
+    gt("Rail").box((0, SITE_Y0, 0.02), (12.0, 0.2, 0.04), "M_BldgConcrete", TS_CONC)  # 레일 받침
+    gt("GuardHouse").box((-10.0, SITE_Y0 + 5.0, 1.5 + 0.1), (4.0, 3.0, 3.0), "M_BldgPanelMetal", TS_PANEL, skip=("-z",))  # 경비실
+    gt("GuardHouse").box((-10.0, SITE_Y0 + 5.0, 3.2), (4.8, 3.8, 0.2), "M_BldgLouver")
+    gt("GuardHouse").box((-10.0, SITE_Y0 + 3.48, 1.9), (3.2, 0.04, 1.2), "M_BldgGlass")  # 정문 쪽 창
+    gt("GuardHouse").box((-8.0 + 0.0, SITE_Y0 + 5.0, 1.9), (0.04, 2.2, 1.2), "M_BldgGlass")
+    gt("Barrier").cyl((-6.8, SITE_Y0 + 8.0, 0.0), 0.2, 1.1, "M_BldgLouver", seg=12)  # 차단기 기둥
+    gt("Barrier").box((-3.4, SITE_Y0 + 8.0, 1.0), (6.4, 0.1, 0.1), "M_ParkingPaint", 1.0)  # 차단봉
 
     # 조명 기둥
-    li = MB("LightPoles")
+    nli = 0
     for side in (-1, 1):
         for q in range(6):
+            nli += 1
+            li = MB(f"LightPole_{nli:02d}", group="LightPoles")
             x = side * (10.0 + 9.0 * q)
             li.cyl((x, -34.0, 0.0), 0.12, 9.0, "M_Fence", seg=12, ts=1.0)
             li.box((x + 0.0, -34.0 + 0.5, 9.1), (0.5, 1.2, 0.12), "M_BldgFan", ts=1.0)
-    out.append(li)
+            out.append(li)
 
     # 조경: 산울타리, 나무
-    ls = MB("Landscape")
+    ls = Parts("Landscape", out)
     for side in (-1, 1):
-        ls.box((side * 21.0, -D / 2 - 3.5, 0.6), (29.0, 1.4, 1.2), "M_Foliage", 1.0, skip=("-z",))
+        ls(f"Hedge_{'East' if side > 0 else 'West'}").box((side * 21.0, -D / 2 - 3.5, 0.6), (29.0, 1.4, 1.2), "M_Foliage", 1.0, skip=("-z",))
+    nt = 0
     for q in range(5):
         for side in (-1, 1):
+            nt += 1
+            tr = ls(f"Tree_{nt:02d}")
             x = side * (14.0 + 11.0 * q)
             y = SITE_Y0 + 3.0
-            ls.cyl((x, y, 0.0), 0.22, 3.4, "M_Trunk", seg=10, ts=1.0)
-            ls.sphere((x, y, 4.6), 2.2, "M_Foliage", seg=12, rings=8, ts=2.0)
-            ls.sphere((x + 0.7, y + 0.4, 5.3), 1.5, "M_Foliage", seg=10, rings=6, ts=2.0)
-    out.append(ls)
+            tr.cyl((x, y, 0.0), 0.22, 3.4, "M_Trunk", seg=10, ts=1.0)
+            tr.sphere((x, y, 4.6), 2.2, "M_Foliage", seg=12, rings=8, ts=2.0)
+            tr.sphere((x + 0.7, y + 0.4, 5.3), 1.5, "M_Foliage", seg=10, rings=6, ts=2.0)
     return out
 
 
@@ -761,18 +786,34 @@ def build(blend_path: str) -> None:
     od = empty("Outdoor", (0, 0, 0), building)
     od["assetType"] = "outdoor"
 
+    groups: dict = {}
+
+    def parent_of(mb, base):
+        """mb.group이 있으면 같은 이름의 빈 오브젝트(Xform)를 base 아래에 만들어 그 아래로 보낸다."""
+        if not mb.group:
+            return base
+        key = (base.name, mb.group)
+        if key not in groups:
+            g = empty(mb.group, (0, 0, 0), base)
+            if base is od:
+                g["assetType"] = "outdoor"
+            groups[key] = g
+        return groups[key]
+
     allb: list[MB] = []
     for mb in build_exterior(mats, ex):
-        mb.build(mats, ex)
-        allb.append(mb)
+        if mb.counts:
+            mb.build(mats, parent_of(mb, ex))
+            allb.append(mb)
     for mb, f in build_floors(mats, fl):
         ob = mb.build(mats, fl)
         ob["floor"] = f
         allb.append(mb)
     for mb in build_outdoor(mats, od):
-        ob = mb.build(mats, od)
-        ob["assetType"] = "outdoor"
-        allb.append(mb)
+        if mb.counts:
+            ob = mb.build(mats, parent_of(mb, od))
+            ob["assetType"] = "outdoor"
+            allb.append(mb)
     tri_report(allb)
     # 메시를 Blender에 맡겨 통계 확인
     dg = bpy.context.evaluated_depsgraph_get()

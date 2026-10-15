@@ -167,6 +167,25 @@ Copy-Item blender/textures/building/* usd/assets/textures/building/ -Exclude *_A
 - 둘째 줄: 패널과 지붕 4K 텍스처를 만든다(약 15초). 셋째, 넷째 줄: AO를 뺀 파일을 USD가 찾는 위치로 복사한다. AO는 USD 재질에 연결하지 않았고 Unreal에서 쓸 수 있게 남겨 둔 파일이다.
 - 텍스처가 없으면 `building.usda`는 열리지만 재질이 회색으로 보인다.
 
+### 건물 부품 구조 (파트별로 분리, 2026-10-15)
+같은 종류의 부품을 한 메시로 합치면 Unreal에서 하나씩 고르거나 가리거나 재질을 바꿀 수 없다. 그래서 **부품마다 메시 하나**로 만들고 종류별로 그룹(Xform)에 묶는다. 메시는 205개, 삼각형 합계는 138,316개(분리 전과 같음)다. 이름은 `<그룹>_<부품>`이다.
+
+| 그룹(`Building/` 아래) | 부품 이름 예 | 개수 |
+|---|---|---|
+| `Exterior` 바로 아래 | `WallCore`(벽 속 면), `RoofDeck`(지붕 바닥) | 2 |
+| `Exterior/WallPanels` | `WallPanels_South_F1` (벽 4 x 1~3층 + 난간 `Parapet`) | 16 |
+| `Exterior/WallTrim` | `Band_<벽>_<층>`(층 경계 띠), `CornerPost_NE`(모서리 기둥), `Coping_<벽>`(난간 덮개) | 16 |
+| `Exterior/Louvers` | `Louvers_West_02_R1` (벽, 시작 칸, 층) | 42 |
+| `Exterior/ServiceDoors`, `Entrance`, `Plinth`, `RoofScreens` | `ServiceDoors_North_14`, `Entrance_Glass/Frame/Canopy/Columns/Paving/Bollard_01`, `Plinth_South`, `RoofScreens_North` | 4, 12, 4, 2 |
+| `Exterior/RoofEquipment` | `Chiller_01~20`, `ExhaustStack_01~08`, `StairHouse_01~02`, `MechRoom_01`, `LightningRod_01~04`, `RoofPipe_North/South` | 37 |
+| `Floors` | `Floor_01~03`(층 표시용 단순 모양) | 3 |
+| `Outdoor/SiteGround` | `Asphalt`, `Pavement_Building`, `Walkway_Entrance`, `Pad_CoolingTowers/Generators/Substation/FuelTanks`, `ParkingLines_East/West`, `Crosswalk`, `Curb_East/West` | 12 |
+| `Outdoor/CoolingTowers`, `Generators`, `FuelTanks`, `Substation` | `CoolingTower_01~04`+`CoolingPipes`, `Generator_01~08`, `FuelTank_01~02`, `Transformer_01~04`+`Gantry` | 5, 8, 2, 5 |
+| `Outdoor/Fence`, `GateAndGuardHouse`, `LightPoles`, `Landscape` | `Fence_South_West/East/North/West`, `Posts/Leaf_West/Leaf_East/Rail/GuardHouse/Barrier`, `LightPole_01~12`, `Hedge_East/West`+`Tree_01~10` | 5, 6, 12, 12 |
+
+- 부품 이름과 그룹은 `make_building_exterior.py`의 `Parts` 도우미가 만든다. 새 부품을 추가할 때는 `Parts("그룹", 목록)("부품")`으로 얻은 메시에 도형을 더한다.
+- 같은 종류가 여러 개인 설비(냉각기, 발전기, 나무)는 개수만큼 메시가 생긴다. 같은 모양의 반복이라 이후에 인스턴스로 바꾸면 용량을 줄일 수 있다(지금은 하지 않았다).
+
 ### 텍스처와 형상을 맞추는 원칙 (노이즈를 막는다)
 1. **중복하지 않는다.** 형상에 이미 있는 디테일(패널 틈, 루버 슬랫, 난간)을 텍스처에 또 그리지 않는다. 우리 패널은 틈을 형상으로 만들었으므로 텍스처는 이음선이 없는 평평한 면이 맞고, 골판 텍스처는 맞지 않는다.
 2. **실제 크기를 맞춘다.** 텍스처의 실제 크기(아스팔트 250 cm, 콘크리트 240 cm)를 UV 타일 크기(`TS_ASPH`, `TS_CONC`)와 같게 둔다. 어긋나면 골재 알갱이가 거인이나 개미 크기로 보인다.
