@@ -1,0 +1,10 @@
+[project]
+name = "dctwin-ovrtx-smoke"
+version = "0.1.0"
+description = "Phase 1: ovrtx(Omniverse Libraries) RTX 5090 렌더 스모크 테스트"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "numpy==2.2.6",
+    "ovrtx==0.3.0.312915",
+    "pillow==12.2.0",
+]

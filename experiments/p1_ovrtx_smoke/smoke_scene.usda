@@ -1,0 +1,68 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 0.01
+    upAxis = "Z"
+)
+
+# DC-Twin Phase 1 스모크 테스트용 최소 씬 (직접 작성). 단위 cm, Z-up.
+def Xform "World"
+{
+    def DomeLight "DomeLight"
+    {
+        float inputs:intensity = 600
+        color3f inputs:color = (0.85, 0.9, 1.0)
+    }
+
+    def DistantLight "Sun"
+    {
+        float inputs:intensity = 3000
+        float inputs:angle = 1.5
+        double3 xformOp:rotateXYZ = (-50, 20, 0)
+        uniform token[] xformOpOrder = ["xformOp:rotateXYZ"]
+    }
+
+    def Cube "Floor"
+    {
+        double size = 1
+        double3 xformOp:scale = (800, 800, 2)
+        double3 xformOp:translate = (0, 0, -1)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    # 서버 랙을 흉내 낸 박스 (60 x 100 x 220 cm)
+    def Cube "RackBox"
+    {
+        double size = 1
+        double3 xformOp:scale = (60, 100, 220)
+        double3 xformOp:translate = (0, 0, 110)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+    }
+
+    def Camera "Camera"
+    {
+        float focalLength = 24
+        float horizontalAperture = 36
+        double3 xformOp:translate = (420, -380, 230)
+        double3 xformOp:rotateXYZ = (76, 0, 48)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+    }
+}
+
+def Scope "Render"
+{
+    def RenderProduct "Camera"
+    {
+        rel camera = </World/Camera>
+        rel orderedVars = </Render/Vars/LdrColor>
+        uniform int2 resolution = (1280, 720)
+    }
+
+    def Scope "Vars"
+    {
+        def RenderVar "LdrColor"
+        {
+            string sourceName = "LdrColor"
+        }
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "python": "3.13.9",
+  "scene": "smoke_scene.usda",
+  "renderer_create_s": 24.7,
+  "open_usd_s": 0.0,
+  "frames": 30,
+  "first_frame_s": 53.789,
+  "steady_frame_ms_median": 7.1,
+  "image_shape": [
+    720,
+    1280,
+    4
+  ],
+  "image_mean_rgb": [
+    191.6,
+    193.2,
+    197.3
+  ],
+  "vram_before_mib": 1893,
+  "vram_after_mib": 5316,
+  "output": "out\\smoke_render.png"
+}
