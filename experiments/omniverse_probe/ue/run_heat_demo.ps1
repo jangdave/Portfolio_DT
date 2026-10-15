@@ -1,4 +1,4 @@
-# 전용 볼륨 머티리얼 데모(build_heat_demo.py)를 별도 UE 프로젝트에 만든다. (저장소 루트에서 실행)
+﻿# 전용 볼륨 머티리얼 데모(build_heat_demo.py)를 별도 UE 프로젝트에 만든다. (저장소 루트에서 실행)
 # 별도 프로젝트 폴더를 쓰므로, 다른 에디터가 열려 있어도 충돌하지 않는다.
 param(
     [string]$Project = "D:\ue_probe\HeatDemo3",
