@@ -19,13 +19,16 @@
 
 ## 2. 커밋 (Conventional Commits)
 ```
-<type>(<scope>): <요약, 명령형, 50자 내외>
+<type>(<scope>): <한글 요약, 50자 내외>
 
-<본문: 왜 바꿨는지, 선택 이유, 측정값>
+<한글 본문: 왜 바꿨는지, 선택 이유, 측정값>
 ```
+- **제목과 본문은 한글로 작성한다.** `type`과 `scope`는 규칙상 영어 키워드를 그대로 쓴다. 코드 식별자, 파일명, 고유명사(USD, MQTT 등)는 원문 그대로 둔다.
 - type: `feat` `fix` `docs` `chore` `refactor` `perf` `test` `build` `exp`
 - scope 예: `usd`, `sim`, `gateway`, `ue`, `ui`, `stream`, `docs`, `harness`
-- 예: `feat(sim): add cooling_failure scenario generator`
+- 예: `feat(sim): cooling_failure 시나리오 생성기 추가`
+- 제목은 "~추가", "~수정", "~개선"처럼 간결한 명사형 또는 `-한다` 없이 끝낸다.
+- 이 규칙은 이후 커밋부터 적용한다(기존 커밋 `fd7c4c3`, `edbf9a6`은 영어이며 이력은 고치지 않는다).
 - 의미 있는 단위로 자주 커밋한다. 깨진 상태로 커밋하지 않는다.
 
 ## 3. Pull Request
@@ -68,4 +71,4 @@ git switch main && git pull && git branch -d feat/p1-usd-rack
 ## 9. AI(Claude Code) 사용 규칙
 - 작업 시작 시 항상 브랜치를 먼저 만든다. `main`에서 직접 커밋하지 않는다.
 - 사용자가 요청할 때만 commit/push/PR을 만든다. force push와 `main` 이력 변경은 하지 않는다.
-- 커밋 메시지 끝에 공동 작성자 표기를 남긴다.
+- 커밋 메시지는 **한글**로 쓰고, 끝에 공동 작성자 표기를 남긴다.
