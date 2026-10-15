@@ -68,6 +68,23 @@ async def main() -> None:
             out = norm_dir / (Path(fr["file"]).stem + ".vdb")
             vdb.write(str(out), grids=[grid])
             res["normalized_frames"].append({"file": out.name, "bytes": out.stat().st_size, "active_voxels": int(grid.activeVoxelCount()), "dense_cells": int(nrm.size), "max_value": round(float(nrm.max()), 3)})
+        # 축 뒤집은 변형: UE의 SVT 임포터는 VDB 변환의 부호를 무시하고 격자 인덱스를 그대로 쓴다는 실무 기록이 있어,
+        # 모델과 맞는 방향을 눈으로 확인하려고 X, Y 축을 뒤집은 버전도 만든다. (Z는 높이라 뒤집지 않는다)
+        res["flips"] = {}
+        for flip_name, axis in (("flipx", 0), ("flipy", 1)):
+            fdir = FRAMES / f"vdb_norm_{flip_name}"
+            fdir.mkdir(parents=True, exist_ok=True)
+            res["flips"][flip_name] = []
+            for fr in meta["frames"]:
+                arr = np.load(FRAMES / fr["file"]).astype(np.float32)
+                nrm = np.flip(np.clip((arr - tmin) / (tmax - tmin), 0.0, 1.0), axis=axis).astype(np.float32).copy()
+                grid = vdb.FloatGrid(0.0)
+                grid.name = "temperature"
+                grid.transform = vdb.createLinearTransform(voxelSize=voxel)
+                grid.copyFromArray(nrm, ijk=(0, 0, 0), tolerance=0.002)
+                out = fdir / (Path(fr["file"]).stem + ".vdb")
+                vdb.write(str(out), grids=[grid])
+                res["flips"][flip_name].append(out.name)
         res["ok"] = all(f["bytes"] > 0 for f in res["frames"]) and len(res["frames"]) > 0
     except Exception:  # noqa: BLE001
         res["fatal"] = traceback.format_exc()

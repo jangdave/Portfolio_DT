@@ -178,5 +178,27 @@
       "max_value": 1.0
     }
   ],
+  "flips": {
+    "flipx": [
+      "T_0030.vdb",
+      "T_0060.vdb",
+      "T_0090.vdb",
+      "T_0120.vdb",
+      "T_0150.vdb",
+      "T_0180.vdb",
+      "T_0210.vdb",
+      "T_0240.vdb"
+    ],
+    "flipy": [
+      "T_0030.vdb",
+      "T_0060.vdb",
+      "T_0090.vdb",
+      "T_0120.vdb",
+      "T_0150.vdb",
+      "T_0180.vdb",
+      "T_0210.vdb",
+      "T_0240.vdb"
+    ]
+  },
   "ok": true
 }
