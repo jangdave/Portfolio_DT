@@ -44,3 +44,6 @@ experiments/omniverse_probe/out/frames/
 # 회사 에셋을 참조하는 로컬 시험 스크립트와 결과는 저장소에 올리지 않는다
 experiments/omniverse_probe/local_only/
 experiments/omniverse_probe/out/local_only/
+
+# 방향 정보 중간 파일(numpy): export_direction_fields.py로 다시 만들 수 있다
+experiments/omniverse_probe/out/direction/*.npy
