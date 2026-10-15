@@ -110,9 +110,16 @@ def build() -> None:
 
     # 센서 위치 표시용 빈 오브젝트
     anchors = empty("Anchors", (0, 0, 0), rack)
-    for metric, y in (("temp_in", -RACK_D / 2 - 5.0), ("temp_out", RACK_D / 2 + 5.0)):
-        a = empty(f"Sensor_{metric.upper()}", (0, y, RACK_H * 0.6), anchors)
+    # (측정 종류, 단위, y 위치): 09 규격 4장의 랙 기본 센서 3개. 전력은 랙 위쪽 한가운데에 둔다.
+    for metric, unit, y, z in (
+        ("temp_in", "degC", -RACK_D / 2 - 5.0, RACK_H * 0.6),
+        ("temp_out", "degC", RACK_D / 2 + 5.0, RACK_H * 0.6),
+        ("power", "kW", 0.0, RACK_H * 0.9),
+    ):
+        a = empty(f"Sensor_{metric.upper()}", (0, y, z), anchors)
+        a["assetType"] = "sensor"
         a["metric"] = metric
+        a["unit"] = unit
 
 
 if __name__ == "__main__":

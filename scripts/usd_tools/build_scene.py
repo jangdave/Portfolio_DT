@@ -1,0 +1,196 @@
+"""배치 설정 파일(JSON)에서 홀 장면(USD)을 만든다. 장면은 손으로 고치지 않고 이 스크립트로 다시 만든다.
+
+사용 (scripts/usd_tools 폴더에서):
+    uv run --python 3.13 python build_scene.py ../../usd/scenes/hall01.config.json ../../usd/scenes/hall01.usda
+
+만드는 것 (09 규격):
+- 랙 N기: 에셋 참조, 줄 6개(Row01..), 번호는 홀 안에서 이어서 매김, 센서 앵커에 센서 ID 덮어쓰기
+- CRAC 8기: 짧은 벽 양쪽, 뜨거운 통로 끝과 같은 줄
+- 홀 외피(Shell): 바닥, 벽 4개, 천장. 상자로 만든다.
+- 뜨거운 통로 격벽(Containment): 지붕과 줄 끝 옆면 패널
+- 바닥 급기구(Vents): 차가운 통로 바닥의 격자판
+
+좌표: 홀 안쪽이 x 0..W, y 0..L, 바닥 윗면이 z=0. 줄은 x축 방향, 통로는 y축 방향으로 쌓는다.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import math
+from dataclasses import dataclass
+from pathlib import Path
+
+from pxr import Gf, Sdf, Usd, UsdGeom, Vt
+
+
+@dataclass
+class Layout:
+    """설정에서 계산한 치수. 시뮬레이션이 같은 값을 쓰도록 `to_dict()`로 내보낼 수 있다."""
+
+    width: float            # 홀 안쪽 x 길이
+    length: float           # 홀 안쪽 y 길이
+    height: float
+    row_y0: list[float]     # 줄마다 y 시작
+    row_front_plus_y: list[bool]  # 앞면이 +y를 향하는 줄
+    hot_aisles: list[tuple[float, float]]   # (y 시작, y 끝)
+    cold_aisles: list[tuple[float, float]]
+    rack_x0: float
+    rack_x1: float
+
+
+def compute_layout(cfg: dict) -> Layout:
+    r, rk = cfg["rows"], cfg["rack"]
+    d, hot, cold = rk["depth"], r["hot_aisle"], r["cold_aisle"]
+    pairs = r["count"] // 2
+    y = 0.0
+    row_y0, front_plus, hot_aisles, cold_aisles = [], [], [], []
+    for _ in range(pairs):
+        hot_aisles.append((y, y + hot)); y += hot
+        row_y0.append(y); front_plus.append(True); y += d      # 앞면이 +y(차가운 통로 쪽)
+        cold_aisles.append((y, y + cold)); y += cold
+        row_y0.append(y); front_plus.append(False); y += d     # 앞면이 -y(차가운 통로 쪽)
+    hot_aisles.append((y, y + hot)); y += hot
+    crac_d = cfg["crac"]["depth"]
+    x0 = crac_d + r["end_clearance"]
+    x1 = x0 + r["racks_per_row"] * rk["width"]
+    return Layout(
+        width=x1 + r["end_clearance"] + crac_d, length=y, height=cfg["hall"]["ceiling_height"],
+        row_y0=row_y0, row_front_plus_y=front_plus, hot_aisles=hot_aisles, cold_aisles=cold_aisles,
+        rack_x0=x0, rack_x1=x1,
+    )
+
+
+def _xform(prim: UsdGeom.Xformable, translate=None, rotate_z=None, scale=None) -> None:
+    if translate is not None:
+        prim.AddTranslateOp().Set(Gf.Vec3d(*translate))
+    if rotate_z is not None:
+        prim.AddRotateZOp().Set(float(rotate_z))
+    if scale is not None:
+        prim.AddScaleOp().Set(Gf.Vec3f(*scale))
+
+
+def add_box(stage: Usd.Stage, path: str, lo, hi, color, asset_type: str | None = None) -> None:
+    """lo, hi는 (x, y, z) 최소/최대 모서리(cm). 한 변이 1인 Cube에 이동과 스케일을 건다."""
+    cube = UsdGeom.Cube.Define(stage, path)
+    cube.GetSizeAttr().Set(1.0)
+    size = [hi[i] - lo[i] for i in range(3)]
+    center = [(hi[i] + lo[i]) / 2 for i in range(3)]
+    _xform(cube, translate=center, scale=size)
+    cube.GetDisplayColorAttr().Set(Vt.Vec3fArray([Gf.Vec3f(*color)]))
+    if asset_type:
+        cube.GetPrim().CreateAttribute("dct:assetType", Sdf.ValueTypeNames.Token, custom=True).Set(asset_type)
+
+
+def sensor_id(hall: int, code: str, number: int, metric: str) -> str:
+    return f"H{hall:02d}-{code}{number:02d}-{metric.upper().replace('_', '-')}"
+
+
+def override_sensors(stage: Usd.Stage, equip_path: str, hall: int, code: str, number: int, metrics: list[str]) -> None:
+    for m in metrics:
+        p = stage.OverridePrim(f"{equip_path}/Anchors/Sensor_{m.upper()}")
+        p.CreateAttribute("dct:sensorId", Sdf.ValueTypeNames.String, custom=True).Set(sensor_id(hall, code, number, m))
+
+
+def build(cfg: dict, out: Path) -> tuple[Usd.Stage, Layout]:
+    lay = compute_layout(cfg)
+    hall = cfg["hall"]["index"]
+    col = cfg["colors"]
+    hall_path = f"/DC/Hall{hall:02d}"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    stage = Usd.Stage.CreateNew(str(out))  # 파일 위치에서 만들어야 에셋 상대 경로(../assets/...)가 풀린다
+    UsdGeom.SetStageMetersPerUnit(stage, 0.01)
+    UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.z)
+    UsdGeom.Xform.Define(stage, "/DC")
+    UsdGeom.Xform.Define(stage, hall_path)
+    stage.SetDefaultPrim(stage.GetPrimAtPath("/DC"))
+
+    # 랙
+    rk = cfg["rack"]
+    n_per = cfg["rows"]["racks_per_row"]
+    rack_no = 0
+    rack_prims: list[str] = []
+    for ri, (y0, front_plus) in enumerate(zip(lay.row_y0, lay.row_front_plus_y), start=1):
+        row_path = f"{hall_path}/Row{ri:02d}"
+        UsdGeom.Xform.Define(stage, row_path)
+        yc = y0 + rk["depth"] / 2
+        for i in range(n_per):
+            rack_no += 1
+            p = f"{row_path}/Rack_{rack_no:02d}"
+            xf = UsdGeom.Xform.Define(stage, p)
+            xf.GetPrim().GetReferences().AddReference(rk["asset"])
+            _xform(xf, translate=(lay.rack_x0 + rk["width"] * (i + 0.5), yc, 0.0), rotate_z=180.0 if front_plus else 0.0)
+            override_sensors(stage, p, hall, "RK", rack_no, ["temp_in", "temp_out", "power"])
+            rack_prims.append(p)
+
+    # CRAC: 뜨거운 통로마다 양쪽 벽에 1기씩
+    cr = cfg["crac"]
+    cooling = f"{hall_path}/Cooling"
+    UsdGeom.Xform.Define(stage, cooling)
+    crac_no = 0
+    for side, (x, rot) in enumerate([(cr["depth"] / 2, 90.0), (lay.width - cr["depth"] / 2, -90.0)]):
+        for (ya, yb) in lay.hot_aisles:
+            crac_no += 1
+            p = f"{cooling}/CRAC_{crac_no:02d}"
+            xf = UsdGeom.Xform.Define(stage, p)
+            xf.GetPrim().GetReferences().AddReference(cr["asset"])
+            _xform(xf, translate=(x, (ya + yb) / 2, 0.0), rotate_z=rot)  # 앞면(회수면)이 홀 안쪽을 향한다
+            override_sensors(stage, p, hall, "CR", crac_no, ["supply_temp", "return_temp", "fan_speed"])
+
+    # 홀 외피(바닥, 벽 4개, 천장)
+    shell = f"{hall_path}/Shell"
+    UsdGeom.Xform.Define(stage, shell)
+    ft, wt, W, L, H = cfg["hall"]["floor_thickness"], cfg["hall"]["wall_thickness"], lay.width, lay.length, lay.height
+    add_box(stage, f"{shell}/Floor", (-wt, -wt, -ft), (W + wt, L + wt, 0), col["floor"], "shell")
+    add_box(stage, f"{shell}/Wall_West", (-wt, -wt, 0), (0, L + wt, H), col["wall"], "shell")
+    add_box(stage, f"{shell}/Wall_East", (W, -wt, 0), (W + wt, L + wt, H), col["wall"], "shell")
+    add_box(stage, f"{shell}/Wall_South", (0, -wt, 0), (W, 0, H), col["wall"], "shell")
+    add_box(stage, f"{shell}/Wall_North", (0, L, 0), (W, L + wt, H), col["wall"], "shell")
+    add_box(stage, f"{shell}/Ceiling", (-wt, -wt, H), (W + wt, L + wt, H + wt), col["ceiling"], "shell")
+
+    # 뜨거운 통로 격벽: CRAC 회수면(x=crac_d)부터 반대편 CRAC 회수면까지 이어지는 터널
+    ct = cfg["containment"]
+    t, rz = ct["panel_thickness"], ct["roof_z"]
+    cont = f"{hall_path}/Containment"
+    UsdGeom.Xform.Define(stage, cont)
+    xa, xb = cr["depth"], W - cr["depth"]
+    for k, (ya, yb) in enumerate(lay.hot_aisles, start=1):
+        add_box(stage, f"{cont}/HotAisle_{k:02d}_Roof", (xa, ya, rz), (xb, yb, rz + t), col["containment"], "containment")
+        # 줄 끝의 빈 구간(랙이 없는 x 범위)에만 옆면 패널을 세운다. 바깥쪽 통로는 벽이 한쪽을 막고 있다.
+        for si, (edge, outward) in enumerate(((ya, -1), (yb, 1))):
+            if (k == 1 and outward == -1) or (k == len(lay.hot_aisles) and outward == 1):
+                continue
+            lo_y, hi_y = (edge - t, edge) if outward == -1 else (edge, edge + t)
+            for tag, (x0, x1) in (("W", (xa, lay.rack_x0)), ("E", (lay.rack_x1, xb))):
+                add_box(stage, f"{cont}/HotAisle_{k:02d}_Side{'N' if outward == 1 else 'S'}_{tag}", (x0, lo_y, 0), (x1, hi_y, rz), col["containment"], "containment")
+
+    # 바닥 급기구: 차가운 통로마다 랙 위치마다 1개
+    vt = cfg["vent"]
+    vents = f"{hall_path}/Vents"
+    UsdGeom.Xform.Define(stage, vents)
+    vn = 0
+    for (ya, yb) in lay.cold_aisles:
+        yc = (ya + yb) / 2
+        for i in range(n_per):
+            vn += 1
+            xc = lay.rack_x0 + rk["width"] * (i + 0.5)
+            add_box(stage, f"{vents}/Vent_{vn:02d}", (xc - vt["width"] / 2, yc - vt["depth"] / 2, 0), (xc + vt["width"] / 2, yc + vt["depth"] / 2, vt["thickness"]), col["vent"], "vent")
+
+    stage.GetPrimAtPath(hall_path).CreateAttribute("dct:hallSizeCm", Sdf.ValueTypeNames.Float3, custom=True).Set(Gf.Vec3f(W, L, H))
+    return stage, lay
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(description="배치 설정에서 홀 장면 USD 만들기")
+    ap.add_argument("config", type=Path)
+    ap.add_argument("out", type=Path)
+    args = ap.parse_args(argv)
+    cfg = json.loads(args.config.read_text(encoding="utf-8"))
+    stage, lay = build(cfg, args.out)
+    stage.GetRootLayer().Save()
+    racks = cfg["rows"]["count"] * cfg["rows"]["racks_per_row"]
+    print(f"홀 {lay.width / 100:.1f} x {lay.length / 100:.1f} x {lay.height / 100:.1f} m, 랙 {racks}기, CRAC {cfg['crac']['per_side'] * 2}기 -> {args.out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
