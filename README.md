@@ -54,11 +54,13 @@ Blender로 모델링 → USD 파일 → Omniverse(데이터 생성)  ┐
 1. [전체 구조](docs/01_architecture.md)
 2. [단계별 계획](docs/02_roadmap.md)
 3. [비교 실험 계획](docs/03_experiments.md)
-4. [설계 결정 기록](docs/decisions/)
-5. [작업 방식(브랜치·커밋·PR)](docs/06_workflow.md)
-6. [회사 자산 분리 규칙](docs/04_clean_room_policy.md)
-7. [환경 상태](docs/05_env_status.md)
-8. [용어집과 문서 작성 규칙](docs/07_glossary_and_writing_rules.md)
+4. [설계 재점검](docs/08_design_review.md): 문제와 결정, 정하지 않은 것
+5. 세부 설계: [USD 규격](docs/09_usd_spec.md), [모델링 가이드](docs/10_modeling_guide.md), [데이터 규격](docs/11_data_spec.md), [Unreal 설계](docs/12_unreal_design.md), [Omniverse 연구 계획](docs/13_omniverse_research.md), **[핵심 설계: 시뮬레이션·센서 데이터의 Unreal 연동과 표현](docs/14_sim_to_unreal_core.md)**
+6. [설계 결정 기록](docs/decisions/)
+7. [작업 방식(브랜치·커밋·PR)](docs/06_workflow.md)
+8. [회사 자산 분리 규칙](docs/04_clean_room_policy.md)
+9. [환경 상태](docs/05_env_status.md)
+10. [용어집과 문서 작성 규칙](docs/07_glossary_and_writing_rules.md)
 
 ## 작업 방식 요약
 - `main`에서 직접 작업하지 않고, 브랜치를 만들어 작업한 뒤 PR로 합칩니다(Squash merge).
