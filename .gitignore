@@ -10,6 +10,7 @@ unreal/*.suo
 # Python / uv
 .venv/
 __pycache__/
+.pytest_cache/
 *.pyc
 
 # Node
