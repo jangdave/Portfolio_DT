@@ -261,3 +261,24 @@ UI는 CommonUI로 만들고, 기초 부품(버튼, 레이블, 카드) → 조합
 | UI | `UDCTSiteSummaryPanel` | 외관 화면의 건물 전력·효율 요약 |
 | UI | `UDCTPowerPanel` | 층 화면의 전력량 패널 (집계 값: [11](11_data_spec.md) 9장) |
 | UI | `UDCTThermalControlPanel` | 히트맵과 기류 볼륨 전환, 시나리오 선택 |
+
+## 13. 구현 현황: 데이터 계층 (2026-10-16)
+`unreal/DataCenter_DT/Source/DataCenter_DT/`에 `Core`와 `Data` 계층을 만들었다(UE 5.8.3, Windows). 화면(`UI`, `World`)은 아직 없다.
+
+| 파일 | 내용 |
+|---|---|
+| `Core/DCTTypes` | 센서 값, 알람 상태, 품질, 센서 정보 등 공용 타입 |
+| `Data/DCTMessageParser` | 매니페스트(`GET /api/sensors`)와 WebSocket 메시지 읽기. 센서 하나라도 형식이 틀리면 목록 전체를 받지 않는다. 숫자 자리에 문자열(`"24"`)이 오면 거부한다 |
+| `Data/DCTSensorModel` | `FDCTSensorRegistry`(센서 목록), `FDCTSampleStore`(최근 값과 이력 원형 버퍼, 과거 시각은 무시), `FDCTAlarmModel`(알람 상태, 기록, 변화 알림) |
+| `Data/DCTSensorHub` | 위 셋과 집계, 시나리오를 묶고 메시지를 반영. 목록에 없는 센서는 버리고 로그를 남긴다. 네트워크를 몰라서 자동화 테스트로 검증한다 |
+| `Data/DCTConnectionSubsystem` | 게임 인스턴스 서브시스템. 센서 목록을 받고 WebSocket에 접속한다. 받은 메시지는 큐에 넣고 게임 스레드의 틱에서만 처리한다(한 틱 최대 2,000건). 끊기면 값은 두고 `stale`로 바꾸고, 2초에서 10초까지 늘려 가며 다시 연결한다(센서 목록부터 다시 받는다) |
+
+- 설계 문서 3장과 다른 점: `UDCTSensorRegistry`, `UDCTSampleStore`, `UDCTAlarmModel`을 UObject가 아닌 일반 클래스로 만들었다. 엔진 객체 없이 테스트에서 바로 만들 수 있기 때문이다.
+- 콘솔 명령(Play 중): `dct.connect [http://127.0.0.1:8080]`, `dct.disconnect`, `dct.status`. 변수 `dct.StatusLogSeconds N`을 주면 N초마다 상태를 로그에 쓴다.
+- 자동화 테스트 4개(`DCT.Data.Manifest`, `Message`, `SampleStore`, `Hub`): 모두 통과.
+  ```
+  UnrealEditor-Cmd.exe DataCenter_DT.uproject -ExecCmds="Automation RunTests DCT.Data; Quit" -unattended -nullrhi -nosplash
+  ```
+  처음 실행에서 `"24"` 같은 숫자 문자열을 값으로 받아들이는 문제가 나와 숫자만 인정하도록 고쳤다.
+- 실제 연결 확인: 게이트웨이를 `cooling_failure` 녹화 재생(`--time-scale 5 --loop`)으로 띄우고 게임 모드(`-game -nullrhi`)로 접속했다. 센서 204개를 받고 약 25초 동안 메시지 15,000건 이상(초당 약 1,000건)을 읽기 실패 0건으로 처리했고, 알람이 22개에서 34개로 시간에 따라 바뀌었다.
+- 한계: 화면 없는 확인이다. 틱 시간(프레임 비용)은 측정하지 않았다. `-benchmark`처럼 게임 시간이 빠르게 가는 실행에서는 메시지를 거의 못 받으므로 실제 시간으로 확인해야 한다.

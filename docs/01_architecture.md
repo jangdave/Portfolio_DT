@@ -32,7 +32,7 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
 - "Unreal이 더 낫다"는 주장이 아니라 **운영 화면이라는 용도에서의 선택**이다. 같은 장면을 Omniverse 쪽 뷰어(ovrtx)로도 그려 비교한다([03 비교 실험](03_experiments.md)).
 
 ### Omniverse를 쓰는 범위 ([ADR-006](decisions/ADR-006-omniverse-based-simulation.md))
-시뮬레이션과 데이터 생성은 **Omniverse 계열 기술**로 만든다. 현재 설치된 것은 라이브러리(ovrtx, ovphysx)뿐이고 Kit 앱은 설치하지 않았다. Kit 앱은 연구 과제로 시험한다.
+시뮬레이션과 데이터 생성은 **Omniverse 계열 기술**로 만든다. 라이브러리(ovrtx, ovphysx)와 Kit 앱(Kit SDK 110.4.0, `D:\omniverse-kit\kit-app-template`의 `dctwin.base_editor`)을 모두 설치했고, RTX 5090에서 실행을 확인했다(2026-10-15, [05 환경 상태](05_env_status.md)). 아직 Kit 앱으로 만든 데이터는 없고, 지금 열 시뮬레이션은 Python(Warp 계열 시험 코드)으로 돌린다.
 
 | Omniverse 쪽에서 맡는 것 | 쓰는 기술 | 상태 |
 |---|---|---|
@@ -40,7 +40,7 @@ Blender로 직접 모델링한 **가상 데이터센터**를 OpenUSD로 정의�
 | 열 시뮬레이션과 가상 센서 | NVIDIA Warp (USD 형상을 읽어 계산) | 연구 R5 |
 | 열·기류 부피 데이터 | Warp(NanoVDB) 또는 Flow | 연구 R2, R6 |
 | 같은 장면 그리기(비교 기준) | ovrtx | 동작 확인 완료 |
-| Kit 앱 | Kit SDK, Flow, 스트리밍 | 연구 R1 (RTX 5090 지원 미확인) |
+| Kit 앱 | Kit SDK, Flow, 스트리밍 | 설치와 RTX 5090 실행 확인 완료. Flow, 스트리밍 활용은 연구 R1 |
 
 연구 계획과 확인한 사실은 [13 Omniverse 연구 계획](13_omniverse_research.md)에 있다.
 
