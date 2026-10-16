@@ -1,0 +1,18 @@
+{
+  "name": "dctwin-gateway",
+  "version": "0.1.0",
+  "description": "DC-Twin 게이트웨이: 센서 값 수신(MQTT 또는 .jsonl 재생), 알람 판정, 이력, 집계, REST와 WebSocket 전달",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "mqtt": "^5.10.0"
+  }
+}

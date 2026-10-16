@@ -40,7 +40,7 @@ UE 5.8 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 ## 컨벤션
 - **USD 규칙(v2)**: prim 경로 `/DC/Hall{NN}/Row{NN}/Rack_{NN}/...`, 단위 cm, Up-axis Z, 커스텀 속성 접두 `dct:`. 센서는 장비 아래 `Anchors/Sensor_*` 앵커 prim이고 `dct:sensorId`는 장면에서 붙인다. 홀 아래에는 `Row##`, `Cooling`, `Power`, `Shell`, `Containment`, `Vents`, `Tour`만 둔다. 상세: `docs/09_usd_spec.md`, `.claude/skills/usd-conventions`.
 - **홀 장면**: 손으로 고치지 않는다. `usd/scenes/hall01.config.json`을 고치고 `scripts/usd_tools/build_scene.py`를 다시 실행한 뒤 `validate_usd.py`로 검증한다. 나중에 Unreal에서 랙을 옮기고 다시 시뮬레이션하는 흐름을 지원하도록, 시뮬레이션 입력은 장면 USD에서 읽는다(하드코딩 금지).
-- **MQTT 토픽**: `dct/{hall}/{asset}/{metric}`, 페이로드는 JSON(`ts`, `value`, `unit`, `quality`, `scenario`).
+- **MQTT 토픽**: `dct/{hall}/{asset}/{metric}`, 페이로드는 JSON(`ts`, `value`, `unit`, `quality`).
 - **UE C++**: 모듈 `DataCenter_DT`(엔진 매크로 `DATACENTER_DT_API`), 계층 `Core / Data / World / UI / Streaming`. 접두 `DCT`. 새 코드만 작성, 회사 프로젝트 클래스명 재사용 금지.
 - **Python**: `uv`로 환경 관리, 3.13 권장(`ovrtx` 휠 호환). 시스템 Python 3.14는 사용하지 않는다.
 - **Git 워크플로**(`docs/06_workflow.md`): `main`에서 직접 작업하지 않는다. 작업 시작 시 `feat|fix|docs|chore|exp/<주제>` 브랜치를 먼저 만들고, Conventional Commits로 커밋(`type(scope)`는 영어 키워드, **제목·본문은 한글**: 예 `feat(sim): cooling_failure 시나리오 생성기 추가`), PR → Squash merge. 바이너리는 Git LFS. 사용자가 요청할 때만 commit/push/PR을 만든다. force push 금지.

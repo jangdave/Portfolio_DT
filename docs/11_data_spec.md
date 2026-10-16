@@ -148,6 +148,34 @@ JSON 텍스트다. `type`으로 종류를 구분한다.
 | `GET /api/history?sensorId=...&minutes=15` | 최근 이력 (기본 15분 보관, 메모리) |
 | `WS /ws` | 실시간 전달 |
 
+### 4.6 게이트웨이 구현 현황 (2026-10-15)
+`gateway/`(Node 22 이상, 서버용으로 `ws` 하나만 쓴다)에 4장의 규칙을 구현했다.
+
+```
+cd gateway
+npm install
+npm test                                     # Node 내장 시험 38개
+node src/index.js --manifest ../sim/out/sensor_manifest.json --replay ../sim/out/recordings/cooling_failure.jsonl --time-scale 10
+```
+
+| 기능 | 내용 |
+|---|---|
+| 입력 | `--replay 파일.jsonl`(생성기가 만든 파일을 센서 시각 간격대로 재생, **MQTT 없이도 같은 값**), `--mqtt mqtt://호스트:포트`(선택, `mqtt` 패키지 필요, 브로커는 설치하지 않았다) |
+| 검증 | 형식이 틀리거나 센서를 모르거나 단위가 다르면 버리고 로그에 남김, 범위 밖이면 `quality: bad`이고 알람 판정 안 함(4.2장) |
+| 알람 | 2번 연속, 히스테리시스 0.5, 낮을수록 위험(4.4장). 생성기와 **같은 시험 자료** `sim/sensors/tests/alarm_vectors.json`으로 검증 |
+| stale | 센서 시각 기준 5초 동안 값이 없으면 `stale`로 알리고 마지막 값은 유지(센서 시각을 시계로 써서 재생해도 같은 판정). 모든 센서가 한꺼번에 끊기면 시각이 더 오지 않으므로 MQTT 모드에서는 1초마다 `heartbeat`로 수신 시각만큼 시계를 밀어 판정한다. 입력의 `quality: stale`(녹화 재입력)은 무시한다 |
+| 시각 규칙 | `ts`는 `YYYY-MM-DDTHH:MM:SS(.mmm)Z` 형식만 받는다. 1시간 넘게 앞선 시각은 버리고(시계 고정 방지), 센서별로 과거 시각은 버린다. 60초 넘게 과거로 돌아가면 생성기가 다시 시작한 것으로 보고 상태를 처음부터 다시 시작한다. 시나리오 `start`도 상태를 초기화한다(`--loop` 재생 대비) |
+| 알람 연속 | `bad`, `stale` 샘플이 끼면 연속 횟수를 끊는다(생성기와 같은 규칙, 공유 시험 자료로 검증) |
+| 이력 | 센서마다 15분을 메모리에 보관 |
+| 집계 | 한 시각의 값이 모두 모이면(다음 시각이 오거나 `flush`, 시나리오 끝) 그 시각 값으로 계산한다. 첫 에너지 간격은 1초. `it_power`, `cooling_power`, `facility_power`, `pue`, `energy_kwh`(9장). 생성기의 `aggregate` 줄은 무시하고 게이트웨이가 다시 계산 |
+| 내보내기 | REST `/healthz`, `/api/sensors`, `/api/latest`, `/api/history?sensorId=&minutes=`, `/api/aggregates`, WebSocket `/ws`(접속 직후 `snapshot`(매니페스트의 모든 센서, 값이 없으면 `value: null`, `quality: stale`), 이후 `sample`, `alarm`, `scenario`, `aggregate`). 기본은 `127.0.0.1`만 연다(8장) |
+| 녹화 | `--record 파일.jsonl` |
+
+- 확인: `cooling_failure` 녹화(센서 204개, 81,600건)를 `--time-scale 0`으로 재생하면 버린 메시지 0건, 마지막에 알람 상태 센서 38개, IT 전력 약 440 kW, PUE 약 1.13이 나온다(합성 추정값).
+- 병합 순서: 공유 시험 자료(`alarm_vectors.json`)가 센서 생성기 PR에 있으므로 **센서 생성기 PR을 먼저 병합**해야 `gateway/test/alarms.test.js`가 통과한다.
+- MQTT 실시간 경로에는 시나리오 시작/끝 메시지가 없다(시나리오 이름은 재생 입력에서만 온다). 그래서 MQTT 페이로드에는 `scenario` 필드가 없고, 센서 ID는 페이로드가 아니라 주소로만 정한다.
+- 한계: MQTT 입력은 브로커 없이 시험하지 못했다(코드만 있음). WebSocket 인증과 외부 노출은 8장 방식을 따라야 한다.
+
 ## 5. 시간과 재현
 
 - **시간 기준:** 센서 값의 시각(`ts`)은 **생성기가 정한 시각**이다. 게이트웨이와 Unreal은 받은 시각이 아니라 `ts`를 기준으로 이력과 그래프를 그린다.
