@@ -4,14 +4,15 @@
   Unreal에서 랙 배치를 바꿔 장면을 다시 만들면 이 스크립트가 같은 방식으로 새 배치를 읽는다.
 - 공기 흐름: 질량 보존 퍼텐셜 흐름(∇²φ = s, u = ∇φ). 급기구와 랙 뒷면은 내보내는 곳, 랙 앞면과 CRAC 회수면은 빨아들이는 곳.
   점성, 난류, 부력이 없는 단순 모델이라 순환 구조를 보여 주는 용도다.
-- 온도: Warp로 이류(반 라그랑지안) + 확산 + 랙 발열. 급기구 온도는 공급 온도로 고정한다.
+- 온도: Warp로 이류(반 라그랑지안, 기본은 MacCormack 오차 보정) + 확산 + 랙 발열. 급기구 온도는 공급 온도로 고정한다.
 - 시간 응답: 공기만 있는 모델은 실제보다 훨씬 빨리 변한다. `--slow`로 응답을 늦춘다(측정값이 아니라 조절값).
-- 한계(수치 확산): 이류를 선형 보간으로 계산해서 유효 확산 계수가 대략 u x dx / 2다. 격자 0.1 m에서 흐름 1 m/s이면 0.05 m2/s로
-  설정한 `K_DIFF`(0.02)의 약 2.4배, 4 m/s이면 약 8배다(시간 간격을 줄여도 거의 줄지 않는다). 온도장은 설정값보다 더 흐리게 번진다.
-  고차 이류(MacCormack 등)로 바꾸면 줄일 수 있다.
+- 수치 확산: `--advection linear`(선형 보간)는 유효 확산 계수가 대략 u x dx / 2다. 격자 0.1 m에서 흐름 1 m/s이면 0.05 m2/s로
+  설정한 `K_DIFF`(0.02)의 약 2.4배, 4 m/s이면 약 8배다(시간 간격을 줄여도 거의 줄지 않는다). 온도장이 설정값보다 더 흐리게 번진다.
+  기본값 `maccormack`은 앞으로 갔다 되돌아와 오차를 구해 보정하고 결과를 주변 값 범위로 자른다. 같은 조건에서 덩어리가 퍼지는
+  정도가 크게 줄었다(`experiments/results/E0_omniverse_capability_probe.md` 2.19장, `tests/test_advection.py`). 그래도 CFD는 아니다.
 
 사용 (이 폴더에서):
-    uv run --python 3.13 python hall60_sim.py [--duration 300] [--fail CRAC_01 --fail-time 60] [--power 10]
+    uv run --python 3.13 python hall60_sim.py [--duration 300] [--fail CRAC_01 --fail-time 60] [--power 10] [--advection linear|maccormack]
 출력: out/hall60/ (frames/T_*.npy + frames_meta.json, sensors.csv, summary.json, slice_*.png)
 """
 from __future__ import annotations
@@ -282,6 +283,70 @@ def sample_T(T: wp.array3d(dtype=float), p: wp.vec3, nx: int, ny: int, nz: int):
     return c0 * (1.0 - fz) + c1 * fz
 
 
+@wp.func
+def neighbor_range(T: wp.array3d(dtype=float), p: wp.vec3, nx: int, ny: int, nz: int):
+    """p를 둘러싼 8칸의 (최솟값, 최댓값). MacCormack 결과가 주변 값 범위를 벗어나지 않게 자르는 데 쓴다."""
+    x = wp.clamp(p[0], 0.0, float(nx - 1))
+    y = wp.clamp(p[1], 0.0, float(ny - 1))
+    z = wp.clamp(p[2], 0.0, float(nz - 1))
+    i0 = int(wp.floor(x)); j0 = int(wp.floor(y)); k0 = int(wp.floor(z))
+    i1 = wp.min(i0 + 1, nx - 1); j1 = wp.min(j0 + 1, ny - 1); k1 = wp.min(k0 + 1, nz - 1)
+    lo = T[i0, j0, k0]
+    hi = lo
+    for di in range(2):
+        for dj in range(2):
+            for dk in range(2):
+                v = T[i0 + di * (i1 - i0), j0 + dj * (j1 - j0), k0 + dk * (k1 - k0)]
+                lo = wp.min(lo, v)
+                hi = wp.max(hi, v)
+    return wp.vec2(lo, hi)
+
+
+@wp.kernel
+def advect_forward_kernel(
+    T: wp.array3d(dtype=float), T_hat: wp.array3d(dtype=float), u: wp.array3d(dtype=wp.vec3),
+    solid: wp.array3d(dtype=int), rack_id: wp.array3d(dtype=int), dt: float, dx: float,
+):
+    """MacCormack 1단계: 거슬러 올라가 값을 가져온다(기존 방식과 같다)."""
+    i, j, k = wp.tid()
+    if solid[i, j, k] == 1 and rack_id[i, j, k] < 0:
+        T_hat[i, j, k] = T[i, j, k]
+        return
+    p = wp.vec3(float(i), float(j), float(k)) - u[i, j, k] * (dt / dx)
+    T_hat[i, j, k] = sample_T(T, p, T.shape[0], T.shape[1], T.shape[2])
+
+
+@wp.kernel
+def step_kernel_mc(
+    T: wp.array3d(dtype=float), T_hat: wp.array3d(dtype=float), T_out: wp.array3d(dtype=float), u: wp.array3d(dtype=wp.vec3),
+    solid: wp.array3d(dtype=int), rack_id: wp.array3d(dtype=int), vent: wp.array3d(dtype=int),
+    heat_rate: wp.array(dtype=float), dt: float, dx: float, k_diff: float, t_supply: float, vent_on: float,
+):
+    """MacCormack 2단계: 앞으로 되돌려 보내 오차를 구하고 절반을 보정한다. 결과는 출발 지점 주변 값의 범위로 자른다."""
+    i, j, k = wp.tid()
+    nx = T.shape[0]; ny = T.shape[1]; nz = T.shape[2]
+    if solid[i, j, k] == 1 and rack_id[i, j, k] < 0:
+        T_out[i, j, k] = T[i, j, k]
+        return
+    pos = wp.vec3(float(i), float(j), float(k))
+    shift = u[i, j, k] * (dt / dx)
+    t_hat = T_hat[i, j, k]
+    t_back = sample_T(T_hat, pos + shift, nx, ny, nz)
+    c = T[i, j, k]
+    t_adv = t_hat + 0.5 * (c - t_back)
+    rng = neighbor_range(T, pos - shift, nx, ny, nz)
+    t_adv = wp.clamp(t_adv, rng[0], rng[1])
+    lap = (T[wp.max(i - 1, 0), j, k] + T[wp.min(i + 1, nx - 1), j, k] + T[i, wp.max(j - 1, 0), k] + T[i, wp.min(j + 1, ny - 1), k]
+           + T[i, j, wp.max(k - 1, 0)] + T[i, j, wp.min(k + 1, nz - 1)] - 6.0 * c) / (dx * dx)
+    t_new = t_adv + k_diff * lap * dt
+    rid = rack_id[i, j, k]
+    if rid >= 0:
+        t_new = t_new + heat_rate[rid] * dt
+    if vent[i, j, k] == 1 and vent_on > 0.0:
+        t_new = t_supply
+    T_out[i, j, k] = t_new
+
+
 @wp.kernel
 def step_kernel(
     T: wp.array3d(dtype=float), T_out: wp.array3d(dtype=float), u: wp.array3d(dtype=wp.vec3),
@@ -314,7 +379,10 @@ def sample_points(T: wp.array3d(dtype=float), pts: wp.array(dtype=wp.vec3), out:
 
 
 class Sim:
-    def __init__(self, hall: dict, lay: Layout, power_kw: float, slow: float, device: str = "cuda:0"):
+    def __init__(self, hall: dict, lay: Layout, power_kw: float, slow: float, device: str = "cuda:0", advection: str = "maccormack"):
+        if advection not in ("linear", "maccormack"):
+            raise ValueError(f"advection은 linear 또는 maccormack이어야 한다: {advection}")
+        self.advection = advection  # linear: 거슬러 올라가 선형 보간(수치 확산이 큼), maccormack: 오차 보정 + 값 제한(확산이 작음)
         self.hall, self.lay, self.device, self.slow = hall, lay, device, slow
         self.dt_phys = min(0.04, 0.09 * DX * DX / K_DIFF)  # 확산 안정 조건 K dt/dx^2 <= 0.1
         self.dt = self.dt_phys / slow  # 물리 시간을 늘려 응답을 늦춘다
@@ -324,6 +392,7 @@ class Sim:
         self.vent = wp.array(lay.vent.astype(np.int32), dtype=int, device=d)
         self.T = wp.array(np.full(lay.shape, T_INIT, dtype=np.float32), dtype=float, device=d)
         self.T2 = wp.zeros(lay.shape, dtype=float, device=d)
+        self.T_hat = wp.zeros(lay.shape, dtype=float, device=d)
         self.set_power(np.full(len(hall["racks"]), power_kw, dtype=np.float32))
         self.u = None
         self.vent_on = 1.0
@@ -346,8 +415,13 @@ class Sim:
         self.u_np = u
 
     def step(self):
-        wp.launch(step_kernel, dim=self.lay.shape, inputs=[self.T, self.T2, self.u, self.solid, self.rack_id, self.vent, self.heat_rate,
-                                                           self.dt, DX, K_DIFF, T_SUPPLY, self.vent_on], device=self.device)
+        if self.advection == "maccormack":
+            wp.launch(advect_forward_kernel, dim=self.lay.shape, inputs=[self.T, self.T_hat, self.u, self.solid, self.rack_id, self.dt, DX], device=self.device)
+            wp.launch(step_kernel_mc, dim=self.lay.shape, inputs=[self.T, self.T_hat, self.T2, self.u, self.solid, self.rack_id, self.vent, self.heat_rate,
+                                                                   self.dt, DX, K_DIFF, T_SUPPLY, self.vent_on], device=self.device)
+        else:
+            wp.launch(step_kernel, dim=self.lay.shape, inputs=[self.T, self.T2, self.u, self.solid, self.rack_id, self.vent, self.heat_rate,
+                                                               self.dt, DX, K_DIFF, T_SUPPLY, self.vent_on], device=self.device)
         self.T, self.T2 = self.T2, self.T
 
     def sensors(self, anchors: list[dict]) -> np.ndarray:
@@ -385,6 +459,7 @@ def main() -> None:
     ap.add_argument("--power", type=float, default=10.0, help="랙 1기 전력(kW)")
     ap.add_argument("--slow", type=float, default=10.0, help="응답을 늦추는 배수(조절값)")
     ap.add_argument("--every", type=int, default=20, help="몇 초마다 프레임 저장")
+    ap.add_argument("--advection", choices=["linear", "maccormack"], default="maccormack", help="이류 계산 방식(수치 확산 비교용)")
     args = ap.parse_args()
     wp.config.quiet = True
     wp.init()
@@ -397,7 +472,7 @@ def main() -> None:
     lay = Layout(hall)
     names = [c["name"] for c in hall["cracs"]]
     print(f"장면: 랙 {len(hall['racks'])}기, CRAC {len(names)}기, 급기구 {len(hall['vents'])}개, 격벽 {len(hall['panels'])}개, 격자 {lay.shape}, 칸 {int(np.prod(lay.shape)):,}")
-    sim = Sim(hall, lay, args.power, args.slow)
+    sim = Sim(hall, lay, args.power, args.slow, advection=args.advection)
     fan = np.ones(len(names), dtype=np.float32)
     sim.set_fans(fan)
     print("정상 흐름:", sim.flow_info)
