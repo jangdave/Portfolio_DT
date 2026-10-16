@@ -4,6 +4,7 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
+#include "Core/DCTTempGradient.h"
 #include "Data/DCTMessageParser.h"
 #include "Data/DCTSensorHub.h"
 
@@ -185,6 +186,30 @@ bool FDCTHubTest::RunTest(const FString& Parameters)
 	// 새 snapshot은 이전 알람을 지운다(다시 접속했을 때)
 	Apply(Hub, TEXT(R"({"type":"snapshot","scenario":null,"sensors":[],"aggregates":{}})"));
 	TestEqual(TEXT("새 snapshot이 알람을 지운다"), Hub.AlarmModel().ActiveSensors().Num(), 0);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDCTTempGradientTest, "DCT.Data.TempGradient", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FDCTTempGradientTest::RunTest(const FString& Parameters)
+{
+	const FLinearColor Cold = DCTTempGradient::FromValue(18.0, 18.0, 35.0);
+	const FLinearColor Hot = DCTTempGradient::FromValue(35.0, 18.0, 35.0);
+	TestTrue(TEXT("낮은 값은 파랑"), Cold.B > Cold.R && Cold.B > Cold.G);
+	TestTrue(TEXT("높은 값은 빨강"), Hot.R > Hot.G && Hot.R > Hot.B);
+	TestTrue(TEXT("범위 밖은 양 끝 색으로 자른다"), DCTTempGradient::FromValue(-50.0, 18.0, 35.0).Equals(Cold) && DCTTempGradient::FromValue(99.0, 18.0, 35.0).Equals(Hot));
+	const FLinearColor Mid = DCTTempGradient::FromValue(26.5, 18.0, 35.0);
+	TestTrue(TEXT("가운데는 초록과 노랑 사이"), Mid.G > Mid.B && Mid.G > 0.5f);
+
+	FDCTSensorSample Sample;
+	Sample.SensorId = TEXT("A");
+	TestTrue(TEXT("값이 없으면 회색"), DCTTempGradient::ForSample(Sample, 18.0, 35.0).Equals(FLinearColor(0.25f, 0.25f, 0.25f)));
+	Sample.Value = 30.0;
+	Sample.Quality = EDCTQuality::Bad;
+	TestTrue(TEXT("범위 밖 값은 자홍"), DCTTempGradient::ForSample(Sample, 18.0, 35.0).Equals(FLinearColor(0.8f, 0.0f, 0.8f)));
+	Sample.Quality = EDCTQuality::Stale;
+	TestTrue(TEXT("오래된 값은 회색"), DCTTempGradient::ForSample(Sample, 18.0, 35.0).Equals(FLinearColor(0.35f, 0.35f, 0.35f)));
+	Sample.Quality = EDCTQuality::Good;
+	TestTrue(TEXT("정상 값은 값 색"), DCTTempGradient::ForSample(Sample, 18.0, 35.0).Equals(DCTTempGradient::FromValue(30.0, 18.0, 35.0)));
 	return true;
 }
 
