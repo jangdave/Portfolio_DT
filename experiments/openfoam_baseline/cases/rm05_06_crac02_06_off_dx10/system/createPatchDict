@@ -1,0 +1,21 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      createPatchDict;
+}
+
+pointSync false;
+patches
+(
+    { name vents_c0; patchInfo { type patch; } constructFrom set; set vents_c0_f; }
+    { name vents_c1; patchInfo { type patch; } constructFrom set; set vents_c1_f; }
+    { name vents_c2; patchInfo { type patch; } constructFrom set; set vents_c2_f; }
+    { name crac_ret_01; patchInfo { type patch; } constructFrom set; set crac_ret_01_f; }
+    { name crac_ret_03; patchInfo { type patch; } constructFrom set; set crac_ret_03_f; }
+    { name crac_ret_04; patchInfo { type patch; } constructFrom set; set crac_ret_04_f; }
+    { name crac_ret_05; patchInfo { type patch; } constructFrom set; set crac_ret_05_f; }
+    { name crac_ret_07; patchInfo { type patch; } constructFrom set; set crac_ret_07_f; }
+    { name crac_ret_08; patchInfo { type patch; } constructFrom set; set crac_ret_08_f; }
+);

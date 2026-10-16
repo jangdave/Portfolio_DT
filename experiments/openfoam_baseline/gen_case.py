@@ -53,7 +53,9 @@ def voxel(item, dx, shape):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--scenario", choices=["normal", "crac02_06_off"], required=True)
+    ap.add_argument("--scenario", default="", help="normal 또는 crac02_06_off(기존 사례 이름). --fail을 쓰면 생략 가능")
+    ap.add_argument("--fail", default=None, help="정지시킬 CRAC 이름(쉼표로 여러 대, 예: CRAC_03,CRAC_07). 빈 문자열이면 고장 없음")
+    ap.add_argument("--scene", type=Path, default=None, help="장면 USD 경로(기본 usd/scenes/hall01.usda). 랙 배치를 바꾼 복사본도 가능")
     ap.add_argument("--dx", type=float, default=0.10)
     ap.add_argument("--no-buoyancy", action="store_true")
     ap.add_argument("--scheme", choices=["upwind", "linearUpwind"], default="upwind")
@@ -64,15 +66,16 @@ def main() -> None:
     a = ap.parse_args()
 
     h.DX = a.dx  # rng()와 Layout이 이 값을 읽는다
-    hall = h.read_hall(h.ROOT / "usd" / "scenes" / "hall01.usda")
+    scene = a.scene or (h.ROOT / "usd" / "scenes" / "hall01.usda")
+    hall = h.read_hall(scene)
     lay = h.Layout(hall)
     nx, ny, nz = lay.shape
     dx = a.dx
     names = [c["name"] for c in hall["cracs"]]
     fan = np.ones(len(names), dtype=np.float32)
-    if a.scenario == "crac02_06_off":
-        for n in ("CRAC_02", "CRAC_06"):
-            fan[names.index(n)] = 0.0
+    fail = a.fail if a.fail is not None else ("CRAC_02,CRAC_06" if a.scenario == "crac02_06_off" else "")
+    for n in [x.strip() for x in fail.split(",") if x.strip()]:
+        fan[names.index(n)] = 0.0
     q, leak = h.crac_returns(lay, fan)
     supply = float(q.sum())
     out = a.out
@@ -112,12 +115,19 @@ mergePatchPairs ();
     s = head("dictionary", "topoSetDict") + "\nactions\n(\n"
     for i, r in enumerate(hall["racks"]):
         s += cell_action(f"rack_{i+1:02d}", "cellZoneSet", "new", Box(*voxel(r, dx, lay.shape), dx))
-    first = True
-    for v in hall["vents"]:
+    n_cold = lay.n_cold
+    first = [True] * n_cold
+    for vi, v in enumerate(hall["vents"]):
+        c = lay.vent_cold[vi]
         xs, xe, ys, ye, _, _ = voxel(v, dx, lay.shape)
         lo = (xs * dx + 0.01, ys * dx + 0.01, -0.01); hi = (xe * dx - 0.01, ye * dx - 0.01, 0.01)
-        s += f"    {{ name vents_f; type faceSet; action {'new' if first else 'add'}; source boxToFace; sourceInfo {{ box {vec(lo)} {vec(hi)}; }} }}\n"
-        first = False
+        s += f"    {{ name vents_c{c}_f; type faceSet; action {'new' if first[c] else 'add'}; source boxToFace; sourceInfo {{ box {vec(lo)} {vec(hi)}; }} }}\n"
+        first[c] = False
+    # 급기 유량은 차가운 통로별로, 그 통로를 향한 랙 유량 비율로 나눈다(hall60_sim.source_field와 같은 규칙)
+    demand = np.zeros(n_cold)
+    for r_idx, c in enumerate(lay.rack_cold):
+        demand[c] += lay.rack_flux[r_idx]
+    vent_q = [supply * demand[c] / demand.sum() if demand.sum() > 0 else 0.0 for c in range(n_cold)]
     crac_ret = []
     for i, c in enumerate(hall["cracs"]):
         if q[i] <= 0:
@@ -137,7 +147,8 @@ mergePatchPairs ();
     (out / "system/topoSetDict.zones").write_text(s, encoding="utf-8")
 
     s = head("dictionary", "createPatchDict") + "\npointSync false;\npatches\n(\n"
-    s += "    { name vents; patchInfo { type patch; } constructFrom set; set vents_f; }\n"
+    for c in range(lay.n_cold):
+        s += f"    {{ name vents_c{c}; patchInfo {{ type patch; }} constructFrom set; set vents_c{c}_f; }}\n"
     for nm, _ in crac_ret:
         s += f"    {{ name {nm}; patchInfo {{ type patch; }} constructFrom set; set {nm}_f; }}\n"
     s += ");\n"
@@ -202,13 +213,13 @@ RAS { RASModel kEpsilon; turbulence on; printCoeffs on; }
         return head(cls, obj, loc) + f"\ndimensions {dims};\ninternalField {internal};\nboundaryField\n{{\n{b}}}\n"
 
     walls = ("floor", "ceiling", "fixedWalls", "solidWalls")
-    inlets = ["vents"]
+    inlets = [f"vents_c{c}" for c in range(lay.n_cold)]
     outs = [n for n, _ in crac_ret]
-    q_vent = supply
     uvals = {}
     for w in walls:
         uvals[w] = "        type noSlip;"
-    uvals["vents"] = f"        type flowRateInletVelocity;\n        volumetricFlowRate {q_vent:.6g};\n        value uniform (0 0 0);"
+    for c, nm in enumerate(inlets):
+        uvals[nm] = f"        type flowRateInletVelocity;\n        volumetricFlowRate {vent_q[c]:.6g};\n        value uniform (0 0 0);"
     for n, qq in crac_ret:
         uvals[n] = f"        type flowRateInletVelocity;\n        volumetricFlowRate {-qq:.6g};\n        value uniform (0 0 0);"
     (out / "0.orig/U").write_text(field("volVectorField", "U", "[0 1 -1 0 0 0 0]", "uniform (0 0 0)", uvals), encoding="utf-8")
@@ -218,18 +229,21 @@ RAS { RASModel kEpsilon; turbulence on; printCoeffs on; }
     (out / "0.orig/p").write_text(field("volScalarField", "p", "[0 2 -2 0 0 0 0]", "uniform 0", {n: "        type calculated;\n        value uniform 0;" for n in (*walls, *inlets, *outs)}), encoding="utf-8")
 
     tv = {w: "        type zeroGradient;" for w in walls}
-    tv["vents"] = f"        type fixedValue;\n        value uniform {h.T_SUPPLY + 273.15};"
+    for nm in inlets:
+        tv[nm] = f"        type fixedValue;\n        value uniform {h.T_SUPPLY + 273.15};"
     for n in outs:
         tv[n] = "        type zeroGradient;"
     (out / "0.orig/T").write_text(field("volScalarField", "T", "[0 0 0 1 0 0 0]", f"uniform {h.T_INIT + 273.15}", tv), encoding="utf-8")
 
     kv = {w: "        type kqRWallFunction;\n        value uniform 0.05;" for w in walls}
-    kv["vents"] = "        type turbulentIntensityKineticEnergyInlet;\n        intensity 0.05;\n        value uniform 0.05;"
+    for nm in inlets:
+        kv[nm] = "        type turbulentIntensityKineticEnergyInlet;\n        intensity 0.05;\n        value uniform 0.05;"
     for n in outs:
         kv[n] = "        type zeroGradient;"
     (out / "0.orig/k").write_text(field("volScalarField", "k", "[0 2 -2 0 0 0 0]", "uniform 0.05", kv), encoding="utf-8")
     ev = {w: "        type epsilonWallFunction;\n        value uniform 0.05;" for w in walls}
-    ev["vents"] = "        type turbulentMixingLengthDissipationRateInlet;\n        mixingLength 0.05;\n        value uniform 0.05;"
+    for nm in inlets:
+        ev[nm] = "        type turbulentMixingLengthDissipationRateInlet;\n        mixingLength 0.05;\n        value uniform 0.05;"
     for n in outs:
         ev[n] = "        type zeroGradient;"
     (out / "0.orig/epsilon").write_text(field("volScalarField", "epsilon", "[0 2 -3 0 0 0 0]", "uniform 0.05", ev), encoding="utf-8")
@@ -306,12 +320,13 @@ runTimeModifiable false;
         solid_only[xs:xe, ys:ye, zs:ze] = True
     np.savez_compressed(out / "case_voxels.npz", shape=np.array(lay.shape), dx=dx, solid=np.packbits(solid_only.ravel(order="F")))
     meta = {
-        "scenario": a.scenario, "dx": dx, "cells_total": int(np.prod(lay.shape)), "cells_fluid": int(lay.fluid.sum()),
+        "scenario": a.scenario or fail, "fail": fail, "scene": str(scene), "racks": len(hall["racks"]), "vent_supply_m3s_per_cold_aisle": [round(x, 3) for x in vent_q], "dx": dx, "cells_total": int(np.prod(lay.shape)), "cells_fluid": int(lay.fluid.sum()),
         "crac_return_m3s": {n: round(float(x), 3) for n, x in zip(names, q)}, "supply_m3s": round(supply, 3),
         "open_roofs": sorted(open_names), "power_kw": a.power, "buoyancy": not a.no_buoyancy, "scheme": a.scheme,
         "darcy_d_flow_1_m2": D_FLOW, "darcy_d_cross_1_m2": D_CROSS,
     }
     import json
+    (out / "case_layout.json").write_text(json.dumps(hall, ensure_ascii=False, default=float), encoding="utf-8")
     (out / "case_meta.json").write_text(json.dumps(meta, indent=1, ensure_ascii=False), encoding="utf-8")
     print(json.dumps(meta, ensure_ascii=False))
 
