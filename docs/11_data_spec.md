@@ -42,6 +42,15 @@ USD 장면에서 자동으로 만드는 센서 목록이다. 센서 값을 해�
 
 **파일:** `sim/out/sensor_manifest.json` (생성 결과라 Git에는 올리지 않고, 생성 스크립트로 다시 만든다)
 
+**만드는 법** (저장소 루트에서, 2026-10-15 구현):
+```
+cd scripts/usd_tools
+uv run --python 3.13 python build_manifest.py ../../usd/scenes/hall01.usda ../../sim/out/sensor_manifest.json
+```
+- 현재 홀(랙 60기, CRAC 8기)에서 센서 204개가 나온다(`rack/temp_in`, `temp_out`, `power` 각 60, `crac/supply_temp`, `return_temp`, `fan_speed` 각 8).
+- 센서 ID와 MQTT 주소의 변환은 `scripts/usd_tools/dct_ids.py` 한 곳에만 있고, 검증기와 이 생성기가 함께 쓴다.
+- 장면의 `dct:sensorId`가 경로에서 계산한 값과 다르거나 ID, 주소가 중복되면 오류로 멈춘다(테스트: `tests/test_build_manifest.py`, 장면의 센서 수와 매니페스트의 센서 수가 같은지 포함).
+
 ```json
 {
   "version": 1,
