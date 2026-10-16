@@ -46,7 +46,7 @@ PATH_RULES = {
 HALL_RE = re.compile(r"^Hall\d{2}$")
 BUILDING_RE = re.compile(r"^Building\d{2}$")
 BUILDING_CHILD_RE = re.compile(r"^(Exterior|Floors|Outdoor)$")
-HALL_CHILD_RE = re.compile(r"^(Row\d{2}|Cooling|Power|Containment|Shell|Vents|Tour)$")
+HALL_CHILD_RE = re.compile(r"^(Row\d{2}|Cooling|Power|Containment|Shell|Vents|Looks|Tour)$")
 # 이름만 보고 "이건 장비다"라고 판단하는 패턴 (assetType이 빠졌는지 찾는 용도)
 EQUIPMENT_NAME_RE = re.compile(r"^(Rack|Server_U|CRAC|PDU)_?\d+$")
 
@@ -119,7 +119,7 @@ def validate_stage(stage: Usd.Stage, kind: str = "scene") -> list[Finding]:
             elif prim.GetParent().GetParent() and str(prim.GetParent().GetParent().GetPath()) == f"/{ROOT_NAME}":
                 grand = prim.GetParent().GetName()
                 if HALL_RE.match(grand) and not HALL_CHILD_RE.match(name):
-                    err("U301", path, "Hall 바로 아래 이름은 Row##, Cooling, Power, Containment, Shell, Vents, Tour 중 하나여야 한다")
+                    err("U301", path, "Hall 바로 아래 이름은 Row##, Cooling, Power, Containment, Shell, Vents, Looks, Tour 중 하나여야 한다")
                 elif BUILDING_RE.match(grand) and not BUILDING_CHILD_RE.match(name):
                     err("U301", path, "Building 바로 아래 이름은 Exterior, Floors, Outdoor 중 하나여야 한다")
 

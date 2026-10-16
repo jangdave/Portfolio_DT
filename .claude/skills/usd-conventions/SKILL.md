@@ -18,7 +18,8 @@ description: 이 프로젝트의 USD 에셋/씬 작성 규칙(prim 경로, 단�
       /Anchors/Sensor_TEMP_IN ...     (센서 앵커)
     /Cooling/CRAC_01 ...              (공조, 센서 앵커 포함)
     /Power/PDU_01 ...                 (배전, 센서 앵커 포함)
-    /Shell/...                        (바닥, 벽, 천장 상자)
+    /Shell/...                        (바닥, 벽, 천장, 걸레받이, 표시, Lights)
+    /Looks/M_...                      (재질, UsdPreviewSurface)
     /Containment/...                  (뜨거운 통로 격벽)
     /Vents/Vent_01 ...                (바닥 급기구)
     /Tour/View_01 ...                 (투어 지점, 예정)
@@ -55,7 +56,7 @@ description: 이 프로젝트의 USD 에셋/씬 작성 규칙(prim 경로, 단�
 | U101 / U102 / U103 | 단위(cm), 위쪽 축(Z), 기본 prim(장면은 `DC`) |
 | U201 | 에셋의 기본 prim에 `dct:assetType`이 없음 |
 | U202 / U203 | 장비 이름인데 `dct:assetType`이 없음 / 값이 올바르지 않음 |
-| U301 / U302 | 장면의 계층 이름(`/DC` 아래 Hall## 또는 Building##, Hall 아래 Row##, Cooling, Power, Containment, Shell, Vents, Tour, Building 아래 Exterior, Floors, Outdoor) / 종류별 경로 규칙 |
+| U301 / U302 | 장면의 계층 이름(`/DC` 아래 Hall## 또는 Building##, Hall 아래 Row##, Cooling, Power, Containment, Shell, Vents, Looks, Tour, Building 아래 Exterior, Floors, Outdoor) / 종류별 경로 규칙 |
 | U401 | 랙·CRAC·PDU에 센서 앵커가 하나도 없음 |
 | U402 / U403 | 센서 ID 누락·형식 오류·경로에서 만든 값과 다름 / 중복 |
 | U404 | 센서 앵커에 `dct:metric`, `dct:unit`이 없거나 앵커 이름이 metric과 다름 |
