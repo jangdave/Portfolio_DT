@@ -43,7 +43,11 @@ const srv = createServer(gateway, { host: a.host, port: Number(a.port) });
 const addr = await srv.listen();
 console.error(`[게이트웨이] http://${addr.address}:${addr.port} (WebSocket /ws), 센서 ${manifest.sensors.length}개`);
 
-if (a.mqtt) await connectMqtt(gateway, a.mqtt);
+if (a.mqtt) {
+  await connectMqtt(gateway, a.mqtt);
+  // 모든 센서가 동시에 끊겨도 stale을 알리도록 수신 시각만큼 시계를 민다(재생은 센서 시각 기준이라 쓰지 않는다)
+  setInterval(() => gateway.heartbeat(), 1000).unref();
+}
 if (a.replay) {
   const ts = Number(a['time-scale']);
   do {

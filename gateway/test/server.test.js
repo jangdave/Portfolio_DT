@@ -1,6 +1,7 @@
 // REST와 WebSocket, 재생 시험(통합): 작은 .jsonl을 재생하면서 WebSocket 클라이언트가 같은 값을 받는지 확인한다.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -53,7 +54,8 @@ test('재생하면 WebSocket으로 snapshot, sample, alarm, scenario가 온다',
     ws.onmessage = (e) => got.push(JSON.parse(e.data));
     await waitFor(() => got.length >= 1);
     assert.equal(got[0].type, 'snapshot');
-    assert.deepEqual(got[0].sensors, []); // 접속 직후에는 아직 값이 없다
+    assert.equal(got[0].sensors.length, 2); // 접속 직후에는 아직 값이 없어도 모든 센서의 자리가 있다
+    assert.ok(got[0].sensors.every((s) => s.value === null && s.quality === 'stale'));
 
     const n = await replayFile(gw, writeReplay(), { timeScale: 0 });
     assert.equal(n, 12);
@@ -102,4 +104,50 @@ test('같은 .jsonl을 두 번 재생하면 같은 알람이 나온다(재현)',
     return alarms;
   };
   assert.deepEqual(await run(), await run());
+});
+
+const rawRequest = (port, bytes) => new Promise((resolve) => {
+  const s = net.connect(port, '127.0.0.1', () => s.write(bytes));
+  let data = '';
+  s.on('data', (d) => (data += d.toString('latin1')));
+  s.on('close', () => resolve(data));
+  s.on('error', () => resolve(data));
+  setTimeout(() => s.destroy(), 800);
+});
+
+test('이상한 요청 하나로 게이트웨이가 죽지 않는다(Host 헤더, 잘못된 WebSocket 프레임, 깨진 HTTP)', async () => {
+  const gw = new Gateway(manifest);
+  gw.on('log', () => {});
+  const srv = createServer(gw, { port: 0 });
+  const addr = await srv.listen();
+  const dead = [];
+  const onDie = (e) => dead.push(e);
+  process.on('uncaughtException', onDie);
+  try {
+    // 1) 이상한 Host 헤더: 예외로 죽지 않고 정상 응답한다
+    const r1 = await rawRequest(addr.port, 'GET /healthz HTTP/1.1\r\nHost: bad host\r\nConnection: close\r\n\r\n');
+    assert.match(r1, /^HTTP\/1\.1 200/);
+    // 2) 정상 업그레이드 뒤 RSV1 비트가 켜진 프레임
+    const key = Buffer.from('0123456789abcdef').toString('base64');
+    const up = `GET /ws HTTP/1.1\r\nHost: localhost\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: ${key}\r\nSec-WebSocket-Version: 13\r\n\r\n`;
+    await new Promise((resolve) => {
+      const s = net.connect(addr.port, '127.0.0.1', () => {
+        s.write(up);
+        setTimeout(() => {
+          s.write(Buffer.from([0xc1, 0x80, 0, 0, 0, 0])); // RSV1, 마스크된 빈 페이로드
+          setTimeout(() => { s.destroy(); resolve(); }, 150);
+        }, 100);
+      });
+      s.on('error', () => resolve());
+    });
+    // 3) 깨진 HTTP
+    await rawRequest(addr.port, 'THIS IS NOT HTTP\r\n\r\n');
+    await new Promise((r) => setTimeout(r, 100));
+    assert.deepEqual(dead, [], '처리되지 않은 예외로 프로세스가 죽을 뻔했다');
+    // 4) 여전히 정상 동작한다
+    assert.equal((await fetch(`http://127.0.0.1:${addr.port}/healthz`)).status, 200);
+  } finally {
+    process.off('uncaughtException', onDie);
+    await srv.close();
+  }
 });

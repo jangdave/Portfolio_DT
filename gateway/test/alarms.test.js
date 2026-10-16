@@ -11,6 +11,10 @@ for (const c of vectors.cases) {
     const a = new AlarmState({ warn: c.warn, critical: c.critical, direction: c.direction, hysteresis: c.hysteresis, consecutive: c.consecutive });
     const got = [];
     c.values.forEach((v, index) => {
+      if (v === null) {
+        a.breakRun(); // 품질이 good이 아닌 샘플(bad, stale)이 끼었다
+        return;
+      }
       const tr = a.update(v);
       if (tr) got.push({ index, from: tr[0], to: tr[1] });
     });

@@ -5,6 +5,7 @@
 // - 내려갈 때: 바로 반영하되, 기준에서 hysteresis만큼 더 내려와야 그 단계를 벗어난다.
 // - 기준이 없으면(warn, critical 모두 null) 판정하지 않는다.
 // - direction이 "low"이면 값이 낮을수록 위험하다(부호를 바꿔 같은 규칙으로 처리한다).
+// - 품질이 good이 아닌 샘플(bad, stale)이 끼면 연속이 끊긴다: breakRun()
 
 export const NAMES = ['normal', 'warn', 'critical'];
 const LEVELS = Object.fromEntries(NAMES.map((n, i) => [n, i]));
@@ -42,6 +43,12 @@ export class AlarmState {
     if (cur >= 1 && w != null && v > w - this.hysteresis) lvl = 1;
     if (cur === 2 && c != null && v > c - this.hysteresis) lvl = 2;
     return lvl;
+  }
+
+  // 좋은 값이 아닌 샘플(bad, stale)이 끼었을 때 올라가는 중이던 연속 횟수를 지운다.
+  breakRun() {
+    this.run = 0;
+    this.runMin = 0;
   }
 
   // 새 값을 넣고, 상태가 바뀌면 [이전, 새 상태]를, 아니면 null을 돌려준다.

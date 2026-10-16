@@ -30,6 +30,7 @@ export async function replayFile(gateway, file, { timeScale = 1, signal } = {}) 
     gateway.ingest(msg);
     count += 1;
   }
+  gateway.flush(); // 마지막 시각의 집계를 확정한다
   return count;
 }
 
