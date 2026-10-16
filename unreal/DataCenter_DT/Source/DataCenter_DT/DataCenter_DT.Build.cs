@@ -10,7 +10,11 @@ public class DataCenter_DT : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		// 게이트웨이 연결(HTTP, WebSocket)과 JSON 읽기 (Data 계층)
+		PrivateDependencyModuleNames.AddRange(new string[] { "HTTP", "WebSockets", "Json" });
+
+		// 소스 폴더를 모듈 기준 경로로 열어 "Core/DCTTypes.h" 형태로 포함한다
+		PublicIncludePaths.Add(ModuleDirectory);
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
