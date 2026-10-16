@@ -101,6 +101,9 @@ class Layout:
         self.exhaust = np.zeros(self.shape, dtype=bool)
         self.vent = np.zeros(self.shape, dtype=bool)
         self.ret_id = np.full(self.shape, -1, dtype=np.int32)
+        self.intake_id = np.full(self.shape, -1, dtype=np.int32)   # 랙 앞면 바로 앞 칸: 그 랙의 번호
+        self.exhaust_id = np.full(self.shape, -1, dtype=np.int32)  # 랙 뒷면 바로 뒤 칸: 그 랙의 번호
+        self.vent_id = np.full(self.shape, -1, dtype=np.int32)     # 급기구 칸: 급기구 번호
         self.rack_flux = []
         for idx, r in enumerate(hall["racks"]):
             (x0, y0, z0), (x1, y1, z1) = r["min"], r["max"]
@@ -117,6 +120,8 @@ class Layout:
             back_sl[axis] = slice(lo - 1, lo) if sign > 0 else slice(hi, hi + 1)
             self.intake[tuple(front_sl)] = True
             self.exhaust[tuple(back_sl)] = True
+            self.intake_id[tuple(front_sl)] = idx
+            self.exhaust_id[tuple(back_sl)] = idx
             area = ((x1 - x0) / 100.0 if axis == 1 else (y1 - y0) / 100.0) * ((z1 - z0) / 100.0)
             self.rack_flux.append(V_RACK * area)
         self.crac_q = []
@@ -136,13 +141,16 @@ class Layout:
             (x0, y0, z0), (x1, y1, z1) = p["min"], p["max"]
             xs, xe = rng(x0, x1, nx); ys, ye = rng(y0, y1, ny); zs, ze = rng(z0, z1, nz)
             self.solid[xs:xe, ys:ye, zs:ze] = True
-        for v in hall["vents"]:
+        for vi, v in enumerate(hall["vents"]):
             (x0, y0, z0), (x1, y1, z1) = v["min"], v["max"]
             xs, xe = rng(x0, x1, nx); ys, ye = rng(y0, y1, ny)
             self.vent[xs:xe, ys:ye, 0:VENT_LAYERS] = True
+            self.vent_id[xs:xe, ys:ye, 0:VENT_LAYERS] = vi
         self.fluid = ~self.solid
         for a in ("intake", "exhaust", "vent"):
             setattr(self, a, getattr(self, a) & self.fluid)
+        for a in ("intake_id", "exhaust_id", "vent_id"):
+            getattr(self, a)[~self.fluid] = -1
         self.ret_id[~self.fluid] = -1
         self.n_cracs = len(hall["cracs"])
         # 뜨거운 통로: CRAC의 y 위치(뜨거운 통로 끝에 놓임)로 통로를 나누고, 랙은 뒷면이 닿는 통로에 배정한다.
@@ -155,6 +163,15 @@ class Layout:
             axis, sign = r["front"]
             back_y = r["min"][1] if sign > 0 else r["max"][1]
             self.aisle_exhaust[near(back_y)] += q
+        # 차가운 통로: 급기구가 놓인 y 위치(통로 가운데)로 나누고, 랙은 앞면이 닿는 통로, 급기구는 가장 가까운 통로에 배정한다.
+        cold_centers = sorted({round((v["min"][1] + v["max"][1]) / 2 / 10.0) * 10.0 for v in hall["vents"]})
+        self.n_cold = len(cold_centers)
+        near_cold = lambda y: int(np.argmin([abs(y - c) for c in cold_centers]))
+        self.vent_cold = [near_cold((v["min"][1] + v["max"][1]) / 2) for v in hall["vents"]]
+        self.rack_cold = []
+        for r in hall["racks"]:
+            axis, sign = r["front"]
+            self.rack_cold.append(near_cold(((r["max"][1] if sign > 0 else r["min"][1]) if axis == 1 else (r["min"][1] + r["max"][1]) / 2)))
         n_per_aisle = np.bincount(self.crac_aisle, minlength=self.n_aisles)
         # CRAC는 모두 같은 장비라고 보고, 용량은 가장 바쁜 통로를 정상 상태에서 감당하는 값으로 둔다
         self.q_cap = float(max(self.aisle_exhaust[a] / max(1, n_per_aisle[a]) for a in range(self.n_aisles)))
@@ -198,11 +215,27 @@ def source_field(lay: Layout, fan: np.ndarray) -> tuple[np.ndarray, dict]:
         ret = lay.ret_id == idx
         if q[idx] > 0 and ret.any():
             s[ret] -= q[idx] / (ret.sum() * vol)
-    if q.sum() > 0:
-        s[lay.vent] += q.sum() / (lay.vent.sum() * vol)  # 급기구는 켜진 CRAC들의 회수 유량 합을 나눠 받는다
     q_rack = float(sum(lay.rack_flux))
-    s[lay.intake] -= q_rack / (lay.intake.sum() * vol)
-    s[lay.exhaust] += q_rack / (lay.exhaust.sum() * vol)
+    flux = np.array(lay.rack_flux, dtype=np.float64)
+    # 랙마다: 흡입면과 배기면 칸이 그 랙의 유량을 나눈다(랙 하나를 빼거나 옮겨도 다른 랙의 원천은 그대로다)
+    for ids, sign in ((lay.intake_id, -1.0), (lay.exhaust_id, 1.0)):
+        cnt = np.bincount(ids[ids >= 0], minlength=len(flux)).astype(np.float64)
+        per_cell = np.divide(flux, cnt, out=np.zeros_like(flux), where=cnt > 0) / vol
+        m = ids >= 0
+        s[m] += sign * per_cell[ids[m]]
+    # 급기: 켜진 CRAC들의 회수 유량 합(q.sum())을 차가운 통로별로, 그 통로를 향한 랙들의 유량 비율로 나눈다.
+    # 통로 안에서는 그 통로의 급기구 칸이 똑같이 받는다. (예전에는 급기구 전체가 똑같이 받아서 먼 통로의 랙이 영향을 받았다)
+    if q.sum() > 0:
+        demand = np.zeros(lay.n_cold)
+        for r_idx, c in enumerate(lay.rack_cold):
+            demand[c] += flux[r_idx]
+        for c in range(lay.n_cold):
+            if demand[c] <= 0:
+                continue
+            cells = (lay.vent_id >= 0) & (np.array(lay.vent_cold)[np.maximum(lay.vent_id, 0)] == c)
+            if not cells.any():
+                raise RuntimeError(f"차가운 통로 {c}에 랙이 있는데 급기구가 없다")
+            s[cells] += q.sum() * (demand[c] / demand.sum()) / (cells.sum() * vol)
     for a in range(lay.n_aisles):
         if leak[a] > 1e-9:
             if not (lay.leak_sink[a].any() and lay.leak_src[a].any()):
@@ -515,10 +548,25 @@ def main() -> None:
     t_end = rows[-1][0]
     inlet_before = np.array([at(t_before, f"{n}.temp_in") for n in rack_names])
     inlet_end = np.array([at(t_end, f"{n}.temp_in") for n in rack_names])
-    per_row = 10
-    pos = np.tile(np.arange(per_row), len(rack_names) // per_row)
+    # 줄 안의 위치: 앞면이 향하는 축과 직각인 좌표가 같은 랙끼리 한 줄이고, 줄의 양 끝 랙과 가운데 랙을 나눈다.
+    # 랙 수나 줄 길이가 바뀌어도(랙을 빼거나 옮긴 장면) 장면에서 읽은 위치로 정한다.
+    by_row: dict = {}
+    for ri, r in enumerate(hall["racks"]):
+        ax = r["front"][0]  # 앞면이 향하는 축(0 = x, 1 = y)
+        c = [(r["min"][d] + r["max"][d]) / 2 for d in range(2)]
+        by_row.setdefault((ax, round(c[ax] / 10.0)), []).append((c[1 - ax], ri))
+    is_end = np.zeros(len(rack_names), dtype=bool)
+    is_mid = np.zeros(len(rack_names), dtype=bool)
+    for members in by_row.values():
+        members.sort()
+        for k, (_, ri) in enumerate(members):
+            if k == 0 or k == len(members) - 1:
+                is_end[ri] = True
+            else:
+                is_mid[ri] = True
     def pos_stats(arr):
-        return {"end_racks_mean": round(float(arr[(pos == 0) | (pos == per_row - 1)].mean()), 2), "middle_racks_mean": round(float(arr[(pos > 0) & (pos < per_row - 1)].mean()), 2)}
+        return {"end_racks_mean": round(float(arr[is_end].mean()), 2) if is_end.any() else None,
+                "middle_racks_mean": round(float(arr[is_mid].mean()), 2) if is_mid.any() else None}
     summary = {
         "scene": str(args.scene), "grid": list(lay.shape), "dt_phys_s": sim.dt_phys, "slow_factor": args.slow, "power_kw_per_rack": args.power,
         "flow_normal": sim.flow_info if flow_fail is None else None, "flow_fail": flow_fail, "fail": args.fail, "fail_time_s": args.fail_time,
