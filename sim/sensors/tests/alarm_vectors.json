@@ -1,0 +1,337 @@
+{
+  "_comment": "알람 판정 규칙의 시험 자료. 생성기(Python)와 게이트웨이(Node)가 같은 파일로 검증해 규칙이 어긋나지 않게 한다. docs/11 4.4장. values를 차례로 넣었을 때 transitions(몇 번째 값에서 어떤 상태로 바뀌는지)가 나와야 한다. index는 0부터. values의 null은 품질이 good이 아닌 샘플(bad, stale)이 끼어서 연속이 끊긴다는 뜻이다(break_run).",
+  "cases": [
+    {
+      "name": "연속 2번이어야 주의",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        25,
+        27.4,
+        27.5,
+        27.6
+      ],
+      "transitions": [
+        {
+          "index": 2,
+          "from": "normal",
+          "to": "warn"
+        }
+      ]
+    },
+    {
+      "name": "순간 튐은 무시",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        25,
+        30,
+        25,
+        30,
+        25
+      ],
+      "transitions": []
+    },
+    {
+      "name": "히스테리시스: 기준 아래로 0.5 더 내려와야 정상",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        28,
+        28,
+        26.8,
+        26.6,
+        26.4
+      ],
+      "transitions": [
+        {
+          "index": 1,
+          "from": "normal",
+          "to": "warn"
+        },
+        {
+          "index": 4,
+          "from": "warn",
+          "to": "normal"
+        }
+      ]
+    },
+    {
+      "name": "한 번 높게 튄 값으로 위험까지 올리지 않음(연속하는 동안 가장 낮은 단계)",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        28,
+        28,
+        33,
+        28,
+        28
+      ],
+      "transitions": [
+        {
+          "index": 1,
+          "from": "normal",
+          "to": "warn"
+        }
+      ]
+    },
+    {
+      "name": "위험으로 올라갔다가 주의로 내려옴",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        33,
+        33,
+        33,
+        31.4,
+        31.4
+      ],
+      "transitions": [
+        {
+          "index": 1,
+          "from": "normal",
+          "to": "critical"
+        },
+        {
+          "index": 3,
+          "from": "critical",
+          "to": "warn"
+        }
+      ]
+    },
+    {
+      "name": "낮을수록 위험(팬 속도 주의 20 이하, 위험 5 이하)",
+      "warn": 20,
+      "critical": 5,
+      "direction": "low",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        100,
+        18,
+        18,
+        4,
+        4,
+        21,
+        21
+      ],
+      "transitions": [
+        {
+          "index": 2,
+          "from": "normal",
+          "to": "warn"
+        },
+        {
+          "index": 4,
+          "from": "warn",
+          "to": "critical"
+        },
+        {
+          "index": 5,
+          "from": "critical",
+          "to": "normal"
+        }
+      ]
+    },
+    {
+      "name": "기준이 없으면 판정하지 않음",
+      "warn": null,
+      "critical": null,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        100,
+        100,
+        100
+      ],
+      "transitions": []
+    },
+    {
+      "name": "연속 횟수 1이면 바로 반영",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 1,
+      "values": [
+        27,
+        20
+      ],
+      "transitions": [
+        {
+          "index": 0,
+          "from": "normal",
+          "to": "warn"
+        },
+        {
+          "index": 1,
+          "from": "warn",
+          "to": "normal"
+        }
+      ]
+    },
+    {
+      "name": "주의 기준만 있는 센서",
+      "warn": 27,
+      "critical": null,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        28,
+        28,
+        27.4,
+        26.4
+      ],
+      "transitions": [
+        {
+          "index": 1,
+          "from": "normal",
+          "to": "warn"
+        },
+        {
+          "index": 3,
+          "from": "warn",
+          "to": "normal"
+        }
+      ]
+    },
+    {
+      "name": "위험 기준만 있는 센서",
+      "warn": null,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        33,
+        33,
+        31.6,
+        31.4
+      ],
+      "transitions": [
+        {
+          "index": 1,
+          "from": "normal",
+          "to": "critical"
+        },
+        {
+          "index": 3,
+          "from": "critical",
+          "to": "normal"
+        }
+      ]
+    },
+    {
+      "name": "기준과 정확히 같은 값은 넘은 것으로 본다",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        27,
+        27
+      ],
+      "transitions": [
+        {
+          "index": 1,
+          "from": "normal",
+          "to": "warn"
+        }
+      ]
+    },
+    {
+      "name": "연속 3번이 필요할 때",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 3,
+      "values": [
+        28,
+        28,
+        28
+      ],
+      "transitions": [
+        {
+          "index": 2,
+          "from": "normal",
+          "to": "warn"
+        }
+      ]
+    },
+    {
+      "name": "올라가다 내려가면 연속이 끊긴다",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        28,
+        26,
+        28,
+        28
+      ],
+      "transitions": [
+        {
+          "index": 3,
+          "from": "normal",
+          "to": "warn"
+        }
+      ]
+    },
+    {
+      "name": "bad나 stale 샘플이 끼면 연속이 끊긴다",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        28,
+        null,
+        28
+      ],
+      "transitions": []
+    },
+    {
+      "name": "bad 샘플 뒤에 다시 2번 연속이면 알람",
+      "warn": 27,
+      "critical": 32,
+      "direction": "high",
+      "hysteresis": 0.5,
+      "consecutive": 2,
+      "values": [
+        28,
+        null,
+        28,
+        28
+      ],
+      "transitions": [
+        {
+          "index": 3,
+          "from": "normal",
+          "to": "warn"
+        }
+      ]
+    }
+  ]
+}
