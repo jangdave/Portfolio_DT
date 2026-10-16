@@ -1,0 +1,36 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+
+actions
+(
+    { name solid; type cellSet; action new; source boxToCell; sourceInfo { box (0.01 0.01 0.01) (0.99 0.99 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (0.01 4.21 0.01) (0.99 5.19 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (0.01 8.41 0.01) (0.99 9.39 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (0.01 12.61 0.01) (0.99 13.59 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (10.01 0.01 0.01) (10.99 0.99 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (10.01 4.21 0.01) (10.99 5.19 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (10.01 8.41 0.01) (10.99 9.39 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (10.01 12.61 0.01) (10.99 13.59 2.19); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 0.01 2.01) (9.99 0.99 2.09); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 1.01 0.01) (2.49 1.09 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (8.51 1.01 0.01) (9.99 1.09 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 4.11 0.01) (2.49 4.19 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (8.51 4.11 0.01) (9.99 4.19 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 5.21 0.01) (2.49 5.29 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (8.51 5.21 0.01) (9.99 5.29 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 8.41 2.01) (9.99 9.39 2.09); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 8.31 0.01) (2.49 8.39 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (8.51 8.31 0.01) (9.99 8.39 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 9.41 0.01) (2.49 9.49 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (8.51 9.41 0.01) (9.99 9.49 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 12.61 2.01) (9.99 13.59 2.09); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (1.01 12.51 0.01) (2.49 12.59 1.99); } }
+    { name solid; type cellSet; action add; source boxToCell; sourceInfo { box (8.51 12.51 0.01) (9.99 12.59 1.99); } }
+    { name fluid; type cellSet; action new; source cellToCell; sourceInfo { set solid; } }
+    { name fluid; type cellSet; action invert; }
+);
