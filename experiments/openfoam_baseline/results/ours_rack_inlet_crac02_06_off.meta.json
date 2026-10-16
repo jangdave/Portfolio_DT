@@ -1,0 +1,14 @@
+{
+ "hall60_sim_sha1": "1ebb8251ab91",
+ "argv": [
+  "--every",
+  "100000",
+  "--fail",
+  "CRAC_02,CRAC_06",
+  "--fail-time",
+  "120",
+  "--duration",
+  "900"
+ ],
+ "result_time_s": 900.0
+}
