@@ -99,6 +99,29 @@ def test_duplicate_sensor_id_stops(tmp_path):
         build_manifest(scene(tmp_path, SMALL.replace("H01-RK01-POWER", "H01-RK01-TEMP-IN")))
 
 
+def test_wrong_unit_stops(tmp_path):
+    # 입구 온도가 degF이면 임계값(degC 기준)이 엉뚱하게 붙는다
+    bad = SMALL.replace('string dct:unit = "degC"', 'string dct:unit = "degF"')
+    with pytest.raises(SystemExit, match="단위"):
+        build_manifest(scene(tmp_path, bad))
+    with pytest.raises(SystemExit, match="단위"):
+        build_manifest(scene(tmp_path, SMALL.replace('string dct:unit = "kW"', 'string dct:unit = "W"')))
+
+
+def test_uppercase_metric_stops(tmp_path):
+    bad = SMALL.replace('token dct:metric = "temp_in"', 'token dct:metric = "TEMP_IN"')
+    with pytest.raises(SystemExit, match="소문자"):
+        build_manifest(scene(tmp_path, bad))
+
+
+def test_anchor_without_sensor_asset_type_stops(tmp_path):
+    # 센서 앵커 3개 중 하나의 assetType이 빠지면 조용히 센서가 줄어들지 않고 멈춘다
+    bad = SMALL.replace('token dct:assetType = "sensor"', 'token dct:assetType = "rack"', 1)  # 첫 앵커(Sensor_TEMP_IN)의 assetType을 바꾼다
+    assert bad != SMALL
+    with pytest.raises(SystemExit, match="assetType"):
+        build_manifest(scene(tmp_path, bad))
+
+
 def test_cli_writes_file(tmp_path):
     p = tmp_path / "s.usda"
     p.write_text(HEADER + SMALL, encoding="utf-8")

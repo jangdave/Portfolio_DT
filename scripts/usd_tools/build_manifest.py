@@ -33,6 +33,14 @@ THRESHOLDS: dict[tuple[str, str], dict] = {
 }
 
 
+# 기준값이 정해진 센서는 단위도 정해져 있다. 다르면 임계값(도, kW 기준)이 엉뚱하게 붙으므로 멈춘다.
+EXPECTED_UNITS = {
+    ("rack", "temp_in"): "degC", ("rack", "temp_out"): "degC", ("rack", "power"): "kW",
+    ("crac", "supply_temp"): "degC", ("crac", "return_temp"): "degC", ("crac", "fan_speed"): "percent",
+    ("pdu", "power"): "kW", ("pdu", "load"): "percent",
+}
+
+
 def build_manifest(stage: Usd.Stage) -> dict:
     sensors = []
     seen_ids: dict[str, str] = {}
@@ -40,9 +48,11 @@ def build_manifest(stage: Usd.Stage) -> dict:
     halls: set[str] = set()
     for prim in stage.Traverse():
         at = prim.GetAttribute("dct:assetType")
-        if not at or at.Get() != "sensor":
-            continue
         path = str(prim.GetPath())
+        if (not at or at.Get() != "sensor"):
+            if parse_sensor_path(path) is not None:  # Anchors/Sensor_* 이름인데 assetType이 sensor가 아니면 조용히 빠지지 않게 멈춘다
+                raise SystemExit(f"센서 앵커 이름인데 dct:assetType이 sensor가 아니다: {path}")
+            continue
         sp = parse_sensor_path(path)
         if sp is None:
             raise SystemExit(f"센서 앵커 경로가 규칙과 맞지 않는다: {path}")
@@ -53,6 +63,11 @@ def build_manifest(stage: Usd.Stage) -> dict:
         unit = prim.GetAttribute("dct:unit").Get()
         if not metric or not unit or metric.upper() != sp.metric_upper:
             raise SystemExit(f"metric/unit이 없거나 앵커 이름과 다르다: {path}")
+        if metric != metric.lower():  # 기준값 조회와 생성기의 비교가 소문자 기준이다
+            raise SystemExit(f"dct:metric은 소문자여야 한다: '{metric}' ({path})")
+        expected_unit = EXPECTED_UNITS.get((sp.equipment_type, metric))
+        if expected_unit is not None and unit != expected_unit:
+            raise SystemExit(f"단위가 기준과 다르다: {path} '{unit}' (기대 '{expected_unit}')")
         if sp.sensor_id in seen_ids:
             raise SystemExit(f"센서 ID가 중복되었다: {sp.sensor_id} ({seen_ids[sp.sensor_id]}, {path})")
         if sp.topic in seen_topics:
