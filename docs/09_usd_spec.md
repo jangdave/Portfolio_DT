@@ -309,17 +309,17 @@ Building                (assetType = building, title)
 ```
 
 - `Hall01`은 3층(`dct:floor = 3`)에 둔다. `Floor_03` 상자가 홀을 덮는 자리이며, 외관 화면에서 층을 열 때 `Floors` 아래 상자를 숨기고 `Hall01` 서브레벨을 불러온다.
-- 외벽은 1.2 x 2.4 m 패널을 하나씩 모델링했고(틈 2 cm), 패널 칸마다 텍스처를 패널 한 칸 단위로 옮겨 같은 얼룩이 반복돼 보이지 않게 했다.
+- 외벽(1~3층)은 **유리 커튼월**이다(2026-10-16 사용자 요청으로 금속 패널에서 변경). 1.2 x 2.4 m 칸마다 유리판(두께 3 cm)을 하나씩 만들고 알루미늄 창틀(`Mullions`)을 두른다. 환기 루버와 문 칸은 그대로 뚫려 있다. 난간만 금속 패널이다. 유리는 반사 코팅 유리처럼 보이게 금속성 0.55, 거칠기 0.04의 **불투명 재질**이다(안쪽 `WallCore`가 비치지 않는다). 속이 비치는 유리는 Unreal에서 투명 정렬 비용이 있어 쓰지 않았다.
 
 #### 외관 재질과 텍스처 (4096 x 4096 PNG, 8비트, 타일링 가능)
 
 | 재질 | 용도 | 텍스처 | 타일 크기 |
 |---|---|---|---|
-| `M_BldgPanelMetal` | 외벽 금속 패널, 경비실, 차양 | `T_BldgPanelMetal_` BaseColor, Normal, Roughness, Metallic (+AO 파일, 재질에는 연결 안 함) | 4.8 m (패널 4열 x 2행) |
+| `M_BldgPanelMetal` | 난간 금속 패널, 경비실, 차양 | `T_BldgPanelMetal_` BaseColor, Normal, Roughness, Metallic (+AO 파일, 재질에는 연결 안 함) | 4.8 m (패널 4열 x 2행) |
 | `M_BldgConcrete` | 기초, 포장, 설비 바닥판, 수조 | `T_BldgConcrete_` BaseColor, Normal, Roughness | 4.0 m (줄눈 2 m 간격) |
 | `M_BldgRoof` | 지붕 방수막 | `T_BldgRoof_` BaseColor, Normal, Roughness | 4.8 m (이음 1.2 m 간격) |
 | `M_Asphalt` | 부지 바닥 | `T_Asphalt_` BaseColor, Normal, Roughness | 4.0 m |
-| `M_BldgLouver`, `M_BldgGlass`, `M_BldgWallCore`, `M_BldgFan`, `M_BldgFloorProxy`, `M_OutdoorEquip`, `M_Fence`, `M_ParkingPaint`, `M_Foliage`, `M_Trunk` | 단색 재질(텍스처 없음) | - | - |
+| `M_BldgLouver`, `M_BldgGlass`, `M_BldgCurtainGlass`(외벽 유리), `M_BldgMullion`(유리 창틀), `M_BldgWallCore`, `M_BldgFan`, `M_BldgFloorProxy`, `M_OutdoorEquip`, `M_Fence`, `M_ParkingPaint`, `M_Foliage`, `M_Trunk` | 단색 재질(텍스처 없음) | - | - |
 
 - 텍셀 밀도: 약 850~1020 픽셀/m. UV는 면마다 세계 길이를 타일 크기로 나눈 값이며, 늘어나지 않게 이어진다(타일 범위를 넘는 UV, 반복 설정 `repeat`).
 - 노멀 맵 녹색 채널: **OpenGL 규약(녹색 = 위쪽이 +)** 으로 저장한다. Blender와 USD UsdPreviewSurface가 이 규약(`scale 2, bias -1`)을 쓴다. **Unreal은 DirectX 규약(녹색 = 아래쪽이 +)** 이므로 가져올 때 "Flip Green Channel"을 켜거나, 텍스처 생성 스크립트에 `--directx`를 붙여 다시 만든다. (Unreal 5.7에서 USD로 가져올 때 자동으로 뒤집히는지는 **확인하지 못했다.** Phase 5.5 때 확인한다.)
