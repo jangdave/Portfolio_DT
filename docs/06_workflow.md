@@ -25,7 +25,7 @@
 ```
 - **제목과 본문은 한글로 작성한다.** `type`과 `scope`는 규칙상 영어 키워드를 그대로 쓴다. 코드 식별자, 파일명, 고유명사(USD, MQTT 등)는 원문 그대로 둔다.
 - type: `feat` `fix` `docs` `chore` `refactor` `perf` `test` `build` `exp`
-- scope 예: `usd`, `sim`, `gateway`, `ue`, `ui`, `stream`, `docs`, `harness`
+- scope 예: `usd`, `sim`, `gateway`, `ue`, `ui`, `stream`, `docs`, `env`
 - 예: `feat(sim): cooling_failure 시나리오 생성기 추가`
 - 제목은 "~추가", "~수정", "~개선"처럼 간결한 명사형 또는 `-한다` 없이 끝낸다.
 - 이 규칙은 이후 커밋부터 적용한다(기존 커밋 `fd7c4c3`, `edbf9a6`은 영어이며 이력은 고치지 않는다).
@@ -33,9 +33,9 @@
 
 ## 3. Pull Request
 - 모든 변경은 PR로 `main`에 병합한다(혼자라도 자기 리뷰를 위해).
-- 제목은 커밋 규칙과 동일, 본문은 `.github/pull_request_template.md`를 채운다(목적, 변경, 검증, 클린룸 체크).
+- 제목은 커밋 규칙과 동일, 본문은 `.github/pull_request_template.md`를 채운다(목적, 변경, 검증, 회사 자산 분리 점검).
 - 병합 방식은 **Squash and merge** → `main`은 PR당 커밋 1개의 선형 이력.
-- 병합 전 체크: 클린룸 점검, 대용량/바이너리 파일 LFS 여부, 문서 갱신.
+- 병합 전 체크: 회사 자산 분리 점검, 대용량/바이너리 파일 LFS 여부, 문서 갱신.
 
 ## 4. 이슈·마일스톤
 - Phase(`02_roadmap.md`)마다 GitHub **Milestone**을 만들고, 작업 단위를 **Issue**로 쪼갠다.
