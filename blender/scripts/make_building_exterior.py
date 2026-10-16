@@ -116,6 +116,9 @@ def make_materials(blend_dir: str) -> dict:
         "M_BldgRoof": textured_material("M_BldgRoof", "T_BldgRoof", blend_dir),
         "M_Asphalt": textured_material("M_Asphalt", "T_Asphalt", blend_dir),
         "M_BldgGlass": flat_material("M_BldgGlass", (0.07, 0.12, 0.17), 0.0, 0.1, cull=False),
+        # 외벽 유리: 반사 코팅 유리처럼 보이도록 금속성을 조금 주고 거칠기를 아주 낮춘다(불투명, 안쪽은 WallCore)
+        "M_BldgCurtainGlass": flat_material("M_BldgCurtainGlass", (0.05, 0.11, 0.16), 0.55, 0.04),
+        "M_BldgMullion": flat_material("M_BldgMullion", (0.16, 0.17, 0.18), 0.85, 0.40),
         "M_BldgLouver": flat_material("M_BldgLouver", (0.62, 0.64, 0.66), 0.85, 0.38),
         "M_BldgWallCore": flat_material("M_BldgWallCore", (0.05, 0.055, 0.06), 0.2, 0.7),
         "M_BldgFan": flat_material("M_BldgFan", (0.04, 0.045, 0.05), 0.5, 0.45),
@@ -420,8 +423,10 @@ def build_exterior(mats, parent):
     core.box((0, 0, H / 2), (W - 2 * PD, D - 2 * PD, H), "M_BldgWallCore", TS_CONC, skip=("-z", "+z"))
     objs.append(core)
 
-    # 패널: 벽마다 1.2 x 2.4 m, 틈 2 cm. 뚫린 칸은 건너뛴다.
+    # 외벽: 1~3층은 유리 커튼월(유리판 + 알루미늄 창틀), 난간만 금속 패널. 1.2 x 2.4 m 칸, 틈 2 cm. 뚫린 칸(루버, 문)은 건너뛴다.
     pan = Parts("WallPanels", objs)
+    glz = Parts("CurtainGlass", objs)
+    mul = Parts("Mullions", objs)
     nrows = int(round(H / PH))  # 6행. 7번째 행(난간벽)은 높이 1.0 m
     for face in "SNEW":
         for i in range(wall_cells(face)):
@@ -434,8 +439,22 @@ def build_exterior(mats, parent):
                 # 패널마다 텍스처를 패널 한 칸(1.2 x 2.4 m) 단위로 옮겨 같은 얼룩이 반복돼 보이지 않게 한다 (이음선 위치는 유지)
                 rx, rz = (i * 7 + k * 3 + "SNEW".index(face)) % 4, (i * 5 + k) % 2
                 part = f"F{k // 2 + 1}" if k < nrows else "Parapet"  # 층(2행 = 한 층)과 난간
-                wall_box(pan(f"{FN[face]}_{part}"), face, a0 + (PW - GAP) / 2, -PD / 2, (z0 + z1) / 2, PW - GAP, PD, z1 - z0, "M_BldgPanelMetal", TS_PANEL,
-                         uvo=(W / 2 + rx * PW, D / 2 + rx * PW, rz * PH))
+                if k >= nrows:
+                    wall_box(pan(f"{FN[face]}_{part}"), face, a0 + (PW - GAP) / 2, -PD / 2, (z0 + z1) / 2, PW - GAP, PD, z1 - z0, "M_BldgPanelMetal", TS_PANEL,
+                             uvo=(W / 2 + rx * PW, D / 2 + rx * PW, rz * PH))
+                    continue
+                # 유리판: 바깥 면은 예전 패널 바깥 면(out = 0)과 같은 자리, 두께 3 cm
+                wall_box(glz(f"{FN[face]}_{part}"), face, a0 + (PW - GAP) / 2, -0.015, (z0 + z1) / 2, PW - GAP, 0.03, z1 - z0, "M_BldgCurtainGlass")
+                # 창틀: 칸의 왼쪽 세로 틀과 아래 가로 틀은 항상, 오른쪽과 위는 이웃 칸이 뚫렸거나 끝일 때만(겹쳐서 깜빡이지 않게 한 줄에 하나만)
+                mn = mul(f"{FN[face]}_{part}")
+                mw = 0.06
+                wall_box(mn, face, a0 - GAP / 2, -0.04, (z0 + z1) / 2, mw, 0.12, z1 - z0 + GAP, "M_BldgMullion")
+                if i == wall_cells(face) - 1 or (face, i + 1, k) in cut:
+                    wall_box(mn, face, a0 + PW - GAP / 2, -0.04, (z0 + z1) / 2, mw, 0.12, z1 - z0 + GAP, "M_BldgMullion")
+                # 가로 틀은 세로 틀보다 1 cm 더 튀어나오게 해서 겹치는 부분에서 같은 평면이 생기지 않게 한다
+                wall_box(mn, face, a0 + (PW - GAP) / 2, -0.04, z1 + GAP / 2, PW - GAP, 0.14, mw, "M_BldgMullion")
+                if k == 0:
+                    wall_box(mn, face, a0 + (PW - GAP) / 2, -0.04, z0 - GAP / 2, PW - GAP, 0.14, mw, "M_BldgMullion")
 
     # 층 경계 띠(알루미늄) + 난간 덮개 + 모서리 기둥
     trim = Parts("WallTrim", objs)

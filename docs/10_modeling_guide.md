@@ -168,12 +168,13 @@ Copy-Item blender/textures/building/* usd/assets/textures/building/ -Exclude *_A
 - 텍스처가 없으면 `building.usda`는 열리지만 재질이 회색으로 보인다.
 
 ### 건물 부품 구조 (파트별로 분리, 2026-10-15)
-같은 종류의 부품을 한 메시로 합치면 Unreal에서 하나씩 고르거나 가리거나 재질을 바꿀 수 없다. 그래서 **부품마다 메시 하나**로 만들고 종류별로 그룹(Xform)에 묶는다. 메시는 205개, 삼각형 합계는 138,316개(분리 전과 같음)다. 이름은 `<그룹>_<부품>`이다.
+같은 종류의 부품을 한 메시로 합치면 Unreal에서 하나씩 고르거나 가리거나 재질을 바꿀 수 없다. 그래서 **부품마다 메시 하나**로 만들고 종류별로 그룹(Xform)에 묶는다. 메시는 217개, 삼각형 합계는 160,852개다(외벽을 유리 커튼월로 바꾸기 전에는 205개, 138,316개). 이름은 `<그룹>_<부품>`이다.
 
 | 그룹(`Building/` 아래) | 부품 이름 예 | 개수 |
 |---|---|---|
 | `Exterior` 바로 아래 | `WallCore`(벽 속 면), `RoofDeck`(지붕 바닥) | 2 |
-| `Exterior/WallPanels` | `WallPanels_South_F1` (벽 4 x 1~3층 + 난간 `Parapet`) | 16 |
+| `Exterior/WallPanels` | `WallPanels_South_Parapet` (벽 4개의 난간만 금속 패널) | 4 |
+| `Exterior/CurtainGlass`, `Exterior/Mullions` | `CurtainGlass_South_F1`, `Mullions_South_F1` (벽 4 x 1~3층의 유리판과 창틀) | 12, 12 |
 | `Exterior/WallTrim` | `Band_<벽>_<층>`(층 경계 띠), `CornerPost_NE`(모서리 기둥), `Coping_<벽>`(난간 덮개) | 16 |
 | `Exterior/Louvers` | `Louvers_West_02_R1` (벽, 시작 칸, 층) | 42 |
 | `Exterior/ServiceDoors`, `Entrance`, `Plinth`, `RoofScreens` | `ServiceDoors_North_14`, `Entrance_Glass/Frame/Canopy/Columns/Paving/Bollard_01`, `Plinth_South`, `RoofScreens_North` | 4, 12, 4, 2 |
