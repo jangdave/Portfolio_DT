@@ -9,7 +9,7 @@
   "slow_factor": 10.0,
   "power_kw_per_rack": 10.0,
   "flow_normal": {
-    "solve_s": 12.1,
+    "solve_s": 2.8,
     "cg_info": 0,
     "residual": 1.11e-07,
     "cells": 501600,
@@ -53,6 +53,6 @@
     "Rack_20",
     "Rack_31"
   ],
-  "wall_clock_s": 0.9,
-  "realtime_ratio": 646.1
+  "wall_clock_s": 1.0,
+  "realtime_ratio": 581.9
 }

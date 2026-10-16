@@ -5,6 +5,8 @@
 - 공기 흐름: 질량 보존 퍼텐셜 흐름(∇²φ = s, u = ∇φ). 급기구와 랙 뒷면은 내보내는 곳, 랙 앞면과 CRAC 회수면은 빨아들이는 곳.
   점성, 난류, 부력이 없는 단순 모델이라 순환 구조를 보여 주는 용도다.
 - 온도: Warp로 이류(반 라그랑지안, 기본은 MacCormack 오차 보정) + 확산 + 랙 발열. 급기구 온도는 공급 온도로 고정한다.
+- 새는 공기: 용량을 넘는 뜨거운 공기는 격벽 지붕 틈 아래에서 빨려 들어가 위에서 나온다. 나오는 칸의 온도는 빨려 들어간 칸의 평균으로 맞춰
+  열이 사라지지 않게 한다(예전에는 주변 온도로 바뀌어 약 140 kW가 사라졌다. E0 2.21장).
 - 시간 응답: 공기만 있는 모델은 실제보다 훨씬 빨리 변한다. `--slow`로 응답을 늦춘다(측정값이 아니라 조절값).
 - 수치 확산: `--advection linear`(선형 보간)는 유효 확산 계수가 대략 u x dx / 2다. 격자 0.1 m에서 흐름 1 m/s이면 0.05 m2/s로
   설정한 `K_DIFF`(0.02)의 약 2.4배, 4 m/s이면 약 8배다(시간 간격을 줄여도 거의 줄지 않는다). 온도장이 설정값보다 더 흐리게 번진다.
@@ -406,6 +408,24 @@ def step_kernel(
 
 
 @wp.kernel
+def leak_sum_kernel(T: wp.array3d(dtype=float), sink_id: wp.array3d(dtype=int), sums: wp.array(dtype=float)):
+    """통로별 지붕 틈 아래(빨아들이는) 칸의 온도를 모두 더한다."""
+    i, j, k = wp.tid()
+    a = sink_id[i, j, k]
+    if a >= 0:
+        wp.atomic_add(sums, a, T[i, j, k])
+
+
+@wp.kernel
+def leak_apply_kernel(T: wp.array3d(dtype=float), src_id: wp.array3d(dtype=int), sums: wp.array(dtype=float), counts: wp.array(dtype=float), leak_on: wp.array(dtype=float)):
+    """새는 공기가 나오는 칸(지붕 틈 위)의 온도를 빨려 들어간 칸의 평균으로 맞춘다. 새는 공기가 열을 그대로 가지고 나오게 한다."""
+    i, j, k = wp.tid()
+    a = src_id[i, j, k]
+    if a >= 0 and leak_on[a] > 0.0 and counts[a] > 0.0:
+        T[i, j, k] = sums[a] / counts[a]
+
+
+@wp.kernel
 def sample_points(T: wp.array3d(dtype=float), pts: wp.array(dtype=wp.vec3), out: wp.array(dtype=float)):
     n = wp.tid()
     out[n] = sample_T(T, pts[n], T.shape[0], T.shape[1], T.shape[2])
@@ -426,6 +446,17 @@ class Sim:
         self.T = wp.array(np.full(lay.shape, T_INIT, dtype=np.float32), dtype=float, device=d)
         self.T2 = wp.zeros(lay.shape, dtype=float, device=d)
         self.T_hat = wp.zeros(lay.shape, dtype=float, device=d)
+        # 새는 공기(격벽 지붕 틈): 빨려 들어간 칸의 온도를 나오는 칸으로 옮긴다(옮기지 않으면 열이 사라진다)
+        sink_id = np.full(lay.shape, -1, dtype=np.int32)
+        src_id = np.full(lay.shape, -1, dtype=np.int32)
+        for a in range(lay.n_aisles):
+            sink_id[lay.leak_sink[a]] = a
+            src_id[lay.leak_src[a]] = a
+        self.leak_sink_id = wp.array(sink_id, dtype=int, device=d)
+        self.leak_src_id = wp.array(src_id, dtype=int, device=d)
+        self.leak_sums = wp.zeros(max(1, lay.n_aisles), dtype=float, device=d)
+        self.leak_counts = wp.array(np.array([float(lay.leak_sink[a].sum()) for a in range(lay.n_aisles)] or [0.0], dtype=np.float32), dtype=float, device=d)
+        self.leak_on = wp.zeros(max(1, lay.n_aisles), dtype=float, device=d)
         self.set_power(np.full(len(hall["racks"]), power_kw, dtype=np.float32))
         self.u = None
         self.vent_on = 1.0
@@ -442,12 +473,15 @@ class Sim:
         s, balance = source_field(self.lay, fan)
         u, info = solve_flow(self.lay, s)
         info.update(balance)
+        self.leak_on = wp.array(np.array([1.0 if x > 1e-9 else 0.0 for x in balance["aisle_leak_m3s"]] or [0.0], dtype=np.float32), dtype=float, device=self.device)
         self.vent_on = 1.0 if balance["supply_m3s"] > 0 else 0.0  # 켜진 CRAC가 하나도 없으면 급기구에서 찬 공기가 나오지 않는다
         self.u = wp.array(u, dtype=wp.vec3, device=self.device)
         self.flow_info = info
         self.u_np = u
 
     def step(self):
+        self.leak_sums.zero_()
+        wp.launch(leak_sum_kernel, dim=self.lay.shape, inputs=[self.T, self.leak_sink_id, self.leak_sums], device=self.device)
         if self.advection == "maccormack":
             wp.launch(advect_forward_kernel, dim=self.lay.shape, inputs=[self.T, self.T_hat, self.u, self.solid, self.rack_id, self.dt, DX], device=self.device)
             wp.launch(step_kernel_mc, dim=self.lay.shape, inputs=[self.T, self.T_hat, self.T2, self.u, self.solid, self.rack_id, self.vent, self.heat_rate,
@@ -456,6 +490,7 @@ class Sim:
             wp.launch(step_kernel, dim=self.lay.shape, inputs=[self.T, self.T2, self.u, self.solid, self.rack_id, self.vent, self.heat_rate,
                                                                self.dt, DX, K_DIFF, T_SUPPLY, self.vent_on], device=self.device)
         self.T, self.T2 = self.T2, self.T
+        wp.launch(leak_apply_kernel, dim=self.lay.shape, inputs=[self.T, self.leak_src_id, self.leak_sums, self.leak_counts, self.leak_on], device=self.device)
 
     def sensors(self, anchors: list[dict]) -> np.ndarray:
         pts = np.array([[a["pos_cm"][i] / 100.0 / DX - 0.5 for i in range(3)] for a in anchors], dtype=np.float32)
