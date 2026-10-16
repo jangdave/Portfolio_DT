@@ -6,6 +6,9 @@
   점성, 난류, 부력이 없는 단순 모델이라 순환 구조를 보여 주는 용도다.
 - 온도: Warp로 이류(반 라그랑지안) + 확산 + 랙 발열. 급기구 온도는 공급 온도로 고정한다.
 - 시간 응답: 공기만 있는 모델은 실제보다 훨씬 빨리 변한다. `--slow`로 응답을 늦춘다(측정값이 아니라 조절값).
+- 한계(수치 확산): 이류를 선형 보간으로 계산해서 유효 확산 계수가 대략 u x dx / 2다. 격자 0.1 m에서 흐름 1 m/s이면 0.05 m2/s로
+  설정한 `K_DIFF`(0.02)의 약 2.4배, 4 m/s이면 약 8배다(시간 간격을 줄여도 거의 줄지 않는다). 온도장은 설정값보다 더 흐리게 번진다.
+  고차 이류(MacCormack 등)로 바꾸면 줄일 수 있다.
 
 사용 (이 폴더에서):
     uv run --python 3.13 python hall60_sim.py [--duration 300] [--fail CRAC_01 --fail-time 60] [--power 10]
@@ -200,7 +203,9 @@ def source_field(lay: Layout, fan: np.ndarray) -> tuple[np.ndarray, dict]:
     s[lay.intake] -= q_rack / (lay.intake.sum() * vol)
     s[lay.exhaust] += q_rack / (lay.exhaust.sum() * vol)
     for a in range(lay.n_aisles):
-        if leak[a] > 1e-9 and lay.leak_sink[a].any() and lay.leak_src[a].any():
+        if leak[a] > 1e-9:
+            if not (lay.leak_sink[a].any() and lay.leak_src[a].any()):
+                raise RuntimeError(f"통로 {a}의 배기 {leak[a]:.2f} m3/s가 새야 하는데 격벽 지붕 틈 칸이 없다(장면에 `*_Roof` 격벽이 통로 수만큼 있어야 한다)")
             s[lay.leak_sink[a]] -= leak[a] / (lay.leak_sink[a].sum() * vol)
             s[lay.leak_src[a]] += leak[a] / (lay.leak_src[a].sum() * vol)
     return s, {"crac_return_m3s": [round(float(x), 2) for x in q], "aisle_leak_m3s": [round(float(x), 2) for x in leak], "supply_m3s": round(float(q.sum()), 2), "rack_m3s": round(q_rack, 2)}
@@ -227,12 +232,19 @@ def solve_flow(lay: Layout, s: np.ndarray) -> tuple[np.ndarray, dict]:
             np.add.at(diag, ii, -1.0)
     A = sp.coo_matrix((np.ones(sum(len(r) for r in rows)), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n)).tocsr() + sp.diags(diag)
     b = s[fluid] * DX * DX
-    b = b - b.mean()
+    scale = float(np.abs(b).sum())
+    imbalance = abs(float(b.sum())) / scale if scale > 0 else 0.0
+    if imbalance > 1e-6:  # 평균을 빼서 풀리게 만들 수는 있지만 그러면 틀린 흐름을 조용히 받아들이게 된다
+        raise RuntimeError(f"원천의 합이 0이 아니다(상대 {imbalance:.2e}). 급기, 회수, 랙 앞뒤, 지붕 틈의 유량이 맞지 않는다")
+    b = b - b.mean()  # 부동소수점 오차만 정리한다
     A = -A  # 양의 정부호로 바꿔 CG를 쓴다: -∇²φ = -s
     b = -b
     M = sp.diags(1.0 / np.maximum(A.diagonal(), 1e-9))
     t0 = time.time()
     phi_vec, info = spla.cg(A + sp.identity(n) * 1e-9, b, rtol=1e-7, maxiter=20000, M=M)
+    resid = float(np.linalg.norm(A @ phi_vec - b) / max(float(np.linalg.norm(b)), 1e-30))
+    if info != 0 or resid > 1e-4:
+        raise RuntimeError(f"공기 흐름 풀이가 수렴하지 못했다(info={info}, 상대 잔차 {resid:.2e}). 닫힌 칸이나 원천 배치를 확인한다")
     phi = np.zeros(fluid.shape)
     phi[fluid] = phi_vec
     u = np.zeros(fluid.shape + (3,), dtype=np.float32)
@@ -247,7 +259,7 @@ def solve_flow(lay: Layout, s: np.ndarray) -> tuple[np.ndarray, dict]:
     inside = lay.rack_id >= 0
     u[inside] = lay.rack_dir[inside]  # 랙 안은 정해 둔 통과 속도
     speed = np.linalg.norm(u, axis=-1)
-    return u, {"solve_s": round(time.time() - t0, 1), "cg_info": int(info), "cells": n, "max_speed_ms": round(float(speed.max()), 2), "p99_speed_ms": round(float(np.percentile(speed[fluid], 99)), 2)}
+    return u, {"solve_s": round(time.time() - t0, 1), "cg_info": int(info), "residual": float(f"{resid:.2e}"), "cells": n, "max_speed_ms": round(float(speed.max()), 2), "p99_speed_ms": round(float(np.percentile(speed[fluid], 99)), 2)}
 
 
 # =====================================================================
@@ -314,6 +326,7 @@ class Sim:
         self.T2 = wp.zeros(lay.shape, dtype=float, device=d)
         self.set_power(np.full(len(hall["racks"]), power_kw, dtype=np.float32))
         self.u = None
+        self.vent_on = 1.0
         self.flow_info = {}
 
     def set_power(self, kw: np.ndarray):
@@ -327,13 +340,14 @@ class Sim:
         s, balance = source_field(self.lay, fan)
         u, info = solve_flow(self.lay, s)
         info.update(balance)
+        self.vent_on = 1.0 if balance["supply_m3s"] > 0 else 0.0  # 켜진 CRAC가 하나도 없으면 급기구에서 찬 공기가 나오지 않는다
         self.u = wp.array(u, dtype=wp.vec3, device=self.device)
         self.flow_info = info
         self.u_np = u
 
     def step(self):
         wp.launch(step_kernel, dim=self.lay.shape, inputs=[self.T, self.T2, self.u, self.solid, self.rack_id, self.vent, self.heat_rate,
-                                                           self.dt, DX, K_DIFF, T_SUPPLY, 1.0], device=self.device)
+                                                           self.dt, DX, K_DIFF, T_SUPPLY, self.vent_on], device=self.device)
         self.T, self.T2 = self.T2, self.T
 
     def sensors(self, anchors: list[dict]) -> np.ndarray:

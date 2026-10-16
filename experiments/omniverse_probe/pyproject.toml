@@ -12,3 +12,11 @@ dependencies = [
     "ovphysx==0.3.7",
     "scipy>=1.18.1",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
