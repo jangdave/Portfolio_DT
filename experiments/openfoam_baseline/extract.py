@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 
 run = Path(sys.argv[1]); prefix = Path(sys.argv[2])
-layout = Path(sys.argv[3]) if len(sys.argv) > 3 else Path(__file__).resolve().parent / "layout.json"
+layout = Path(sys.argv[3]) if len(sys.argv) > 3 else (run / "case_layout.json" if (run / "case_layout.json").exists() else Path(__file__).resolve().parent / "layout.json")
 hall = json.loads(layout.read_text(encoding="utf-8"))
 vox = np.load(run / "case_voxels.npz")
 shape = tuple(int(v) for v in vox["shape"]); dx = float(vox["dx"])
@@ -80,7 +80,7 @@ Path(str(prefix) + ".csv").write_text("rack_id,temp_c\n" + "".join(f"{i},{t:.3f}
 Path(str(prefix) + "_front_mean.csv").write_text("rack_id,temp_c\n" + "".join(f"{i},{t:.3f}\n" for i, t in zip(ids, t_front)), encoding="utf-8")
 
 per_row = 10
-pos = np.tile(np.arange(per_row), len(ids) // per_row)
+pos = np.array([(int(i.split("_")[1]) - 1) % per_row for i in ids])  # 랙 이름 번호로 줄 안 위치를 구한다(랙을 뺀 배치도 처리)
 end = (pos == 0) | (pos == per_row - 1); mid = ~end
 meta = json.loads((run / "case_meta.json").read_text(encoding="utf-8"))
 # 에너지 수지: CRAC 회수구 바로 앞 칸의 온도로 빠져나가는 열을 계산한다

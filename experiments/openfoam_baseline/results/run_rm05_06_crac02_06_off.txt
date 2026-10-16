@@ -1,0 +1,4 @@
+mesh_s=5 solve_s=634 cores=16
+1849
+SIMPLE solution converged in 1849 iterations
+    cells:            574500
