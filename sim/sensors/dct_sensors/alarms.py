@@ -8,6 +8,7 @@
 - 기준이 없으면(`warn`, `critical` 모두 None) 알람을 판정하지 않는다.
 - `direction`이 "low"이면 값이 낮을수록 위험하다(예: 팬 속도). 내부에서 부호를 바꿔 같은 규칙으로 처리한다.
 - 값이 `range` 밖이면 품질을 bad로 바꾸고 알람은 판정하지 않는다(`quality_for`).
+- 품질이 good이 아닌 샘플(bad, stale)이 끼면 연속이 끊긴 것으로 본다(`break_run`). 그 사이에 값이 없었으므로 "연속 2번"이 아니다.
 """
 from __future__ import annotations
 
@@ -57,6 +58,10 @@ class AlarmState:
         if cur == 2 and c is not None and v > c - self.hysteresis:
             lvl = 2
         return lvl
+
+    def break_run(self) -> None:
+        """좋은 값이 아닌 샘플(bad, stale)이 끼었을 때 올라가는 중이던 연속 횟수를 지운다."""
+        self._run = self._run_min = 0
 
     def update(self, value: float) -> tuple[str, str] | None:
         """새 값을 넣고, 상태가 바뀌면 (이전 상태, 새 상태)를 돌려준다."""

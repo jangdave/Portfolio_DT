@@ -114,10 +114,11 @@ class Generator:
         fan_sum = 0.0
         for s in self.m.sensors:
             if s.metric == "power" and s.equipment_type == "rack":
-                v = ctl.power[s.equipment] + self.rng.normal(0, cfg.noise_power)
+                v = max(0.0, ctl.power[s.equipment] + self.rng.normal(0, cfg.noise_power))  # 잡음으로 음수가 되지 않게
                 it_power += ctl.power[s.equipment]
             elif s.metric == "fan_speed":
                 v = ctl.fan[s.equipment] * 100.0 + self.rng.normal(0, cfg.noise_fan)
+                v = min(max(v, s.value_range[0]), s.value_range[1])  # 팬 속도는 0~100%를 넘지 않는다(잡음 때문에 100.2%가 되면 bad로 판정되던 것)
                 fan_sum += ctl.fan[s.equipment]
             else:
                 if s.key not in temps:
@@ -132,6 +133,8 @@ class Generator:
                 tr = self.alarms[s.sensor_id].update(v)
                 if tr:
                     yield {"type": "alarm", "sensorId": s.sensor_id, "from": tr[0], "to": tr[1], "value": v, "ts": ts}
+            else:
+                self.alarms[s.sensor_id].break_run()
         # 집계(11 데이터 규격 9장): 합성 추정
         n_crac = len(self.m.cracs)
         cooling = n_crac * cfg.cooling_base_kw + cfg.fan_power_kw * fan_sum

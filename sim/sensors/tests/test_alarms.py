@@ -16,6 +16,9 @@ def test_vectors(case):
     a = AlarmState(case["warn"], case["critical"], case["direction"], case["hysteresis"], case["consecutive"])
     got = []
     for i, v in enumerate(case["values"]):
+        if v is None:  # 품질이 good이 아닌 샘플이 끼었다
+            a.break_run()
+            continue
         tr = a.update(v)
         if tr:
             got.append({"index": i, "from": tr[0], "to": tr[1]})

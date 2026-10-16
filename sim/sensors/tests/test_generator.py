@@ -44,6 +44,18 @@ def test_message_format(manifest):
     assert ts == sorted(ts)
 
 
+def test_normal_has_no_bad_quality(manifest):
+    # 팬 속도 100%에 잡음이 더해져 100.2가 되면 범위 밖(bad)으로 판정되던 문제
+    bad = [m for m in run(manifest, "normal", 300) if m["type"] == "sample" and m["quality"] != "good"]
+    assert bad == []
+
+
+def test_stopped_fan_has_no_bad_quality(manifest):
+    msgs = run(manifest, "cooling_failure", 200)
+    fan = [m for m in msgs if m["type"] == "sample" and m["sensorId"] == "H01-CR02-FAN-SPEED"]
+    assert all(m["quality"] == "good" for m in fan) and min(m["value"] for m in fan) >= 0.0
+
+
 def test_normal_has_no_alarms(manifest):
     assert not [m for m in run(manifest, "normal", 600) if m["type"] == "alarm"]
 
