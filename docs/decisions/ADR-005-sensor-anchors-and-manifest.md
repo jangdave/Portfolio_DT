@@ -31,4 +31,4 @@
 ## 결과와 한계
 - 검증 스크립트(v1)를 개정해야 한다([이슈 #10](https://github.com/jangdave/Portfolio_DT/issues/10)). 현재 `usd/assets/rack.usda`의 센서 앵커도 v2 형식으로 고쳐야 한다.
 - 매니페스트가 USD와 어긋나지 않도록 생성 스크립트와 개수 점검 테스트가 필요하다([이슈 #12](https://github.com/jangdave/Portfolio_DT/issues/12)).
-- 센서가 늘어나면 매니페스트가 커진다. 현재 규모(80개)에서는 문제가 없다.
+- 센서가 늘어나면 매니페스트가 커진다. 처음 규모(80개)에서는 문제가 없었고, 지금 204개에서도 문제가 없다.

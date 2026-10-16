@@ -78,7 +78,7 @@
 | crac | 공급 온도, 회수 온도, 팬 속도 | `supply_temp`, `return_temp`, `fan_speed` | `degC`, `degC`, `percent` |
 | pdu | 전력, 부하율 | `power`, `load` | `kW`, `percent` |
 
-랙 20기 x 3 + CRAC 4기 x 3 + PDU 4기 x 2 = **센서 80개**.
+처음 설계는 랙 20기 x 3 + CRAC 4기 x 3 + PDU 4기 x 2 = 센서 80개였다. 지금은 랙 60기 x 3 + CRAC 8기 x 3 = **센서 204개**이고 PDU는 장면에 없다([ADR-009](decisions/ADR-009-hall-layout-and-cooling.md)).
 
 ## 5. 이름과 ID 규칙
 
@@ -179,8 +179,8 @@ Blender에서 사용자 속성으로 만들면 USD에는 string으로 나온다.
 |---|---|---|
 | 랙 | `usd/assets/rack.usda` + `usd/assets/textures/hall/` | 상세 모델링 완료(2026-10-15, 삼각형 4,436개, 메시 51개, 재질 9개). 틀, 문(천공), 케이블 바, 캐스터, 서버 10대와 앞면 텍스처. 센서 앵커 3개(v2 형식). 구조는 [10](10_modeling_guide.md) 12장 |
 | CRAC | `usd/assets/crac.usda` | 상세 모델링 완료(2026-10-15, 90 x 100 x 220 cm, 삼각형 3,312개, 메시 26개, 재질 11개). 회수 격자, 패널 분할, 상단 덮개와 팬, 뒷면 급기 개구부. 센서 앵커 3개(v2 형식) |
-| PDU | `usd/assets/pdu.usda` | 예정 (Phase 2) |
-| 건물 외관 | `usd/assets/building.usda` + `usd/assets/textures/building/` | 직접 모델링과 4K 텍스처 완료(2026-10-15, 삼각형 약 13.8만). 형상 33개 오브젝트, 재질 14개. 만드는 방법은 12장 |
+| PDU | (파일 없음) | 만들지 않음. 현재 장면에 PDU가 없고 전력 센서는 랙마다 있다(ADR-009) |
+| 건물 외관 | `usd/assets/building.usda` + `usd/assets/textures/building/` | 직접 모델링과 4K 텍스처 완료(2026-10-16 외벽을 유리 커튼월로 변경, 삼각형 약 16.1만, 메시 217개, 재질 16개). 만드는 방법은 12장 |
 | 홀 내부(외피, 격벽, 급기구, 조명) | 별도 에셋 없음 | 장면 생성 스크립트(`build_scene.py` + `hall_interior.py`)가 재질과 UV가 있는 Mesh로 만든다(11.1.1). `--flat`이면 이전 상자 방식 |
 
 ## 11. 방(홀)과 둘러보기 규격 (초안 v2.1)

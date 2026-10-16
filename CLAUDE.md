@@ -5,7 +5,7 @@ Omniverse(OpenUSD 기반 저작·시뮬레이션)와 Unreal Engine 5.8(운영자
 목표 직군은 UE 클라이언트 개발자이며, 시뮬레이션/데이터 직군으로의 확장 가능성을 함께 보여준다.
 설계 개요는 `docs/01_architecture.md`, 일정은 `docs/02_roadmap.md`, 비교 실험은 `docs/03_experiments.md`.
 
-## 절대 규칙 (클린룸)
+## 절대 규칙 (회사 자산 분리)
 - 이 저장소는 **공개 포트폴리오용**이다. 재직 회사 프로젝트(`D:\UnrealProject\` 아래 업무 프로젝트)의 **코드·에셋·데이터·고객사/내부 명칭을 복사하거나 붙이지 않는다.** 금지어 목록은 저장소에 두지 않고 로컬 파일 `.claude/cleanroom-terms.local.txt`(gitignore)에 둔다.
 - 해당 프로젝트는 **읽기 전용 참조**다. 설계 아이디어(계층 구조, 서비스 분리, 배포 절차)만 참고하고 **코드는 새로 작성**한다.
 - 모델링은 직접 제작(Blender)한 **가상 시설**만 쓴다. 실제 시설 형상/도면/좌표/로고 금지.
@@ -20,7 +20,7 @@ Blender → USD(prim 경로 + dct: 메타데이터) → Omniverse(ovrtx/ovphysx,
    ↘ 센서 시나리오 생성기(Python) → MQTT(Mosquitto) → Gateway(Node) → WebSocket
 UE 5.8 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + PixelStreaming2(웹)
 ```
-데이터 경로 3종: ① 정적 USD ② 베이크 캐시(VDB/애니메이션) ③ 실시간 MQTT. 상세는 설계 문서 참조.
+데이터 경로 3종: ① 정적 USD ② 미리 계산한 데이터(VDB/애니메이션) ③ 실시간 MQTT. 상세는 설계 문서 참조.
 
 ## 디렉터리
 | 경로 | 내용 |
@@ -38,9 +38,9 @@ UE 5.8 클라이언트: USD 임포트 + WebSocket 수신 + CommonUI 패널 + Pix
 | `scripts/` | 환경 점검, 실행 보조 스크립트 |
 
 ## 컨벤션
-- **USD 규칙(v2)**: prim 경로 `/DC/Hall{NN}/Row{NN}/Rack_{NN}/...`, 단위 cm, Up-axis Z, 커스텀 속성 접두 `dct:`. 센서는 장비 아래 `Anchors/Sensor_*` 앵커 prim이고 `dct:sensorId`는 장면에서 붙인다. 홀 아래에는 `Row##`, `Cooling`, `Power`, `Shell`, `Containment`, `Vents`, `Tour`만 둔다. 상세: `docs/09_usd_spec.md`, `.claude/skills/usd-conventions`.
+- **USD 규칙(v2)**: prim 경로 `/DC/Hall{NN}/Row{NN}/Rack_{NN}/...`, 단위 cm, Up-axis Z, 커스텀 속성 접두 `dct:`. 센서는 장비 아래 `Anchors/Sensor_*` 앵커 prim이고 `dct:sensorId`는 장면에서 붙인다. 홀 아래에는 `Row##`, `Cooling`, `Power`, `Shell`, `Containment`, `Vents`, `Looks`, `Tour`만 둔다. 상세: `docs/09_usd_spec.md`, `.claude/skills/usd-conventions`.
 - **홀 장면**: 손으로 고치지 않는다. `usd/scenes/hall01.config.json`을 고치고 `scripts/usd_tools/build_scene.py`를 다시 실행한 뒤 `validate_usd.py`로 검증한다. 나중에 Unreal에서 랙을 옮기고 다시 시뮬레이션하는 흐름을 지원하도록, 시뮬레이션 입력은 장면 USD에서 읽는다(하드코딩 금지).
-- **MQTT 토픽**: `dct/{hall}/{asset}/{metric}`, 페이로드는 JSON(`ts`, `value`, `unit`, `quality`).
+- **MQTT 토픽**: `dct/v1/{hall}/{asset}/{metric}`(예: `dct/v1/hall01/rack_01/temp_in`), 페이로드는 JSON(`ts`, `value`, `unit`, `quality`). 시나리오 이름은 MQTT에 없고 게이트웨이 재생 입력에서만 온다(`docs/11`).
 - **UE C++**: 모듈 `DataCenter_DT`(엔진 매크로 `DATACENTER_DT_API`), 계층 `Core / Data / World / UI / Streaming`. 접두 `DCT`. 새 코드만 작성, 회사 프로젝트 클래스명 재사용 금지.
 - **Python**: `uv`로 환경 관리, 3.13 권장(`ovrtx` 휠 호환). 시스템 Python 3.14는 사용하지 않는다.
 - **Git 워크플로**(`docs/06_workflow.md`): `main`에서 직접 작업하지 않는다. 작업 시작 시 `feat|fix|docs|chore|exp/<주제>` 브랜치를 먼저 만들고, Conventional Commits로 커밋(`type(scope)`는 영어 키워드, **제목·본문은 한글**: 예 `feat(sim): cooling_failure 시나리오 생성기 추가`), PR → Squash merge. 바이너리는 Git LFS. 사용자가 요청할 때만 commit/push/PR을 만든다. force push 금지.

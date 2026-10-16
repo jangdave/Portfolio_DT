@@ -1,7 +1,7 @@
 # DC-Twin
 
 가상 데이터센터의 **디지털 트윈**을 만드는 개인 포트폴리오 프로젝트입니다.
-센서 값과 열·기류 데이터를 만들어 내고, 운영자가 보는 화면(운영 화면)을 Unreal Engine 5.7로 구현합니다.
+센서 값과 열·기류 데이터를 만들어 내고, 운영자가 보는 화면(운영 화면)을 Unreal Engine 5.8로 구현합니다.
 
 > 모든 3D 모델과 데이터는 직접 만든 가상 시설입니다. 시뮬레이션은 화면에 보여 주기 위한 용도이며, 공학적으로 정확하다고 주장하지 않습니다.
 
@@ -13,11 +13,13 @@ Blender로 모델링 → USD 파일 → Omniverse(데이터 생성)  ┐
 쉬운 설명은 [용어집](docs/07_glossary_and_writing_rules.md)에 있습니다.
 
 ## 현재 상태
-- Phase 0(작업 환경 설정) 완료, **Phase 1(USD·Omniverse 기초) 진행 중**
+- 완료: USD 모델(랙 60기 홀, 건물 외관과 내부, 센서 204개), 열·기류 시뮬레이션 시험, 센서 값 생성기, 게이트웨이, Unreal 데이터 계층(연결, 센서 목록, 알람 모델)
+- 진행 중: **Unreal 운영 화면**(랙 입구 온도 색 표시는 만들었고, 알람 목록·센서 상세·추이 그래프는 아직 없음)
+- 이후: Pixel Streaming과 exe 패키징, 데모 영상. 방향 검토는 [17 방향 검토](docs/17_direction_review.md)
 - 진행 상황은 [Milestone](https://github.com/jangdave/Portfolio_DT/milestones)과 [Issue](https://github.com/jangdave/Portfolio_DT/issues)에서 볼 수 있습니다.
 
 ## 처음 시작하기
-필요한 것: Windows, NVIDIA RTX GPU, Unreal Engine 5.7, Blender 5.1, Git, Git LFS, `uv`(Python 환경 도구).
+필요한 것: Windows, NVIDIA RTX GPU, Unreal Engine 5.8(5.8.3에서 확인), Blender 5.1, Git, Git LFS, `uv`(Python 환경 도구).
 
 1. 저장소를 받습니다.
    ```
@@ -29,7 +31,7 @@ Blender로 모델링 → USD 파일 → Omniverse(데이터 생성)  ┐
    ```
    .\scripts\check_env.ps1
    ```
-3. 동작 확인 테스트를 실행합니다. (Phase 1 PR이 병합된 뒤 사용할 수 있습니다.)
+3. 동작 확인 테스트를 실행합니다.
    ```
    cd experiments\p1_ovrtx_smoke
    uv run --python 3.13 python smoke_test.py
