@@ -64,6 +64,8 @@ uv run --python 3.13 python ../openfoam_baseline/compare.py [--rerun-ours] [--of
 
 ## 결과
 
+> **갱신 2(2026-10-16):** 차가운 통로 윗면 보정(`SIGMA_COLD_TOP` 0.1)을 넣은 우리 솔버의 최신 비교는 `results/comparison_summary_sigma01.md`와 사례별 `comparison_*.md`(우리 값 태그 `_sigma01`)에 있다. `_pr55` 태그 파일은 보정 전(PR #55 직후) 값이다. 변화와 한계는 E0 문서 2.23장.
+>
 > **갱신(2026-10-16):** 아래 표의 "우리 솔버" 값은 지붕 틈으로 새는 공기가 열을 잃던 문제를 고치기 **전** 값이다. 고친 뒤 값(B: 평균 20.52, 최대 28.89, 줄 끝/가운데 25.34/19.32, RMSE 2.71)은 `results/comparison.md`와 E0 문서 2.21장에 있다. OpenFOAM 값은 그대로다.
 센서 앵커(`Sensor_TEMP_IN`, 랙 앞면 5 cm 앞, 높이 1.2 m)가 들어 있는 칸의 온도. 우리 솔버도 같은 칸을 읽는다.
 

@@ -7,6 +7,8 @@
 - 온도: Warp로 이류(반 라그랑지안, 기본은 MacCormack 오차 보정) + 확산 + 랙 발열. 급기구 온도는 공급 온도로 고정한다.
 - 새는 공기: 용량을 넘는 뜨거운 공기는 격벽 지붕 틈 아래에서 빨려 들어가 위에서 나온다. 나오는 칸의 온도는 빨려 들어간 칸의 평균으로 맞춰
   열이 사라지지 않게 한다(예전에는 주변 온도로 바뀌어 약 140 kW가 사라졌다. E0 2.21장).
+- 차가운 통로 윗면: 퍼텐셜 흐름은 통로 윗면과 양끝을 구분하지 못해 윗면으로 공기가 너무 많이 들어온다(OpenFOAM은 양끝이 더 많다).
+  랙 위 한 겹의 통과 쉬움 `SIGMA_COLD_TOP`(기본 0.1)을 줄여 양끝 유입을 늘린다. OpenFOAM 사례 B에 맞춘 **보정 상수**다(E0 2.23장).
 - 시간 응답: 공기만 있는 모델은 실제보다 훨씬 빨리 변한다. `--slow`로 응답을 늦춘다(측정값이 아니라 조절값).
 - 수치 확산: `--advection linear`(선형 보간)는 유효 확산 계수가 대략 u x dx / 2다. 격자 0.1 m에서 흐름 1 m/s이면 0.05 m2/s로
   설정한 `K_DIFF`(0.02)의 약 2.4배, 4 m/s이면 약 8배다(시간 간격을 줄여도 거의 줄지 않는다). 온도장이 설정값보다 더 흐리게 번진다.
@@ -37,6 +39,7 @@ ROOT = HERE.parent.parent
 OUT = HERE / "out" / "hall60"
 DX = 0.10            # 격자 간격 (m)
 K_DIFF = 0.02        # 확산 계수 (m^2/s, 난류 혼합을 흉내 낸 값)
+SIGMA_COLD_TOP = 0.1  # 차가운 통로 윗면(랙 높이 바로 위 한 겹)의 통과 쉬움(0~1). 1이면 퍼텐셜 흐름 그대로, 작을수록 윗면으로 들어오는 공기가 줄고 양끝으로 더 들어온다
 RHO_CP = 1.2         # 공기의 밀도 x 비열 (kJ/(m^3 K))
 V_RACK = 0.8         # 랙 안 공기 속도 (m/s)
 T_SUPPLY = 18.0      # 급기 온도 (degC)
@@ -155,6 +158,17 @@ class Layout:
             getattr(self, a)[~self.fluid] = -1
         self.ret_id[~self.fluid] = -1
         self.n_cracs = len(hall["cracs"])
+        # 차가운 통로 윗면 한 겹(랙 위): 통과 쉬움 sigma를 줄여 윗면으로 들어오는 공기를 줄인다(SIGMA_COLD_TOP). 퍼텐셜 흐름은 윗면과 양끝을 구분하지 못해서 윗면으로 너무 많이 들어온다.
+        self.sigma = np.ones(self.shape)
+        if SIGMA_COLD_TOP != 1.0 and hall["vents"] and hall["racks"]:
+            cy = sorted({round((v["min"][1] + v["max"][1]) / 2 / 10.0) * 10.0 for v in hall["vents"]})
+            xa, xb = min(r["min"][0] for r in hall["racks"]), max(r["max"][0] for r in hall["racks"])
+            ztop = max(r["max"][2] for r in hall["racks"])
+            kz = int(np.floor(ztop / 100.0 / DX + 1e-6))
+            for y in cy:
+                xs, xe = rng(xa, xb, nx); ys, ye = rng(y - 60.0, y + 60.0, ny)
+                if kz < nz:
+                    self.sigma[xs:xe, ys:ye, kz] = SIGMA_COLD_TOP
         # 뜨거운 통로: CRAC의 y 위치(뜨거운 통로 끝에 놓임)로 통로를 나누고, 랙은 뒷면이 닿는 통로에 배정한다.
         centers = sorted({round((c["min"][1] + c["max"][1]) / 2 / 10.0) * 10.0 for c in hall["cracs"]})
         self.n_aisles = len(centers)
@@ -253,7 +267,7 @@ def solve_flow(lay: Layout, s: np.ndarray) -> tuple[np.ndarray, dict]:
     idx = -np.ones(fluid.shape, dtype=np.int64)
     idx[fluid] = np.arange(fluid.sum())
     n = int(fluid.sum())
-    rows, cols = [], []
+    rows, cols, vals = [], [], []
     diag = np.zeros(n)
     for axis in range(3):
         for sign in (-1, 1):
@@ -264,9 +278,12 @@ def solve_flow(lay: Layout, s: np.ndarray) -> tuple[np.ndarray, dict]:
             both = fluid & nb
             ii = idx[both]
             jj = np.roll(idx, -sign, axis=axis)[both]
-            rows.append(ii); cols.append(jj)
-            np.add.at(diag, ii, -1.0)
-    A = sp.coo_matrix((np.ones(sum(len(r) for r in rows)), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n)).tocsr() + sp.diags(diag)
+            sg = lay.sigma
+            sj = np.roll(sg, -sign, axis=axis)
+            w = (2.0 * sg * sj / (sg + sj))[both]  # 면의 통과 쉬움: 두 칸의 조화 평균
+            rows.append(ii); cols.append(jj); vals.append(w)
+            np.add.at(diag, ii, -w)
+    A = sp.coo_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))), shape=(n, n)).tocsr() + sp.diags(diag)
     b = s[fluid] * DX * DX
     scale = float(np.abs(b).sum())
     imbalance = abs(float(b.sum())) / scale if scale > 0 else 0.0
@@ -284,13 +301,21 @@ def solve_flow(lay: Layout, s: np.ndarray) -> tuple[np.ndarray, dict]:
     phi = np.zeros(fluid.shape)
     phi[fluid] = phi_vec
     u = np.zeros(fluid.shape + (3,), dtype=np.float32)
+    sg = lay.sigma
     for axis in range(3):
-        plus = np.roll(phi, -1, axis=axis); minus = np.roll(phi, 1, axis=axis)
-        f_plus = np.roll(fluid, -1, axis=axis); f_minus = np.roll(fluid, 1, axis=axis)
-        last = [slice(None)] * 3; last[axis] = slice(-1, None); f_plus[tuple(last)] = False
-        first = [slice(None)] * 3; first[axis] = slice(0, 1); f_minus[tuple(first)] = False
-        plus = np.where(f_plus, plus, phi); minus = np.where(f_minus, minus, phi)
-        u[..., axis] = ((plus - minus) / (2 * DX)).astype(np.float32)
+        # 셀 중심 속도 = 양쪽 면을 지나는 유량의 평균. 면의 유량 = 면의 통과 쉬움 x 퍼텐셜 차 / DX.
+        # (중심 차분으로 만들면 통과 쉬움이 작은 막 바로 옆 칸의 속도가 막 양쪽의 퍼텐셜 차를 그대로 받아 과대해진다.)
+        flux = []
+        for sign in (1, -1):
+            nb_phi = np.roll(phi, -sign, axis=axis)
+            nb_fluid = np.roll(fluid, -sign, axis=axis)
+            edge = [slice(None)] * 3
+            edge[axis] = slice(-1, None) if sign == 1 else slice(0, 1)
+            nb_fluid[tuple(edge)] = False
+            w = 2.0 * sg * np.roll(sg, -sign, axis=axis) / (sg + np.roll(sg, -sign, axis=axis))
+            f = np.where(fluid & nb_fluid, w * (nb_phi - phi) / DX, 0.0)  # 이 칸에서 sign 방향 이웃으로 나가는 쪽의 기울기 x 쉬움
+            flux.append(f * sign)  # +방향 속도로 환산: 이웃이 +쪽이면 그대로, -쪽이면 부호를 뒤집는다
+        u[..., axis] = (0.5 * (flux[0] + flux[1])).astype(np.float32)
     u[~fluid] = 0.0
     inside = lay.rack_id >= 0
     u[inside] = lay.rack_dir[inside]  # 랙 안은 정해 둔 통과 속도
