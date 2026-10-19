@@ -130,3 +130,50 @@ uv run --python 3.13 python ../openfoam_baseline/compare.py [--rerun-ours] [--of
 - 저장소에 두는 것: 이 폴더 약 1.6 MB(사례 정의 약 1 MB, 결과 CSV와 우리 솔버 출력). 우리 솔버 출력 폴더 `results/ours_*`에 단면 그림(png)이 들어 있어 필요 없으면 지워도 된다.
 - 저장소 밖: `~/foam_runs/`(WSL) 350 MB x 사례 수(총 약 3 GB, 5 cm 시험 776 MB 포함). 필요 없으면 `rm -rf ~/foam_runs`.
 - 추가 설치 없음(apt 패키지 설치 없음). `~/foam_runs` 외에 WSL, Windows 환경은 바꾸지 않았다.
+
+## 검증 사례 C, D, E (우리 솔버 PR #55 이후 코드, 2026-10-16)
+한 사례에만 맞추는 과적합을 피하려고 다른 조건 3개를 기준 사례와 같은 설정(랙 10 kW, 10 cm, upwind, 부력 켬)으로 더 돌렸다. 기준 사례(A, B)의 OpenFOAM 결과는 그대로이고, **우리 솔버 값만 PR #55 이후 코드로 새로 계산**했다(`results/ours_rack_inlet_*_pr55.csv`, 옛 값 파일은 그대로). 위의 "결과" 표의 우리 솔버 값은 PR #55 이전 코드 기준이다.
+
+- C: CRAC_03 + CRAC_07 정지(통로 2의 두 대). **주의: 이 홀은 y 방향으로 좌우 대칭이라 C는 B(통로 1)의 거울상이다.** OpenFOAM 통계가 B와 소수 둘째 자리까지 같게 나온 것은 사례 설정과 풀이가 대칭을 지킨다는 확인이지, B와 독립인 검증이 아니다.
+- D: CRAC_02 한 대 정지(남은 CRAC_06이 용량으로 감당, 새는 양 9.6 m3/s). 약한 고장.
+- E: 랙 5, 6번을 장면에서 뺀 편집 장면(`layout_whatif.apply_edits`, 원본 장면은 수정하지 않고 임시 폴더에 둠)에서 CRAC_02 + 06 정지. 랙 58기. 급기 유량은 우리 솔버와 같은 규칙으로 차가운 통로별로 랙 유량 비율에 따라 나눈다(`gen_case.py`가 통로별 급기구 면을 따로 만든다. 기준 사례는 세 통로의 랙 수가 같아 이 규칙이 결과에 영향이 없다).
+
+| 사례 | 평균 | 최대 | 줄 끝 평균 | 가운데 평균 | 끝-가운데 | RMSE | 편향 | 상관 | 가장 뜨거운 5기 (우리 / OpenFOAM) |
+|---|---|---|---|---|---|---|---|---|---|
+| A 정상 | 18.09 / 18.46 | 18.13 / 19.89 | 18.13 / 19.54 | 18.08 / 18.19 | +0.05 / +1.34 | 0.65 | +0.37 | 0.98 | 01,10,11,20,31 / 31,21,11,41,30 |
+| B CRAC_02+06 정지 | 20.52 / 22.18 | 28.89 / 30.87 | 25.34 / 29.13 | 19.32 / 20.44 | +6.02 / +8.69 | 2.71 | +1.65 | 0.84 | 30,21,11,20,50 / 51,01,60,31,11 |
+| C CRAC_03+07 정지 (B의 거울상) | 20.52 / 22.18 | 28.90 / 30.87 | 25.34 / 29.13 | 19.32 / 20.44 | +6.02 / +8.69 | 2.71 | +1.65 | 0.84 | 31,40,41,50,20 / 01,51,10,21,41 |
+| D CRAC_02 한 대 정지 | 18.19 / 19.88 | 19.30 / 28.27 | 18.64 / 25.93 | 18.08 / 18.37 | +0.56 / +7.56 | 3.34 | +1.68 | 0.82 | 30,21,11,20,50 / 01,51,11,31,21 |
+| E 랙 5, 6 제거 + CRAC_02+06 정지 (58기) | 21.16 / 22.19 | 29.56 / 30.50 | 26.43 / 29.19 | 19.78 / 20.36 | +6.66 / +8.82 | 2.21 | +1.03 | 0.87 | 30,21,11,20,50 / 51,01,31,11,21 |
+
+(각 칸은 "우리 솔버 / OpenFOAM", 단위 도. 사례별 자세한 표는 `results/comparison_<사례>.md`, 요약은 `results/comparison_summary_pr55.md`.)
+
+읽는 법(추측 포함):
+- 정상(A), 약한 고장(D)에서 우리 솔버는 열 쏠림을 거의 못 만든다. D는 OpenFOAM 최대 28.3도 대 우리 19.3도로 가장 크게 어긋난다. OpenFOAM에서는 고장 통로 쪽 줄 끝(01, 51 등)이 뜨거워지는데, 우리는 용량으로 감당된다고 보고 새는 양만 9.6 m3/s로 두기 때문으로 보인다(확인하지 않음).
+- 강한 고장(B, C, E)에서는 평균이 1~1.7도, 최대가 1~2도 낮게 나오고 줄 끝 대 가운데 차이는 우리가 작게 본다(6.0 대 8.7). 가장 뜨거운 랙 5기의 목록은 우리와 OpenFOAM이 거의 겹치지 않는다. 방향(줄 끝이 더 뜨거움)만 일치한다.
+- 랙을 뺀 E에서 우리 솔버의 변화 방향(평균 +0.63도, 최대 +0.67도 올라감)은 OpenFOAM(평균 +0.01도, 최대 -0.37도)과 다르다. 랙을 뺀 효과는 둘 다 작아서 이 해상도에서 신뢰할 수 있는 차이인지 모른다.
+- 사례 수가 적고(독립 조건은 사실상 A, B, D, E) OpenFOAM 값에도 격자 오차가 있으므로("한계" 참고) 이 표를 우리 솔버의 정확도 측정으로 읽지 말 것.
+
+계산 시간(16코어, 순서대로 실행, 574,500칸, 모두 수렴 기준 충족):
+
+| 사례 | 반복 | 벽시계 | 열 수지(랙 발열 대 CRAC로 나가는 열) | 랙 안 속도 평균 |
+|---|---|---|---|---|
+| C | 1775 | 609초 + 메시 9초 | 600 대 589 kW | 0.790 m/s |
+| D | 1317 | 451초 + 메시 7초 | 600 대 593 kW | 0.792 m/s |
+| E | 1849 | 634초 + 메시 5초 | 580 대 570 kW | 0.791 m/s |
+
+### 새 사례 실행 방법
+```
+# (experiments/omniverse_probe 폴더에서) 사례 만들기: 정지 목록과 장면 경로를 자유롭게 지정
+uv run --python 3.13 python ../openfoam_baseline/gen_case.py --fail CRAC_03,CRAC_07 --out ../openfoam_baseline/cases/crac03_07_off_dx10
+uv run --python 3.13 python ../openfoam_baseline/gen_case.py --fail CRAC_02 --out ../openfoam_baseline/cases/crac02_off_dx10
+uv run --python 3.13 python -c "import layout_whatif as lw, pathlib; lw.apply_edits(pathlib.Path('../../usd/scenes/hall01.usda').resolve(), pathlib.Path('<임시 폴더>/scene_rm0506.usda'), {'remove':['Rack_05','Rack_06']})"
+uv run --python 3.13 python ../openfoam_baseline/gen_case.py --fail CRAC_02,CRAC_06 --scene <임시 폴더>/scene_rm0506.usda --out ../openfoam_baseline/cases/rm05_06_crac02_06_off_dx10
+# 계산은 반드시 순서대로(동시에 돌리면 20배 이상 느려짐). 사례 끝마다 결과를 뽑아 results/에 저장
+wsl -e bash -lc "bash /mnt/d/Test/experiments/openfoam_baseline/run_many.sh crac03_07_off_dx10 crac02_off_dx10 rm05_06_crac02_06_off_dx10"
+wsl -e bash -lc "bash /mnt/d/Test/experiments/openfoam_baseline/collect.sh crac03_07_off_dx10 crac02_off_dx10 rm05_06_crac02_06_off_dx10"
+# 비교 (우리 솔버를 현재 코드로 다시 돌려 results/ours_*_pr55 에 저장)
+uv run --python 3.13 python ../openfoam_baseline/compare.py --rerun-ours --scenarios normal crac02_06_off crac03_07_off crac02_off rm05_06_crac02_06_off
+```
+`gen_case.py`는 이제 `case_layout.json`(그 사례의 랙 목록)을 사례 폴더에 넣고, `extract.py`가 그것을 읽는다. `compare.py`의 E 사례는 편집 장면을 시스템 임시 폴더에 만들고 끝나면 남기지 않는다.
+참고: WSL의 `.sh` 파일은 줄바꿈이 LF여야 한다(CRLF면 사례 폴더 이름 끝에 `\r`이 붙어 조용히 실패한다).

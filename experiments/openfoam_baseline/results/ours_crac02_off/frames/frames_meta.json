@@ -1,0 +1,10 @@
+{
+  "voxel_size_m": 0.1,
+  "shape_xyz": [
+    110,
+    136,
+    40
+  ],
+  "background_degC": 24.0,
+  "frames": []
+}

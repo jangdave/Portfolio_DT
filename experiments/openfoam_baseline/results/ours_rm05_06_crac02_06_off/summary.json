@@ -1,0 +1,65 @@
+{
+  "scene": "C:\\Users\\User\\AppData\\Local\\Temp\\dct_scene_rm05_06_crac02_06_off.usda",
+  "grid": [
+    110,
+    136,
+    40
+  ],
+  "dt_phys_s": 0.04,
+  "slow_factor": 10.0,
+  "power_kw_per_rack": 10.0,
+  "flow_normal": null,
+  "flow_fail": {
+    "solve_s": 4.1,
+    "cg_info": 0,
+    "residual": 1.09e-07,
+    "cells": 504000,
+    "max_speed_ms": 5.21,
+    "p99_speed_ms": 4.68,
+    "crac_return_m3s": [
+      3.84,
+      0.0,
+      9.6,
+      4.8,
+      3.84,
+      0.0,
+      9.6,
+      4.8
+    ],
+    "aisle_leak_m3s": [
+      0.0,
+      19.2,
+      0.0,
+      0.0
+    ],
+    "supply_m3s": 36.48,
+    "rack_m3s": 55.68
+  },
+  "fail": "CRAC_02,CRAC_06",
+  "fail_time_s": 120,
+  "rack_inlet_C": {
+    "t=120s": {
+      "min": 18.06,
+      "mean": 18.09,
+      "max": 18.17,
+      "end_racks_mean": 18.14,
+      "middle_racks_mean": 18.08
+    },
+    "t=900s": {
+      "min": 19.04,
+      "mean": 21.16,
+      "max": 29.56,
+      "end_racks_mean": 26.43,
+      "middle_racks_mean": 19.78
+    }
+  },
+  "hottest_inlet_racks_end": [
+    "Rack_30",
+    "Rack_21",
+    "Rack_11",
+    "Rack_20",
+    "Rack_50"
+  ],
+  "wall_clock_s": 5.8,
+  "realtime_ratio": 155.5
+}

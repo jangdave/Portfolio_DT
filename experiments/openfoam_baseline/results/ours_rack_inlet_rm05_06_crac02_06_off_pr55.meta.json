@@ -1,0 +1,22 @@
+{
+ "hall60_sim_sha1": "10a0e5b13995",
+ "argv": [
+  "--every",
+  "100000",
+  "--fail",
+  "CRAC_02,CRAC_06",
+  "--fail-time",
+  "120",
+  "--duration",
+  "900",
+  "--scene",
+  "C:\\Users\\User\\AppData\\Local\\Temp\\dct_scene_rm05_06_crac02_06_off.usda"
+ ],
+ "result_time_s": 900.0,
+ "edit": {
+  "remove": [
+   "Rack_05",
+   "Rack_06"
+  ]
+ }
+}
