@@ -1,0 +1,26 @@
+{
+ "test_B": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1776,
+  "solve_wall_s": 743.6,
+  "total_wall_s": 758.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 11:40:10"
+ },
+ "s01_normal": {
+  "status": "failed",
+  "converged": false,
+  "iterations": 27,
+  "solve_wall_s": 13.3,
+  "total_wall_s": 23.3,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 11:48:48"
+ },
+ "s02_normal": {
+  "status": "running",
+  "start": "2026-10-21 11:48:50"
+ }
+}
