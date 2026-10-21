@@ -1,0 +1,12 @@
+{
+ "test_B": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3112,
+  "solve_wall_s": 1130.0,
+  "total_wall_s": 1144.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 14:13:46"
+ }
+}

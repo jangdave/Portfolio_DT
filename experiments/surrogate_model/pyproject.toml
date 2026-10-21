@@ -1,0 +1,9 @@
+[project]
+name = "dct-surrogate-model"
+version = "0.1.0"
+description = "우리 열 시뮬레이션의 오차를 OpenFOAM 기준 답으로 배우는 잔차 모델(시각화 목적의 실험)"
+requires-python = ">=3.13,<3.14"
+dependencies = ["numpy", "scikit-learn"]
+
+[dependency-groups]
+dev = ["pytest"]

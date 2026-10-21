@@ -179,3 +179,24 @@ uv run --python 3.13 python ../openfoam_baseline/compare.py --rerun-ours --scena
 ```
 `gen_case.py`는 이제 `case_layout.json`(그 사례의 랙 목록)을 사례 폴더에 넣고, `extract.py`가 그것을 읽는다. `compare.py`의 E 사례는 편집 장면을 시스템 임시 폴더에 만들고 끝나면 남기지 않는다.
 참고: WSL의 `.sh` 파일은 줄바꿈이 LF여야 한다(CRLF면 사례 폴더 이름 끝에 `\r`이 붙어 조용히 실패한다).
+
+## AI 대리 모델 1단계용 학습 데이터 (`surrogate/`, 2026-10-21)
+목적: 우리 솔버의 오차를 배우는 잔차 모델의 학습 데이터. 40개 샘플(CRAC 팬 레벨, 줄별 전력 6~14 kW, 제거한 랙)에 대해 OpenFOAM(10 cm, upwind, k-epsilon, 부력 켬)과 우리 솔버(현재 main)의 랙 입구 온도를 같은 조건으로 얻는다. 보류(hold-out) 평가용으로 기존 A, B, D, E를 `holdout:true`로 표시했다(OpenFOAM 값은 기존 `results/rack_inlet_*.csv`).
+
+| 파일 | 내용 |
+|---|---|
+| `surrogate/design_samples.py` | 시드 고정(20261021)으로 샘플 설계 + 유량 점검 -> `surrogate/samples.json` |
+| `surrogate/make_cases.py` | 샘플별 OpenFOAM 사례 정의(`surrogate/cases/<id>/`, 약 7 MB) 생성. `gen_case.py --spec --sample --conservative` 사용. **저장소에는 올리지 않는다**(`surrogate/.gitignore`, 명세에서 다시 만들 수 있다) |
+| `surrogate/run_batch.py`, `start_batch.sh` | WSL에서 샘플을 하나씩 순서대로 계산(nice 5, 16코어, 반복 한도 3500), 끝난 샘플은 건너뛰어 이어서 실행 가능, 결과 필드는 삭제 |
+| `surrogate/keepalive.py` | Windows 쪽 감독 프로그램. WSL2 가상 머신이 유휴로 내려가 계산이 죽는 것을 막고, 죽으면 다시 시작 |
+| `surrogate/ours_batch.py` | 샘플 40개 + 보류 4개를 우리 솔버로 계산(`results/surrogate/ours_<id>.csv`) |
+| `results/surrogate/of_<id>.csv`, `progress.json`, `log_<id>.txt` | OpenFOAM 랙 입구 온도(제거한 랙은 행 없음), 진행 상황(상태, 반복, 시간, converged), 로그 일부 |
+
+실행: (1) `design_samples.py`, `make_cases.py` (experiments/omniverse_probe 폴더에서 `uv run --python 3.13 python ../openfoam_baseline/surrogate/...`), (2) `ours_batch.py`, (3) 무인 계산: `python surrogate/keepalive.py`를 Windows에서 분리 실행(`creationflags=DETACHED|NEW_PROCESS_GROUP|BREAKAWAY`).
+조건: 우리 솔버는 처음 120초는 팬 1.0, 10 kW 균일이고 121초부터 샘플의 팬, 전력을 적용해 정상(변화 없음)은 600초, 나머지는 900초까지 돌린 값이다(`compare.py`와 같음). 샘플 명세로 만든 사례 하나가 기존 B와 같은 값을 내는 것을 확인했다(아래).
+
+알아 둘 점:
+- 줄별 전력이 다르면 기존 이완 설정(U 0.7)에서 27회에서 발산(FPE)했다. 생성기의 전력 반영은 맞았다(랙별 발열률 확인). 배치 사례는 `--conservative`(U 0.5, p_rgh 0.2, k/epsilon 0.5, T 0.8)를 쓰고, 압력 잔차 기준을 1e-3으로 완화한다(1e-4에서 4e-4로 멈춤). 이 설정으로 B와 같은 조건을 돌리면 기존 B와 랙별 최대 차이 0.053도, 평균 22.177 대 22.178도였다.
+- 새는 양이 작아도(예: 0.3 m3/s) OpenFOAM은 해당 통로 지붕을 전부 열어 두므로 부력 교환 흐름이 커질 수 있다. 팬 저하 샘플(s29~s34)과 일부 랙 제거 샘플(s37, s38)이 해당한다.
+- CRAC 한 대 고장 샘플 중 통로 0, 3의 CRAC(01, 04, 05, 08)는 남은 한 대가 용량으로 감당해서 유량이 정상과 같다(s05, s08, s09, s12, s13, s14). 유량 분포만 다르다.
+- WSL2는 유휴 약 1분 뒤 가상 머신이 내려가면서 `nohup`으로 띄운 계산도 죽는다. 작업 스케줄러나 `Start-Process`로 띄운 `wsl.exe`도 몇 초~몇십 초 뒤 죽었다. `keepalive.py`는 20초마다 짧은 `wsl` 명령을 보내 이를 피한다.

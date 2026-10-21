@@ -1,0 +1,28 @@
+{
+ "samples": [
+  {
+   "id": "test_B",
+   "group": "pipeline_test",
+   "fan": {
+    "CRAC_01": 1.0,
+    "CRAC_02": 0.0,
+    "CRAC_03": 1.0,
+    "CRAC_04": 1.0,
+    "CRAC_05": 1.0,
+    "CRAC_06": 0.0,
+    "CRAC_07": 1.0,
+    "CRAC_08": 1.0
+   },
+   "row_power_kw": [
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0
+   ],
+   "remove": [],
+   "holdout": false
+  }
+ ]
+}

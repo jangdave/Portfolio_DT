@@ -1,0 +1,21 @@
+cells:            573600
+smoothSolver:  Solving for Uz, Initial residual = 0.01536154, Final residual = 0.001465462, No Iterations 1
+smoothSolver:  Solving for T, Initial residual = 0.6133476, Final residual = 0.03724591, No Iterations 2
+GAMG:  Solving for p_rgh, Initial residual = 0.6135995, Final residual = 0.00679922, No Iterations 2
+smoothSolver:  Solving for epsilon, Initial residual = 0.04528432, Final residual = 3.786755e-10, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 5.380924e-06, Final residual = 1.849218e-07, No Iterations 3
+smoothSolver:  Solving for Ux, Initial residual = 0.2828694, Final residual = 0.005679381, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0.8669175, Final residual = 0.01950496, No Iterations 1
+smoothSolver:  Solving for Uz, Initial residual = 0.8746316, Final residual = 0.0221039, No Iterations 2
+smoothSolver:  Solving for T, Initial residual = 0.7082271, Final residual = 0.06820028, No Iterations 1
+GAMG:  Solving for p_rgh, Initial residual = 0.2363854, Final residual = 0.01041758, No Iterations 1
+smoothSolver:  Solving for epsilon, Initial residual = 0.004975769, Final residual = 2.034241e-19, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 5.458221e-18, Final residual = 5.458221e-18, No Iterations 0
+[DESKTOP-1:00417] *** End of error message ***
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun noticed that process rank 9 with PID 0 on node DESKTOP-1 exited on signal 8 (Floating point exception).
+--------------------------------------------------------------------------

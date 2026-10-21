@@ -10,7 +10,7 @@
   "power_kw_per_rack": 10.0,
   "flow_normal": null,
   "flow_fail": {
-    "solve_s": 4.3,
+    "solve_s": 3.9,
     "cg_info": 0,
     "residual": 1.1e-07,
     "cells": 501600,
@@ -60,6 +60,6 @@
     "Rack_20",
     "Rack_50"
   ],
-  "wall_clock_s": 6.4,
-  "realtime_ratio": 140.5
+  "wall_clock_s": 5.5,
+  "realtime_ratio": 162.2
 }

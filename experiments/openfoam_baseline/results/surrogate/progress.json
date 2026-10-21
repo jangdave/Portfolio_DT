@@ -1,0 +1,402 @@
+{
+ "s01_normal": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1678,
+  "solve_wall_s": 685.5,
+  "total_wall_s": 700.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 14:25:59"
+ },
+ "s02_normal": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1563,
+  "solve_wall_s": 576.5,
+  "total_wall_s": 590.5,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 14:35:49"
+ },
+ "s03_normal": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1687,
+  "solve_wall_s": 617.2,
+  "total_wall_s": 630.7,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 14:46:20"
+ },
+ "s04_normal": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1707,
+  "solve_wall_s": 564.1,
+  "total_wall_s": 577.8,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 14:55:58"
+ },
+ "s05_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1756,
+  "solve_wall_s": 639.5,
+  "total_wall_s": 653.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 15:06:52"
+ },
+ "s06_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2042,
+  "solve_wall_s": 703.2,
+  "total_wall_s": 716.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 15:18:49"
+ },
+ "s07_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1978,
+  "solve_wall_s": 687.2,
+  "total_wall_s": 700.7,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 15:30:30"
+ },
+ "s08_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1987,
+  "solve_wall_s": 772.3,
+  "total_wall_s": 786.0,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 15:43:36"
+ },
+ "s09_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1825,
+  "solve_wall_s": 682.2,
+  "total_wall_s": 695.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 15:55:12"
+ },
+ "s10_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1985,
+  "solve_wall_s": 688.7,
+  "total_wall_s": 703.0,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 16:06:56"
+ },
+ "s11_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2043,
+  "solve_wall_s": 682.0,
+  "total_wall_s": 695.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 16:18:31"
+ },
+ "s12_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1778,
+  "solve_wall_s": 583.0,
+  "total_wall_s": 596.8,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 16:28:28"
+ },
+ "s13_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1810,
+  "solve_wall_s": 599.4,
+  "total_wall_s": 613.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 16:38:41"
+ },
+ "s14_one_crac_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1983,
+  "solve_wall_s": 662.7,
+  "total_wall_s": 675.2,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 16:49:57"
+ },
+ "s15_same_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1203.8,
+  "total_wall_s": 1216.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 17:10:14"
+ },
+ "s16_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3234,
+  "solve_wall_s": 1093.8,
+  "total_wall_s": 1107.7,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 17:28:42"
+ },
+ "s17_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2982,
+  "solve_wall_s": 1021.9,
+  "total_wall_s": 1035.8,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 17:45:58"
+ },
+ "s18_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3423,
+  "solve_wall_s": 1161.4,
+  "total_wall_s": 1175.4,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 18:05:34"
+ },
+ "s19_same_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1146.7,
+  "total_wall_s": 1160.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 18:24:55"
+ },
+ "s20_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3143,
+  "solve_wall_s": 1035.5,
+  "total_wall_s": 1049.4,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 18:42:24"
+ },
+ "s21_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3150,
+  "solve_wall_s": 1046.8,
+  "total_wall_s": 1060.8,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 19:00:05"
+ },
+ "s22_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2990,
+  "solve_wall_s": 972.9,
+  "total_wall_s": 985.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 19:16:31"
+ },
+ "s23_diff_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1169.3,
+  "total_wall_s": 1183.3,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 19:36:14"
+ },
+ "s24_diff_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1183.2,
+  "total_wall_s": 1196.0,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 19:56:11"
+ },
+ "s25_diff_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1149.4,
+  "total_wall_s": 1163.4,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 20:15:34"
+ },
+ "s26_diff_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2020,
+  "solve_wall_s": 676.1,
+  "total_wall_s": 690.2,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 20:27:05"
+ },
+ "s27_diff_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2038,
+  "solve_wall_s": 677.4,
+  "total_wall_s": 689.0,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 20:38:34"
+ },
+ "s28_diff_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1972,
+  "solve_wall_s": 655.7,
+  "total_wall_s": 668.5,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 20:49:43"
+ },
+ "s29_fan_derated": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2272,
+  "solve_wall_s": 756.6,
+  "total_wall_s": 770.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 21:02:34"
+ },
+ "s30_fan_derated": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1863,
+  "solve_wall_s": 620.9,
+  "total_wall_s": 634.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 21:13:09"
+ },
+ "s31_fan_derated": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2293,
+  "solve_wall_s": 761.0,
+  "total_wall_s": 772.3,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 21:26:02"
+ },
+ "s32_fan_derated": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1163.9,
+  "total_wall_s": 1177.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 21:45:39"
+ },
+ "s33_fan_derated": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1954,
+  "solve_wall_s": 654.4,
+  "total_wall_s": 668.2,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 21:56:48"
+ },
+ "s34_fan_derated": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1144.9,
+  "total_wall_s": 1158.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 22:16:07"
+ },
+ "s35_remove_and_fail": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2236,
+  "solve_wall_s": 734.8,
+  "total_wall_s": 748.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 22:28:36"
+ },
+ "s36_remove_and_fail": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1150.9,
+  "total_wall_s": 1162.2,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 22:47:59"
+ },
+ "s37_remove_and_fail": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1149.9,
+  "total_wall_s": 1164.0,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 23:07:23"
+ },
+ "s38_remove_and_fail": {
+  "status": "failed",
+  "converged": false,
+  "iterations": 1,
+  "solve_wall_s": 0.9,
+  "total_wall_s": 9.2,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 23:07:33"
+ },
+ "s39_remove_and_fail": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2030,
+  "solve_wall_s": 698.0,
+  "total_wall_s": 712.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 23:19:25"
+ },
+ "s40_remove_and_fail": {
+  "status": "failed",
+  "converged": false,
+  "iterations": 1,
+  "solve_wall_s": 0.9,
+  "total_wall_s": 10.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-21 23:19:36"
+ }
+}
