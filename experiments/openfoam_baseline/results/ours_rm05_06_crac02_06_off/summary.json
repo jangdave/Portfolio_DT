@@ -10,7 +10,7 @@
   "power_kw_per_rack": 10.0,
   "flow_normal": null,
   "flow_fail": {
-    "solve_s": 4.1,
+    "solve_s": 5.0,
     "cg_info": 0,
     "residual": 1.09e-07,
     "cells": 504000,
@@ -41,16 +41,16 @@
     "t=120s": {
       "min": 18.06,
       "mean": 18.09,
-      "max": 18.17,
-      "end_racks_mean": 18.14,
+      "max": 18.19,
+      "end_racks_mean": 18.15,
       "middle_racks_mean": 18.08
     },
     "t=900s": {
-      "min": 19.04,
-      "mean": 21.16,
-      "max": 29.56,
-      "end_racks_mean": 26.43,
-      "middle_racks_mean": 19.78
+      "min": 18.46,
+      "mean": 21.11,
+      "max": 30.97,
+      "end_racks_mean": 28.55,
+      "middle_racks_mean": 19.18
     }
   },
   "hottest_inlet_racks_end": [
@@ -60,6 +60,6 @@
     "Rack_20",
     "Rack_50"
   ],
-  "wall_clock_s": 5.8,
-  "realtime_ratio": 155.5
+  "wall_clock_s": 7.1,
+  "realtime_ratio": 127.1
 }
