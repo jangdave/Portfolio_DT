@@ -1,17 +1,17 @@
 {
- "result_time": "3500",
+ "result_time": "5500",
  "dx_m": 0.1,
  "rack_inlet_anchor_C": {
   "min": 18.16,
   "mean": 21.16,
-  "max": 27.8,
+  "max": 27.79,
   "end_racks_mean": 25.98,
-  "middle_racks_mean": 19.95
+  "middle_racks_mean": 19.96
  },
  "rack_inlet_front_layer_mean_C": {
   "min": 19.77,
   "mean": 21.65,
-  "max": 25.73,
+  "max": 25.72,
   "end_racks_mean": 24.66,
   "middle_racks_mean": 20.89
  },
@@ -35,6 +35,6 @@
  },
  "T_all_cells_C": {
   "min": 18.0,
-  "max": 34.2
+  "max": 34.21
  }
 }

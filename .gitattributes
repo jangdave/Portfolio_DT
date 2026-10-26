@@ -18,3 +18,6 @@
 
 # 텍스트로 유지 (diff 가능)
 *.usda text
+
+# 셸 스크립트는 항상 LF(WSL에서 CRLF면 사례 이름에 CR이 들어가 조용히 실패한다)
+*.sh text eol=lf
