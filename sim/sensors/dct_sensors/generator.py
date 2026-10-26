@@ -3,6 +3,7 @@
 내보내는 줄(한 줄에 하나, `.jsonl`)의 종류 (11 데이터 규격 4장, 5장):
 - `{"type":"scenario","event":"start"|"end","name":...,"ts":...}`
 - `{"type":"sample","sensorId":...,"topic":...,"ts":...,"value":...,"unit":...,"quality":"good|bad"}`   (MQTT 페이로드 + 주소)
+  L2 모델이 보정한 센서에는 선택 필드 `lower`, `upper`(90% 구간), `confidence`(ok|caution|low|fallback)가 붙는다.
 - `{"type":"alarm","sensorId":...,"from":...,"to":...,"value":...,"ts":...}`
 - `{"type":"aggregate","name":...,"value":...,"unit":...,"ts":...}`  (집계. 게이트웨이가 만드는 값의 기준 구현, MQTT로는 보내지 않음)
 
@@ -110,6 +111,7 @@ class Generator:
         yield from ({**ev, "ts": ts} for ev in self._apply_events(t))
         ctl = self.controls(t)
         temps = self.solver.step(cfg.interval_s, ctl)
+        estimates = getattr(self.solver, "estimates", None) or {}  # L2: 센서 키 -> {lower, upper, confidence}
         it_power = 0.0
         fan_sum = 0.0
         for s in self.m.sensors:
@@ -128,7 +130,10 @@ class Generator:
                 continue  # 고장 주입: 값을 보내지 않는다(게이트웨이가 5초 뒤 stale로 본다)
             v = float(round(v, 3))
             q = quality_for(v, s.value_range)
-            yield {"type": "sample", "sensorId": s.sensor_id, "topic": s.topic, "ts": ts, "value": v, "unit": s.unit, "quality": q}
+            msg = {"type": "sample", "sensorId": s.sensor_id, "topic": s.topic, "ts": ts, "value": v, "unit": s.unit, "quality": q}
+            if s.key in estimates:
+                msg.update(estimates[s.key])
+            yield msg
             if q == "good":
                 tr = self.alarms[s.sensor_id].update(v)
                 if tr:
