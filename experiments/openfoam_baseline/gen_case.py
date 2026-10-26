@@ -61,12 +61,29 @@ def main() -> None:
     ap.add_argument("--scheme", choices=["upwind", "linearUpwind"], default="upwind")
     ap.add_argument("--power", type=float, default=10.0, help="랙 1기 전력(kW). hall60_sim.py 기본값과 같다")
     ap.add_argument("--iters", type=int, default=3000)
+    ap.add_argument("--conservative", action="store_true", help="수렴이 어려운 사례용: 이완 낮춤(U 0.5, p_rgh 0.2), 압력 잔차 기준 1e-3")
     ap.add_argument("--dflow", type=float, default=2e7, help="랙 흐름 방향 Darcy 저항 d(1/m^2)")
+    ap.add_argument("--spec", type=Path, default=None, help="샘플 명세 JSON(surrogate/samples.json 또는 한 샘플). fan, row_power_kw, remove를 쓴다. --fail, --power, --scene보다 우선")
+    ap.add_argument("--sample", default=None, help="--spec이 샘플 목록일 때 고를 id")
     ap.add_argument("--out", type=Path, required=True)
     a = ap.parse_args()
 
     h.DX = a.dx  # rng()와 Layout이 이 값을 읽는다
     scene = a.scene or (h.ROOT / "usd" / "scenes" / "hall01.usda")
+    spec, tmp_scene = None, None
+    if a.spec is not None:
+        import json as _json
+        import tempfile
+        spec = _json.loads(a.spec.read_text(encoding="utf-8"))
+        if isinstance(spec, dict) and "samples" in spec:
+            spec = spec["samples"]
+        if isinstance(spec, list):
+            spec = next(x for x in spec if x["id"] == a.sample)
+        if spec.get("remove"):
+            import layout_whatif as lw  # 랙 제거는 layout_whatif.apply_edits와 같은 방식(장면 복사본, 원본은 수정하지 않음)
+            tmp_scene = Path(tempfile.gettempdir()) / f"dct_gen_{spec['id']}.usda"
+            lw.apply_edits(scene, tmp_scene, {"remove": list(spec["remove"])})
+            scene = tmp_scene
     hall = h.read_hall(scene)
     lay = h.Layout(hall)
     nx, ny, nz = lay.shape
@@ -76,6 +93,14 @@ def main() -> None:
     fail = a.fail if a.fail is not None else ("CRAC_02,CRAC_06" if a.scenario == "crac02_06_off" else "")
     for n in [x.strip() for x in fail.split(",") if x.strip()]:
         fan[names.index(n)] = 0.0
+    if spec is not None:
+        fail = "spec"
+        for n, v in spec["fan"].items():
+            fan[names.index(n)] = float(v)
+    # 랙별 전력(kW). 샘플 명세는 줄별 전력(랙 이름 번호로 줄을 정함: Rack_01~10 = 1번 줄)
+    rack_kw = [a.power] * len(hall["racks"])
+    if spec is not None:
+        rack_kw = [float(spec["row_power_kw"][(int(r["name"].split("_")[1]) - 1) // 10]) for r in hall["racks"]]
     q, leak = h.crac_returns(lay, fan)
     supply = float(q.sum())
     out = a.out
@@ -178,7 +203,7 @@ RAS { RASModel kEpsilon; turbulence on; printCoeffs on; }
     for i, (r, flux) in enumerate(zip(hall["racks"], lay.rack_flux)):
         axis, sign = r["front"]
         tgt = [0.0, 0.0, 0.0]; tgt[axis] = -sign * h.V_RACK
-        rate = a.power / (h.RHO_CP * flux) * (h.V_RACK / 1.0)  # K/s, hall60_sim.Sim.set_power와 같은 식
+        rate = rack_kw[i] / (h.RHO_CP * flux) * (h.V_RACK / 1.0)  # K/s, hall60_sim.Sim.set_power와 같은 식
         z = f"rack_{i+1:02d}"
         fo += f"""{z}_por
 {{
@@ -278,7 +303,12 @@ interpolationSchemes {{ default linear; }}
 snGradSchemes {{ default corrected; }}
 wallDist {{ method meshWave; }}
 """, encoding="utf-8")
-    (out / "system/fvSolution").write_text(head("dictionary", "fvSolution", "system") + """
+    # 기본(기준 사례): 이완 U 0.7. --conservative(샘플 40개 배치): 줄별 전력이 다르면 초반에 발산(FPE)해서 이완을 낮추고, 압력 잔차 기준을 1e-3으로 둔다(1e-4에서 4e-4로 멈춤)
+    if a.conservative:
+        relax_f, relax_e, p_res = "0.2", ("0.5", "0.8", "0.5"), "1e-3"
+    else:
+        relax_f, relax_e, p_res = "0.3", ("0.7", "0.9", "0.7"), "1e-4"
+    (out / "system/fvSolution").write_text((head("dictionary", "fvSolution", "system") + """
 solvers
 {
     p_rgh { solver GAMG; smoother GaussSeidel; tolerance 1e-08; relTol 0.05; }
@@ -289,14 +319,14 @@ SIMPLE
     nNonOrthogonalCorrectors 0;
     pRefCell 0;
     pRefValue 0;
-    residualControl { p_rgh 1e-4; U 1e-5; T 1e-6; "(k|epsilon)" 1e-5; }
+    residualControl { p_rgh @PRES@; U 1e-5; T 1e-6; "(k|epsilon)" 1e-5; }
 }
 relaxationFactors
 {
-    fields { p_rgh 0.3; }
-    equations { U 0.7; T 0.9; "(k|epsilon)" 0.7; }
+    fields { p_rgh @RF@; }
+    equations { U @RU@; T @RT@; "(k|epsilon)" @RK@; }
 }
-""", encoding="utf-8")
+""").replace("@PRES@", p_res).replace("@RF@", relax_f).replace("@RU@", relax_e[0]).replace("@RT@", relax_e[1]).replace("@RK@", relax_e[2]), encoding="utf-8")
     (out / "system/controlDict").write_text(head("dictionary", "controlDict", "system") + f"""
 application buoyantBoussinesqSimpleFoam;
 startFrom latestTime;
@@ -322,12 +352,14 @@ runTimeModifiable false;
     meta = {
         "scenario": a.scenario or fail, "fail": fail, "scene": str(scene), "racks": len(hall["racks"]), "vent_supply_m3s_per_cold_aisle": [round(x, 3) for x in vent_q], "dx": dx, "cells_total": int(np.prod(lay.shape)), "cells_fluid": int(lay.fluid.sum()),
         "crac_return_m3s": {n: round(float(x), 3) for n, x in zip(names, q)}, "supply_m3s": round(supply, 3),
-        "open_roofs": sorted(open_names), "power_kw": a.power, "buoyancy": not a.no_buoyancy, "scheme": a.scheme,
+        "open_roofs": sorted(open_names), "power_kw": a.power, "total_power_kw": float(sum(rack_kw)), "fan": {n: float(v) for n, v in zip(names, fan)}, "sample": spec["id"] if spec else None, "buoyancy": not a.no_buoyancy, "conservative_relaxation": a.conservative, "scheme": a.scheme,
         "darcy_d_flow_1_m2": D_FLOW, "darcy_d_cross_1_m2": D_CROSS,
     }
     import json
     (out / "case_layout.json").write_text(json.dumps(hall, ensure_ascii=False, default=float), encoding="utf-8")
     (out / "case_meta.json").write_text(json.dumps(meta, indent=1, ensure_ascii=False), encoding="utf-8")
+    if tmp_scene is not None:
+        tmp_scene.unlink(missing_ok=True)
     print(json.dumps(meta, ensure_ascii=False))
 
 
