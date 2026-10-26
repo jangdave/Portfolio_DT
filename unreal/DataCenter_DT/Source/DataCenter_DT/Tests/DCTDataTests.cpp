@@ -4,6 +4,7 @@
 
 #if WITH_DEV_AUTOMATION_TESTS
 
+#include "Core/DCTConfidence.h"
 #include "Core/DCTTempGradient.h"
 #include "Data/DCTMessageParser.h"
 #include "Data/DCTSensorHub.h"
@@ -210,6 +211,47 @@ bool FDCTTempGradientTest::RunTest(const FString& Parameters)
 	TestTrue(TEXT("오래된 값은 회색"), DCTTempGradient::ForSample(Sample, 18.0, 35.0).Equals(FLinearColor(0.35f, 0.35f, 0.35f)));
 	Sample.Quality = EDCTQuality::Good;
 	TestTrue(TEXT("정상 값은 값 색"), DCTTempGradient::ForSample(Sample, 18.0, 35.0).Equals(DCTTempGradient::FromValue(30.0, 18.0, 35.0)));
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDCTConfidenceTest, "DCT.Data.Confidence", EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FDCTConfidenceTest::RunTest(const FString& Parameters)
+{
+	// 구간과 등급은 선택 필드다: 있으면 읽고, 없거나 형식이 틀리면 값은 그대로 두고 등급만 비운다.
+	FDCTMessage Message;
+	FString Error;
+	TestTrue(TEXT("구간과 등급이 있는 sample"), DCTMessageParser::ParseMessage(TEXT(R"({"type":"sample","sensorId":"A","value":24.6,"unit":"degC","quality":"good","ts":"2026-10-15T09:00:01.000Z","lower":24.0,"upper":25.4,"confidence":"caution"})"), Message, Error));
+	TestEqual(TEXT("하한"), Message.Samples[0].Lower.Get(0.0), 24.0);
+	TestEqual(TEXT("상한"), Message.Samples[0].Upper.Get(0.0), 25.4);
+	TestEqual(TEXT("등급"), Message.Samples[0].Confidence, EDCTConfidence::Caution);
+
+	TestTrue(TEXT("필드가 없는 sample"), DCTMessageParser::ParseMessage(SampleJson(TEXT("A"), 24.6, 1), Message, Error));
+	TestFalse(TEXT("구간 없음"), Message.Samples[0].Lower.IsSet() || Message.Samples[0].Upper.IsSet());
+	TestEqual(TEXT("등급 없음"), Message.Samples[0].Confidence, EDCTConfidence::None);
+
+	TestTrue(TEXT("구간 순서가 거꾸로, 숫자 문자열, 모르는 등급"), DCTMessageParser::ParseMessage(TEXT(R"({"type":"sample","sensorId":"A","value":24.6,"unit":"degC","quality":"good","ts":"2026-10-15T09:00:01.000Z","lower":26.0,"upper":"25.0","confidence":"great"})"), Message, Error));
+	TestFalse(TEXT("틀린 구간은 받지 않는다"), Message.Samples[0].Lower.IsSet());
+	TestEqual(TEXT("모르는 등급은 없음"), Message.Samples[0].Confidence, EDCTConfidence::None);
+	TestEqual(TEXT("값은 그대로"), Message.Samples[0].Value.Get(0.0), 24.6);
+
+	// 표현: 구간이 좁을수록 막대가 길고, 등급마다 색이 다르다. 등급이 없으면 막대를 숨긴다(0).
+	FDCTSensorSample Sample;
+	TestEqual(TEXT("등급 없으면 숨김"), DCTConfidence::BarFraction(Sample), 0.0);
+	Sample.Confidence = EDCTConfidence::Ok;
+	Sample.Lower = 24.0;
+	Sample.Upper = 24.0;
+	TestEqual(TEXT("구간 폭 0은 가장 길다"), DCTConfidence::BarFraction(Sample), 1.0);
+	Sample.Upper = 26.0;
+	TestEqual(TEXT("폭 2도는 절반"), DCTConfidence::BarFraction(Sample, 4.0), 0.5);
+	Sample.Upper = 40.0;
+	TestEqual(TEXT("아주 넓으면 최소"), DCTConfidence::BarFraction(Sample, 4.0, 0.15), 0.15);
+	Sample.Lower.Reset();
+	TestEqual(TEXT("구간 없이 등급만 있으면 최소"), DCTConfidence::BarFraction(Sample, 4.0, 0.15), 0.15);
+	TestTrue(TEXT("등급 색이 서로 다르다"),
+		!DCTConfidence::ColorFor(EDCTConfidence::Ok).Equals(DCTConfidence::ColorFor(EDCTConfidence::Caution))
+		&& !DCTConfidence::ColorFor(EDCTConfidence::Caution).Equals(DCTConfidence::ColorFor(EDCTConfidence::Low))
+		&& !DCTConfidence::ColorFor(EDCTConfidence::Low).Equals(DCTConfidence::ColorFor(EDCTConfidence::Fallback)));
+	TestEqual(TEXT("등급 문자열 왕복"), DCTConfidenceFromString(DCTConfidenceToString(EDCTConfidence::Low)), EDCTConfidence::Low);
 	return true;
 }
 

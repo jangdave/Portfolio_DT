@@ -42,6 +42,18 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DCT")
 	double PlateCenterOffsetZCm = -30.0;
 
+	// 신뢰 막대(보정 모델이 구간과 등급을 보낸 센서에만 보인다): 판 위의 얇은 막대. 색은 등급, 길이는 90% 구간 폭(좁을수록 길다).
+	UPROPERTY(EditAnywhere, Category = "DCT")
+	bool bShowConfidenceBar = true;
+
+	// 구간 폭이 이 값(섭씨) 이상이면 막대가 가장 짧아진다
+	UPROPERTY(EditAnywhere, Category = "DCT")
+	double ConfidenceFullWidth = 4.0;
+
+	// 막대 두께(높이, cm)
+	UPROPERTY(EditAnywhere, Category = "DCT")
+	double ConfidenceBarHeightCm = 8.0;
+
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
@@ -57,6 +69,15 @@ private:
 
 	UPROPERTY(Transient)
 	TMap<FString, TObjectPtr<UMaterialInstanceDynamic>> Materials;
+
+	// 센서별 신뢰 막대(구성요소, 재질, 막대 기준 위치)
+	UPROPERTY(Transient)
+	TMap<FString, TObjectPtr<UStaticMeshComponent>> Bars;
+
+	UPROPERTY(Transient)
+	TMap<FString, TObjectPtr<UMaterialInstanceDynamic>> BarMaterials;
+
+	TMap<FString, FTransform> BarBase;
 
 	UPROPERTY(Transient)
 	TObjectPtr<UStaticMesh> CubeMesh;
