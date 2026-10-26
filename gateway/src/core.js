@@ -32,6 +32,18 @@ const parseTs = (ts) => {
 };
 const iso = (ms) => new Date(ms).toISOString();
 
+// 보정 모델(L2)이 붙이는 선택 필드: 90% 구간(lower, upper)과 신뢰 등급(confidence). 형식이 맞는 것만 통과시키고 값 자체의 판정에는 쓰지 않는다.
+const CONFIDENCE = new Set(['ok', 'caution', 'low', 'fallback']);
+function estimateFields(raw) {
+  const out = {};
+  if (Number.isFinite(raw.lower) && Number.isFinite(raw.upper) && raw.lower <= raw.upper) {
+    out.lower = raw.lower;
+    out.upper = raw.upper;
+  }
+  if (CONFIDENCE.has(raw.confidence)) out.confidence = raw.confidence;
+  return out;
+}
+
 export class Gateway extends EventEmitter {
   constructor(manifest, config = {}) {
     super();
@@ -97,7 +109,7 @@ export class Gateway extends EventEmitter {
 
     const quality = raw.quality === 'bad' ? 'bad' : qualityFor(raw.value, sensor.range ?? [-Infinity, Infinity]);
     const prev = this.latest.get(id);
-    const entry = { sensorId: id, value: raw.value, unit: sensor.unit, quality, ts: iso(tsMs), alarm: prev?.alarm ?? 'normal' };
+    const entry = { sensorId: id, value: raw.value, unit: sensor.unit, quality, ts: iso(tsMs), alarm: prev?.alarm ?? 'normal', ...estimateFields(raw) };
     this.latest.set(id, entry);
     this.lastSeenMs.set(id, tsMs);
 
@@ -107,7 +119,7 @@ export class Gateway extends EventEmitter {
     while (hist.length && parseTs(hist[0].ts) < cutoff) hist.shift();
     this._aggPending = true;
 
-    this.emit('sample', { type: 'sample', sensorId: id, value: raw.value, unit: sensor.unit, quality, ts: entry.ts });
+    this.emit('sample', { type: 'sample', sensorId: id, value: raw.value, unit: sensor.unit, quality, ts: entry.ts, ...estimateFields(raw) });
     const alarm = this.alarms.get(id);
     if (quality === 'good') {
       const tr = alarm.update(raw.value);

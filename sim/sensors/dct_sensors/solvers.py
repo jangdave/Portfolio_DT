@@ -87,4 +87,8 @@ def make_solver(name: str, manifest: Manifest, cfg: Config, **kw):
         from .solver_l1 import L1Solver  # Warp가 필요해서 필요할 때만 가져온다
 
         return L1Solver(manifest, cfg, **kw)
-    raise SystemExit(f"알 수 없는 solver: {name} (l0, l1)")
+    if name == "l2":
+        from .solver_l2 import L2Solver  # L1에 OpenFOAM으로 배운 보정을 더한다(scikit-learn 필요)
+
+        return L2Solver(manifest, cfg, **kw)
+    raise SystemExit(f"알 수 없는 solver: {name} (l0, l1, l2)")

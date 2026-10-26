@@ -48,7 +48,7 @@ class MqttPublisher:
     def send(self, msg: dict) -> None:
         if msg.get("type") != "sample":
             return
-        payload = {k: msg[k] for k in ("ts", "value", "unit", "quality")}
+        payload = {k: msg[k] for k in ("ts", "value", "unit", "quality", "lower", "upper", "confidence") if k in msg}
         self.c.publish(msg["topic"], json.dumps(payload, separators=(",", ":")), qos=0, retain=True)
 
     def close(self) -> None:

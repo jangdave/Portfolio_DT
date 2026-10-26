@@ -3,7 +3,8 @@
     uv run python -m dct_sensors --manifest ../out/sensor_manifest.json --scenario cooling_failure --duration 300 --time-scale 0 --out ../out/recordings/cooling_failure.jsonl
 
 - `--time-scale`: 1이면 실시간, 10이면 10배 빠르게, 0이면 기다리지 않고 가능한 한 빠르게(녹화, 시험용)
-- `--solver l0|l1`: l0는 간단한 모델, l1은 Warp 열 시뮬레이션(Warp가 있는 환경에서만, `docs/11` 6.2장)
+- `--solver l0|l1|l2`: l0는 간단한 모델, l1은 Warp 열 시뮬레이션(Warp가 있는 환경에서만, `docs/11` 6.2장),
+  l2는 l1에 OpenFOAM으로 배운 보정을 더하고 랙 입구 온도에 90% 구간과 신뢰 등급을 붙인다(scikit-learn도 필요, `solver_l2.py`)
 - `--fault dropout:H01-RK05-TEMP-IN:30s@45s`: 45초부터 30초 동안 그 센서 값을 보내지 않는다(여러 번 쓸 수 있음)
 - `--out`을 생략하면 표준 출력으로 한 줄씩 내보낸다. `--mqtt host:port`를 주면 MQTT로도 보낸다(샘플만).
 """
@@ -26,7 +27,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--scenario", default="normal", choices=sorted(SCENARIOS))
     ap.add_argument("--duration", type=float, default=300.0, help="시뮬레이션 시간(초)")
-    ap.add_argument("--solver", default="l0", choices=["l0", "l1"])
+    ap.add_argument("--solver", default="l0", choices=["l0", "l1", "l2"])
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--time-scale", type=float, default=1.0)
     ap.add_argument("--config", default=None, help="매개변수를 덮어쓰는 JSON")
@@ -39,7 +40,7 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = Config.load(args.config)
     m = load_manifest(args.manifest)
-    kw = {"scene": args.scene} if args.solver == "l1" and args.scene else {}
+    kw = {"scene": args.scene} if args.solver in ("l1", "l2") and args.scene else {}
     solver = make_solver(args.solver, m, cfg, **kw)
     gen = Generator(m, get(args.scenario), solver, cfg, seed=args.seed, faults=[parse_fault(f) for f in args.fault])
     sinks = [JsonlPublisher(args.out)]

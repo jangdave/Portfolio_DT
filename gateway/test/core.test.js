@@ -245,3 +245,16 @@ test('snapshot에는 매니페스트의 모든 센서가 들어 있다(값이 �
   const empty = snap.sensors.find((s) => s.sensorId === 'H01-RK01-TEMP-IN');
   assert.deepEqual([empty.value, empty.quality, empty.ts, empty.alarm], [null, 'stale', null, 'normal']);
 });
+
+test('보정 모델이 붙인 구간과 신뢰 등급은 형식이 맞을 때만 sample과 latest에 실리고, 값 판정에는 영향이 없다', () => {
+  const g = new Gateway(manifest);
+  const samples = collect(g, 'sample');
+  g.ingest({ ...sample('H01-RK01-TEMP-IN', 0, 24.6, 'degC'), lower: 24.0, upper: 25.4, confidence: 'caution' });
+  g.ingest({ ...sample('H01-RK01-TEMP-IN', 1, 24.7, 'degC'), lower: 26.0, upper: 25.0, confidence: 'great' }); // 구간 순서가 거꾸로, 모르는 등급
+  assert.deepEqual([samples[0].lower, samples[0].upper, samples[0].confidence], [24.0, 25.4, 'caution']);
+  assert.equal(samples[1].lower, undefined);
+  assert.equal(samples[1].confidence, undefined);
+  assert.equal(samples[1].quality, 'good');
+  g.ingest({ ...sample('H01-RK01-TEMP-IN', 2, 24.8, 'degC'), lower: 24.1, upper: 25.5, confidence: 'ok' });
+  assert.equal(g.snapshot().sensors.find((s) => s.sensorId === 'H01-RK01-TEMP-IN').confidence, 'ok');
+});
