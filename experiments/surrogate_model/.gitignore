@@ -1,0 +1,4 @@
+model.pkl
+*.pkl
+__pycache__/
+.pytest_cache/

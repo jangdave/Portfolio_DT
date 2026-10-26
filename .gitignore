@@ -74,3 +74,6 @@ usd/assets/textures/
 
 # 서버 홀 내부 텍스처 원본(make_hall_textures.py와 fetch_cc0_textures.py로 다시 만든다)
 blender/textures/hall/
+
+# 감독 프로그램 등이 만드는 실행 중 임시 파일
+experiments/openfoam_baseline/hb.txt

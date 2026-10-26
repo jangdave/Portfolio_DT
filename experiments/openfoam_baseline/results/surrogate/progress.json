@@ -398,5 +398,15 @@
   "cores": 16,
   "nice": 5,
   "finished": "2026-10-21 23:19:36"
+ },
+ "test_B": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3112,
+  "solve_wall_s": 1311.8,
+  "total_wall_s": 1326.3,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-22 00:21:10"
  }
 }

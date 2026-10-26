@@ -1,0 +1,88 @@
+"""예측기(불확실성, 신뢰 등급, 범위 밖 되돌림) 시험. 저장소에 있는 OpenFOAM 학습 결과를 읽는다."""
+from __future__ import annotations
+
+import copy
+import json
+import sys
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+HERE = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(HERE))
+import predictor as pr  # noqa: E402
+import residual_model as rm  # noqa: E402
+
+SAMPLES = rm.BASE / "surrogate" / "samples.json"
+pytestmark = pytest.mark.skipif(not (rm.RES / "surrogate" / "ours_progress.json").exists(), reason="학습 결과 없음")
+
+
+@pytest.fixture(scope="module")
+def env():
+    specs = {s["id"]: s for s in json.loads(SAMPLES.read_text(encoding="utf-8"))["samples"]}
+    info = json.loads((rm.RES / "surrogate" / "ours_progress.json").read_text(encoding="utf-8"))
+    data = [d for d in rm.load_dataset(rm.RES / "surrogate", SAMPLES, only_converged=True) if not d["holdout"]]
+    p = pr.ResidualPredictor(n_estimators=60).fit(data, specs)
+    d0 = data[0]
+    return {"p": p, "specs": specs, "info": info, "data": data, "d0": d0, "ours0": dict(zip(d0["names"], d0["ours"]))}
+
+
+def test_normal_input_is_corrected_with_ordered_interval(env):
+    d0 = env["d0"]
+    r = env["p"].predict(env["specs"][d0["id"]], env["ours0"], env["info"][d0["id"]])
+    assert not r.fallback and r.reason == ""
+    assert set(r.corrected) == set(d0["names"])
+    for n in r.corrected:
+        assert r.lower90[n] <= r.corrected[n] <= r.upper90[n]
+        assert r.upper90[n] - r.lower90[n] >= 2 * pr.INTERVAL_FLOOR - 1e-9  # 구간 반폭 바닥
+        assert r.level[n] in ("ok", "caution", "low")
+        assert r.sigma[n] >= 0
+    assert np.isfinite(r.novelty)
+
+
+@pytest.mark.parametrize("edit, why", [
+    (lambda s: s.update(row_power_kw=[20.0] + s["row_power_kw"][1:]), "전력"),
+    (lambda s: s["fan"].update(CRAC_01=1.5), "팬"),
+    (lambda s: s.update(remove=["Rack_01", "Rack_02", "Rack_03", "Rack_04", "Rack_05"]), "제거한 랙"),
+    (lambda s: s.update(remove=["Rack_99"]), "없는 랙"),
+])
+def test_out_of_range_input_falls_back_to_ours(env, edit, why):
+    d0 = env["d0"]
+    s = copy.deepcopy(env["specs"][d0["id"]])
+    edit(s)
+    r = env["p"].predict(s, env["ours0"], env["info"][d0["id"]])
+    assert r.fallback and why in r.reason
+    assert all(r.corrected[n] == env["ours0"][n] for n in r.corrected)  # 우리 솔버 값 그대로
+    assert all(v == "fallback" for v in r.level.values())
+    assert all(np.isnan(v) for v in r.sigma.values())
+
+
+def test_validation_mode_still_corrects_but_reports_reason(env):
+    d0 = env["d0"]
+    s = copy.deepcopy(env["specs"][d0["id"]])
+    s["row_power_kw"] = [20.0] + s["row_power_kw"][1:]
+    r = env["p"].predict(s, env["ours0"], env["info"][d0["id"]], enforce_range=False)
+    assert not r.fallback and "전력" in r.reason
+    assert any(abs(r.corrected[n] - env["ours0"][n]) > 1e-6 for n in r.corrected)
+
+
+def test_removed_racks_are_not_predicted(env):
+    d = next(x for x in env["data"] if env["specs"][x["id"]].get("remove"))
+    r = env["p"].predict(env["specs"][d["id"]], dict(zip(d["names"], d["ours"])), env["info"][d["id"]])
+    assert not set(env["specs"][d["id"]]["remove"]) & set(r.corrected)
+
+
+def test_save_and_load_roundtrip(env, tmp_path):
+    d0 = env["d0"]
+    path = tmp_path / "model.pkl"
+    env["p"].save(path)
+    q = pr.ResidualPredictor.load(path)
+    a = env["p"].predict(env["specs"][d0["id"]], env["ours0"], env["info"][d0["id"]])
+    b = q.predict(env["specs"][d0["id"]], env["ours0"], env["info"][d0["id"]])
+    assert all(abs(a.corrected[n] - b.corrected[n]) < 1e-9 for n in a.corrected)
+
+
+def test_confidence_level_boundaries():
+    assert pr.SIGMA_CAUTION < pr.SIGMA_LOW
+    assert pr.INTERVAL_K > 0 and pr.INTERVAL_FLOOR > 0
