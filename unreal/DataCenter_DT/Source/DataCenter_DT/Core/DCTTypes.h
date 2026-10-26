@@ -19,6 +19,18 @@ enum class EDCTQuality : uint8
 	Stale,
 };
 
+// 보정 모델(L2)이 붙이는 신뢰 등급. 값이 없으면 None(보정 모델을 쓰지 않은 센서). docs/11 4.1장.
+enum class EDCTConfidence : uint8
+{
+	None,
+	Ok,
+	Caution,
+	Low,
+	Fallback, // 학습 범위 밖이라 보정하지 않은 값
+};
+
+DATACENTER_DT_API EDCTConfidence DCTConfidenceFromString(const FString& Text);
+DATACENTER_DT_API const TCHAR* DCTConfidenceToString(EDCTConfidence Confidence);
 DATACENTER_DT_API EDCTAlarmState DCTAlarmFromString(const FString& Text);
 DATACENTER_DT_API EDCTQuality DCTQualityFromString(const FString& Text);
 DATACENTER_DT_API const TCHAR* DCTAlarmToString(EDCTAlarmState State);
@@ -49,6 +61,10 @@ struct FDCTSensorSample
 	EDCTQuality Quality = EDCTQuality::Stale;
 	EDCTAlarmState Alarm = EDCTAlarmState::Normal;
 	FDateTime Timestamp = FDateTime(0); // 0이면 시각 없음
+	// 선택: 90% 구간과 신뢰 등급(보정 모델이 붙인 센서에만 있다). 값의 알람, 품질 판정에는 쓰지 않는다.
+	TOptional<double> Lower;
+	TOptional<double> Upper;
+	EDCTConfidence Confidence = EDCTConfidence::None;
 };
 
 struct FDCTAlarmEvent

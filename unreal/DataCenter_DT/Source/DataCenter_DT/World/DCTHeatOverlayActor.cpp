@@ -1,6 +1,7 @@
 #include "World/DCTHeatOverlayActor.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Core/DCTConfidence.h"
 #include "Core/DCTTempGradient.h"
 #include "Data/DCTConnectionSubsystem.h"
 #include "Engine/GameInstance.h"
@@ -104,6 +105,22 @@ void ADCTHeatOverlayActor::EnsurePlate(const FString& SensorId)
 	UMaterialInstanceDynamic* Material = UMaterialInstanceDynamic::Create(BaseMaterial, this);
 	Plate->SetMaterial(0, Material);
 	Materials.Add(SensorId, Material);
+
+	// 신뢰 막대: 판 윗면 위. 처음에는 숨기고, 구간과 등급이 오면 보인다.
+	UStaticMeshComponent* Bar = NewObject<UStaticMeshComponent>(this, *FString::Printf(TEXT("Bar_%s"), *SensorId));
+	Bar->SetStaticMesh(CubeMesh);
+	Bar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Bar->SetCastShadow(false);
+	Bar->SetupAttachment(GetRootComponent());
+	Bar->RegisterComponent();
+	Bar->SetVisibility(false);
+	FTransform BarTransform = Anchor->GetComponentTransform();
+	BarTransform.AddToTranslation(BarTransform.GetRotation().RotateVector(FVector(0.0, 0.0, PlateCenterOffsetZCm + PlateSizeCm.Z * 0.5 + ConfidenceBarHeightCm * 0.5 + 1.0)));
+	BarBase.Add(SensorId, BarTransform);
+	UMaterialInstanceDynamic* BarMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, this);
+	Bar->SetMaterial(0, BarMaterial);
+	Bars.Add(SensorId, Bar);
+	BarMaterials.Add(SensorId, BarMaterial);
 	if (Materials.Num() % 20 == 0)
 	{
 		UE_LOG(LogDCT, Log, TEXT("온도 표시: 판 %d개를 세웠다"), Materials.Num());
@@ -116,5 +133,17 @@ void ADCTHeatOverlayActor::HandleSample(const FDCTSensorSample& Sample)
 	if (TObjectPtr<UMaterialInstanceDynamic>* Material = Materials.Find(Sample.SensorId))
 	{
 		(*Material)->SetVectorParameterValue(TEXT("Color"), DCTTempGradient::ForSample(Sample, ColdValue, HotValue));
+	}
+	if (TObjectPtr<UStaticMeshComponent>* Bar = Bars.Find(Sample.SensorId))
+	{
+		const double Fraction = bShowConfidenceBar ? DCTConfidence::BarFraction(Sample, ConfidenceFullWidth) : 0.0;
+		(*Bar)->SetVisibility(Fraction > 0.0);
+		if (Fraction > 0.0)
+		{
+			FTransform Transform = BarBase.FindRef(Sample.SensorId);
+			Transform.SetScale3D(FVector(PlateSizeCm.X * Fraction, PlateSizeCm.Y, ConfidenceBarHeightCm) / 100.0);
+			(*Bar)->SetWorldTransform(Transform);
+			BarMaterials.FindRef(Sample.SensorId)->SetVectorParameterValue(TEXT("Color"), DCTConfidence::ColorFor(Sample.Confidence));
+		}
 	}
 }

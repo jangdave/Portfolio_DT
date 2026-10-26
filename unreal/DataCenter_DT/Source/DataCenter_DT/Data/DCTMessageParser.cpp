@@ -58,6 +58,16 @@ namespace
 		FString Alarm;
 		Out.Alarm = Obj->TryGetStringField(TEXT("alarm"), Alarm) ? DCTAlarmFromString(Alarm) : EDCTAlarmState::Normal;
 		Out.Timestamp = ParseTime(Obj, TEXT("ts"));
+		// 선택 필드: 구간은 숫자 둘이고 lower <= upper일 때만 받는다. 형식이 틀리면 무시하고 값은 그대로 쓴다.
+		double Lower = 0.0;
+		double Upper = 0.0;
+		if (ReadNumber(Obj, TEXT("lower"), Lower) && ReadNumber(Obj, TEXT("upper"), Upper) && Lower <= Upper)
+		{
+			Out.Lower = Lower;
+			Out.Upper = Upper;
+		}
+		FString Confidence;
+		Out.Confidence = Obj->TryGetStringField(TEXT("confidence"), Confidence) ? DCTConfidenceFromString(Confidence) : EDCTConfidence::None;
 		return true;
 	}
 
