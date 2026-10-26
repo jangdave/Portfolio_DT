@@ -56,6 +56,16 @@ void FDCTSampleStore::Apply(const FDCTSensorSample& Sample)
 	}
 }
 
+int32 FDCTSampleStore::CountConfidence(EDCTConfidence Confidence) const
+{
+	int32 Count = 0;
+	for (const TPair<FString, FDCTSensorSample>& Pair : LatestById)
+	{
+		Count += (Pair.Value.Confidence == Confidence) ? 1 : 0;
+	}
+	return Count;
+}
+
 void FDCTSampleStore::Clear()
 {
 	LatestById.Reset();
