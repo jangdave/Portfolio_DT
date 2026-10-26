@@ -291,8 +291,10 @@ void UDCTConnectionSubsystem::Tick(float DeltaTime)
 
 FString UDCTConnectionSubsystem::DescribeStatus() const
 {
-	return FString::Printf(TEXT("상태: %s | 센서 %d개 | 받은 메시지 %d건 | 읽기 실패 %d건 | 목록에 없는 센서 %d건 | 알람 %d개(주의 %d, 위험 %d) | 시나리오: %s"),
+	return FString::Printf(TEXT("상태: %s | 센서 %d개 | 받은 메시지 %d건 | 읽기 실패 %d건 | 목록에 없는 센서 %d건 | 알람 %d개(주의 %d, 위험 %d) | 신뢰 등급 ok %d, caution %d, low %d, fallback %d | 시나리오: %s"),
 		StateName(State), SensorHub.Registry().Num(), NumMessages, NumParseErrors, SensorHub.NumUnknownSensorDrops(),
 		SensorHub.AlarmModel().ActiveSensors().Num(), SensorHub.AlarmModel().CountOf(EDCTAlarmState::Warn), SensorHub.AlarmModel().CountOf(EDCTAlarmState::Critical),
+		SensorHub.Store().CountConfidence(EDCTConfidence::Ok), SensorHub.Store().CountConfidence(EDCTConfidence::Caution),
+		SensorHub.Store().CountConfidence(EDCTConfidence::Low), SensorHub.Store().CountConfidence(EDCTConfidence::Fallback),
 		SensorHub.CurrentScenario().IsEmpty() ? TEXT("없음") : *SensorHub.CurrentScenario());
 }

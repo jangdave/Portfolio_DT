@@ -39,6 +39,8 @@ public:
 	// 오래된 것부터 순서대로
 	TArray<FDCTSensorSample> History(const FString& SensorId) const;
 	int32 NumSensors() const { return LatestById.Num(); }
+	// 마지막 값이 이 신뢰 등급인 센서 수(보정 모델이 붙인 센서만 등급이 있다)
+	int32 CountConfidence(EDCTConfidence Confidence) const;
 
 private:
 	int32 HistoryCapacity;
