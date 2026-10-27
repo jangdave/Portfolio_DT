@@ -1,5 +1,5 @@
 {
- "result_time": "3500",
+ "result_time": "5500",
  "dx_m": 0.1,
  "rack_inlet_anchor_C": {
   "min": 18.1,
@@ -35,6 +35,6 @@
  },
  "T_all_cells_C": {
   "min": 18.0,
-  "max": 35.64
+  "max": 35.65
  }
 }

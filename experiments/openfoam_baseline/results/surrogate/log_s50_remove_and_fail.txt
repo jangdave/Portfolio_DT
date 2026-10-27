@@ -1,0 +1,13 @@
+cells:            574500
+smoothSolver:  Solving for Uz, Initial residual = 7.221295e-08, Final residual = 7.178433e-09, No Iterations 1
+smoothSolver:  Solving for T, Initial residual = 1.922735e-06, Final residual = 1.255401e-07, No Iterations 3
+GAMG:  Solving for p_rgh, Initial residual = 0.0008580426, Final residual = 3.161961e-05, No Iterations 2
+smoothSolver:  Solving for epsilon, Initial residual = 1.941956e-07, Final residual = 1.384267e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 4.485817e-07, Final residual = 4.430467e-08, No Iterations 1
+smoothSolver:  Solving for Ux, Initial residual = 9.225356e-08, Final residual = 9.002882e-09, No Iterations 1
+smoothSolver:  Solving for Uy, Initial residual = 8.981539e-09, Final residual = 8.981539e-09, No Iterations 0
+smoothSolver:  Solving for Uz, Initial residual = 7.332589e-08, Final residual = 7.294606e-09, No Iterations 1
+smoothSolver:  Solving for T, Initial residual = 1.920919e-06, Final residual = 1.25945e-07, No Iterations 3
+GAMG:  Solving for p_rgh, Initial residual = 0.0008259318, Final residual = 3.224148e-05, No Iterations 2
+smoothSolver:  Solving for epsilon, Initial residual = 1.944475e-07, Final residual = 1.394917e-08, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 4.483834e-07, Final residual = 4.438926e-08, No Iterations 1

@@ -139,16 +139,6 @@
   "nice": 5,
   "finished": "2026-10-21 16:49:57"
  },
- "s15_same_aisle_two_off": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1203.8,
-  "total_wall_s": 1216.9,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 17:10:14"
- },
  "s16_same_aisle_two_off": {
   "status": "done",
   "converged": true,
@@ -179,16 +169,6 @@
   "nice": 5,
   "finished": "2026-10-21 18:05:34"
  },
- "s19_same_aisle_two_off": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1146.7,
-  "total_wall_s": 1160.6,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 18:24:55"
- },
  "s20_same_aisle_two_off": {
   "status": "done",
   "converged": true,
@@ -218,36 +198,6 @@
   "cores": 16,
   "nice": 5,
   "finished": "2026-10-21 19:16:31"
- },
- "s23_diff_aisle_two_off": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1169.3,
-  "total_wall_s": 1183.3,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 19:36:14"
- },
- "s24_diff_aisle_two_off": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1183.2,
-  "total_wall_s": 1196.0,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 19:56:11"
- },
- "s25_diff_aisle_two_off": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1149.4,
-  "total_wall_s": 1163.4,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 20:15:34"
  },
  "s26_diff_aisle_two_off": {
   "status": "done",
@@ -309,16 +259,6 @@
   "nice": 5,
   "finished": "2026-10-21 21:26:02"
  },
- "s32_fan_derated": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1163.9,
-  "total_wall_s": 1177.6,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 21:45:39"
- },
  "s33_fan_derated": {
   "status": "done",
   "converged": true,
@@ -328,16 +268,6 @@
   "cores": 16,
   "nice": 5,
   "finished": "2026-10-21 21:56:48"
- },
- "s34_fan_derated": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1144.9,
-  "total_wall_s": 1158.9,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 22:16:07"
  },
  "s35_remove_and_fail": {
   "status": "done",
@@ -349,35 +279,15 @@
   "nice": 5,
   "finished": "2026-10-21 22:28:36"
  },
- "s36_remove_and_fail": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1150.9,
-  "total_wall_s": 1162.2,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 22:47:59"
- },
- "s37_remove_and_fail": {
-  "status": "not_converged",
-  "converged": false,
-  "iterations": 3500,
-  "solve_wall_s": 1149.9,
-  "total_wall_s": 1164.0,
-  "cores": 16,
-  "nice": 5,
-  "finished": "2026-10-21 23:07:23"
- },
  "s38_remove_and_fail": {
   "status": "failed",
   "converged": false,
   "iterations": 1,
-  "solve_wall_s": 0.9,
-  "total_wall_s": 9.2,
+  "solve_wall_s": 0.8,
+  "total_wall_s": 10.7,
   "cores": 16,
   "nice": 5,
-  "finished": "2026-10-21 23:07:33"
+  "finished": "2026-10-27 03:45:25"
  },
  "s39_remove_and_fail": {
   "status": "done",
@@ -393,11 +303,11 @@
   "status": "failed",
   "converged": false,
   "iterations": 1,
-  "solve_wall_s": 0.9,
-  "total_wall_s": 10.6,
+  "solve_wall_s": 0.8,
+  "total_wall_s": 10.7,
   "cores": 16,
   "nice": 5,
-  "finished": "2026-10-21 23:19:36"
+  "finished": "2026-10-27 03:45:36"
  },
  "test_B": {
   "status": "done",
@@ -408,5 +318,295 @@
   "cores": 16,
   "nice": 5,
   "finished": "2026-10-22 00:21:10"
+ },
+ "s41_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3144,
+  "solve_wall_s": 1002.7,
+  "total_wall_s": 1017.5,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 18:53:57"
+ },
+ "s42_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3068,
+  "solve_wall_s": 979.7,
+  "total_wall_s": 994.5,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 19:10:32"
+ },
+ "s43_same_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1122.0,
+  "total_wall_s": 1134.2,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 19:29:27"
+ },
+ "s44_same_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1117.8,
+  "total_wall_s": 1129.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 19:48:17"
+ },
+ "s45_same_aisle_two_off": {
+  "status": "done",
+  "converged": true,
+  "iterations": 3083,
+  "solve_wall_s": 982.3,
+  "total_wall_s": 996.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 20:04:54"
+ },
+ "s46_same_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1122.7,
+  "total_wall_s": 1136.3,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 20:23:50"
+ },
+ "s47_remove_and_fail": {
+  "status": "failed",
+  "converged": false,
+  "iterations": 1,
+  "solve_wall_s": 0.9,
+  "total_wall_s": 9.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 03:45:46"
+ },
+ "s48_remove_and_fail": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1104.3,
+  "total_wall_s": 1117.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 20:42:39"
+ },
+ "s49_remove_and_fail": {
+  "status": "failed",
+  "converged": false,
+  "iterations": 1,
+  "solve_wall_s": 0.8,
+  "total_wall_s": 10.8,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 03:45:57"
+ },
+ "s50_remove_and_fail": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1105.8,
+  "total_wall_s": 1119.3,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 21:01:29"
+ },
+ "s51_remove_and_fail": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1884,
+  "solve_wall_s": 597.1,
+  "total_wall_s": 610.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 21:11:40"
+ },
+ "s52_remove_and_fail": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1100.6,
+  "total_wall_s": 1114.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 21:30:14"
+ },
+ "s53_one_crac_off_high_power": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1104.1,
+  "total_wall_s": 1117.7,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 21:48:52"
+ },
+ "s54_one_crac_off_high_power": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1118.3,
+  "total_wall_s": 1132.0,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 22:07:45"
+ },
+ "s55_one_crac_off_high_power": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1904,
+  "solve_wall_s": 604.3,
+  "total_wall_s": 618.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 22:18:03"
+ },
+ "s56_one_crac_off_high_power": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2660,
+  "solve_wall_s": 849.3,
+  "total_wall_s": 863.1,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 22:32:26"
+ },
+ "s57_fan_derated_deep": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2054,
+  "solve_wall_s": 660.1,
+  "total_wall_s": 674.0,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 22:43:41"
+ },
+ "s58_fan_derated_deep": {
+  "status": "done",
+  "converged": true,
+  "iterations": 1931,
+  "solve_wall_s": 614.2,
+  "total_wall_s": 627.9,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 22:54:09"
+ },
+ "s59_fan_derated_deep": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 3500,
+  "solve_wall_s": 1109.8,
+  "total_wall_s": 1123.2,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 23:12:52"
+ },
+ "s60_fan_derated_deep": {
+  "status": "done",
+  "converged": true,
+  "iterations": 2313,
+  "solve_wall_s": 736.5,
+  "total_wall_s": 750.3,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 23:25:23"
+ },
+ "s15_same_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1749.7,
+  "total_wall_s": 1763.7,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-26 23:54:47"
+ },
+ "s19_same_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1761.1,
+  "total_wall_s": 1774.4,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 00:24:22"
+ },
+ "s23_diff_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1773.5,
+  "total_wall_s": 1787.4,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 00:54:10"
+ },
+ "s24_diff_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1777.6,
+  "total_wall_s": 1791.5,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 01:24:01"
+ },
+ "s25_diff_aisle_two_off": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1753.6,
+  "total_wall_s": 1767.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 01:53:29"
+ },
+ "s32_fan_derated": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1765.6,
+  "total_wall_s": 1778.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 02:23:08"
+ },
+ "s34_fan_derated": {
+  "status": "done",
+  "converged": true,
+  "iterations": 4274,
+  "solve_wall_s": 1371.7,
+  "total_wall_s": 1383.7,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 02:46:12"
+ },
+ "s36_remove_and_fail": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1751.6,
+  "total_wall_s": 1764.4,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 03:15:37"
+ },
+ "s37_remove_and_fail": {
+  "status": "not_converged",
+  "converged": false,
+  "iterations": 5500,
+  "solve_wall_s": 1763.6,
+  "total_wall_s": 1776.6,
+  "cores": 16,
+  "nice": 5,
+  "finished": "2026-10-27 03:45:14"
  }
 }
